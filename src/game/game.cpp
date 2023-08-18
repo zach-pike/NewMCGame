@@ -11,8 +11,13 @@ using namespace glm;
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
 
-Game::Game() {}
+Game::Game():
+    player{glm::vec3(4, 3, 3), glm::vec3(1, 0, 0)} {}
 Game::~Game() {}
+
+GLFWwindow* Game::getGLFWwindow() {
+    return game_window;
+}
 
 void Game::gameloop() {
     glewExperimental = true; // Needed for core profile
@@ -59,9 +64,9 @@ void Game::gameloop() {
 	glDepthFunc(GL_LESS); 
 
 	static const GLfloat g_vertex_buffer_data[] = {
-        -1.f, -1.f,
-         1.f,  1.f,
-         1.f, -1.f
+        -1.f, -1.f, 0.f,
+         1.f,  1.f, 0.f,
+         1.f, -1.f, 0.f
      };
 
 	// Two UV coordinatesfor each vertex. They were created with Blender.
@@ -71,19 +76,9 @@ void Game::gameloop() {
         1.f, 0.f
     };
 
-    glm::mat4 View = glm::lookAt(
-		glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
-		glm::vec3(0,0,0), // and looks at the origin
-		glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-	);
+    const float aspect = 4.f / 3.f;
+    const float fov = 45.f;
 
-    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model      = glm::mat4(1.0f);
-
-
-	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 MVP        = Projection * View * Model; // Remember, matrix multiplication is the other way around
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
     GLuint Texture = LoadBMP("/home/zachary/Desktop/mc-clone/resources/Chunk.bmp");
@@ -97,12 +92,14 @@ void Game::gameloop() {
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
 	glUniform1i(TextureID, 0);
 
-    GLuint vertexbuffer;
+    // Buffers on the gpu
+    GLuint vertexbuffer, uvbuffer;
+
+    // Generate and upload the verticies
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
-    GLuint uvbuffer;
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
@@ -110,8 +107,12 @@ void Game::gameloop() {
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(game_window, GLFW_STICKY_KEYS, GL_TRUE);
     do {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        player.updatePlayer(*this);
+
+        // Get the mvp from the player 
+        auto MVP = player.getMVPmatrix(aspect, fov);
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         // Draw
@@ -130,7 +131,7 @@ void Game::gameloop() {
 		glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
         glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		    1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			2,                  // size
 			GL_FLOAT,           // type
 			GL_FALSE,           // normalized?
@@ -153,6 +154,7 @@ void Game::gameloop() {
     glDeleteBuffers(1, &vertexbuffer);
     glDeleteBuffers(1, &uvbuffer);
     glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture);
 	glDeleteVertexArrays(1, &VertexArrayID);
 	glDeleteProgram(programID);
 
