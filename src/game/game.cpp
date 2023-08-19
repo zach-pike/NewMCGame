@@ -64,8 +64,8 @@ void Game::gameloop() {
     glClearColor(.65f, .89f, 1.f, 1.f);
 
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(game_window, GLFW_STICKY_KEYS, GL_TRUE);
