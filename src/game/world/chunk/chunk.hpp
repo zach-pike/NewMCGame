@@ -10,6 +10,8 @@
 class Chunk {
 private:
     std::array<Block, 16*16*16> blocks;
+
+    void blockDrawer(Vertex* vtx_data, UV* uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const;
 public:
     Chunk();
     ~Chunk();

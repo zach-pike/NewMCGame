@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
 
 Player::Player(glm::vec3 _position, glm::vec3 _looking):
     position(_position),
@@ -21,7 +22,8 @@ void Player::updatePlayer(Game& game) {
     int hheight = height / 2;
 
     // First, do the player look code
-    static double pitch, yaw = 0;
+    static double pitch = 2.8f;
+    static double yaw = 0;
     static double mx, my = 0.f;
 
     glfwGetCursorPos(game.getGLFWwindow(), &mx, &my);
@@ -31,7 +33,9 @@ void Player::updatePlayer(Game& game) {
     glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
 
     yaw += mx * .01;
-    pitch += my * .01;
+
+    // Lock the camera to almost all the way down and almost all the way up
+    pitch = std::min((double)4.6f, std::max((double)1.58f, pitch + my * .01));
 
     looking = glm::vec3(cos(pitch)*cos(yaw), sin(pitch), sin(yaw) * cos(pitch));
 
@@ -42,6 +46,25 @@ void Player::updatePlayer(Game& game) {
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS) {
         position -= looking;
+    }
+
+    static bool wireframeButtonWasPressed = false;
+    static bool wireframeEnabled = false;
+
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_R) == GLFW_PRESS) {
+        if (wireframeButtonWasPressed == false) {
+            wireframeButtonWasPressed = true;
+            
+            wireframeEnabled = !wireframeEnabled;
+
+            if (wireframeEnabled) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            } else {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+        }
+    } else {
+        wireframeButtonWasPressed = false;
     }
 }
 

@@ -1,11 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
-struct Vertex {
-    GLfloat x, y, z;
-} __attribute__((packed));
-
-struct UV {
-    GLfloat u, v;
-} __attribute__((packed));
+using Vertex = glm::vec3;
+using UV = glm::vec2;
+using WorldPosition = glm::vec3;

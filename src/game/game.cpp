@@ -10,9 +10,10 @@ using namespace glm;
 
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
+#include "world/chunk/chunk.hpp"
 
 Game::Game():
-    player{glm::vec3(4, 3, 3), glm::vec3(1, 0, 0)} {}
+    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)} {}
 Game::~Game() {}
 
 GLFWwindow* Game::getGLFWwindow() {
@@ -22,9 +23,7 @@ GLFWwindow* Game::getGLFWwindow() {
 void Game::gameloop() {
     glewExperimental = true; // Needed for core profile
     
-    if (!glfwInit()) {
-        throw std::runtime_error("Unable to initialize GLFW!");
-    }
+    if (!glfwInit()) throw std::runtime_error("Unable to initialize GLFW!");
 
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
@@ -34,7 +33,7 @@ void Game::gameloop() {
 
     // Open a window and create its OpenGL context
      // (In the accompanying source code, this variable is global for simplicity)
-    game_window = glfwCreateWindow( 1024, 768, "MC Game", NULL, NULL);
+    game_window = glfwCreateWindow( 1300, 768, "MC Game", NULL, NULL);
 
     if (game_window == NULL) {
         throw std::runtime_error("Unable to create GLFW window");
@@ -44,53 +43,58 @@ void Game::gameloop() {
     glfwMakeContextCurrent(game_window); // Initialize GLEW
     glewExperimental=true; // Needed in core profile
 
-    if (glewInit() != GLEW_OK) {
-        throw std::runtime_error("Unable to initialize GLEW");
-    }
+    if (glewInit() != GLEW_OK) throw std::runtime_error("Unable to initialize GLEW");
 
     // OpenGL stuff
     GLuint VertexArrayID;
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
+    // Load the shaders for the game
     GLuint programID = LoadShaders(
         "/home/zachary/Desktop/mc-clone/resources/shaders/vertex.glsl",
         "/home/zachary/Desktop/mc-clone/resources/shaders/fragment.glsl");
     glUseProgram(programID);
 
-    glClearColor(.65f, .89f, 1.f, 1.f);
-    glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
+    // Set some OpenGL settings
+    // Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS); 
 
-	static const GLfloat g_vertex_buffer_data[] = {
-        -1.f, -1.f, 0.f,
-         1.f,  1.f, 0.f,
-         1.f, -1.f, 0.f
-     };
+    // Set background color
+    glClearColor(.65f, .89f, 1.f, 1.f);
 
-	// Two UV coordinatesfor each vertex. They were created with Blender.
-	static const GLfloat g_uv_buffer_data[] = {
-        0.f, 1.f,
-        1.f, 1.f,
-        1.f, 0.f
-    };
+    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK);
 
-    const float aspect = 4.f / 3.f;
+    // Ensure we can capture the escape key being pressed below
+    glfwSetInputMode(game_window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    // Visual settings
+    const float aspect = 1300.f / 768.f;
     const float fov = 45.f;
 
+    // ID for setting the MVP matrix
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
+    // --- TEXTURE STUFF ---
+    // Texture atlas for game
     GLuint Texture = LoadBMP("/home/zachary/Desktop/mc-clone/resources/Chunk.bmp");
-	
-	// Get a handle for our "myTextureSampler" uniform
+	// ID for setting the texture
 	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-
     // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, Texture);
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
 	glUniform1i(TextureID, 0);
+
+    // Data to be buffered
+    std::vector<Vertex> vertex_data;
+    std::vector<UV> uv_data;
+
+    // Generate test chunk and data
+    Chunk chunk;
+    chunk.generateVertices(vertex_data, uv_data);
 
     // Buffers on the gpu
     GLuint vertexbuffer, uvbuffer;
@@ -98,14 +102,13 @@ void Game::gameloop() {
     // Generate and upload the verticies
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(Vertex), vertex_data.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, uv_data.size() * sizeof(UV), uv_data.data(), GL_STATIC_DRAW);
 
-    // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(game_window, GLFW_STICKY_KEYS, GL_TRUE);
+    // Render Loop
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -140,7 +143,7 @@ void Game::gameloop() {
 		);
 
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); // 3 indices starting at 0 -> 1 triangle
+		glDrawArrays(GL_TRIANGLES, 0, vertex_data.size() * 3); // 3 indices starting at 0 -> 1 triangle
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

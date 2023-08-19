@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tuple>
-
+#include <glm/glm.hpp>
 class Block {
 public:
     enum class BlockType {
@@ -9,13 +9,15 @@ public:
         STONE
     };
 
-    using UVTexture = std::tuple<int, int>;
+    using UVTexture = glm::vec2;
 
 private:
     BlockType blockType;
 public:
-    Block(BlockType bt = BlockType::AIR);
+    Block(BlockType bt = BlockType::STONE);
     ~Block();
+
+    BlockType getBlockType() const;
 
     UVTexture getUVCoords() const;
 };
