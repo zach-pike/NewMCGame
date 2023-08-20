@@ -56,6 +56,14 @@ void Player::updatePlayer(Game& game) {
         position -= glm::vec3(looking.z, 0, -looking.x);
     }
 
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
+        position += glm::vec3(0, 1, 0);
+    }
+
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        position -= glm::vec3(0, 1, 0);
+    }
+
     static bool wireframeButtonWasPressed = false;
     static bool wireframeEnabled = false;
 
