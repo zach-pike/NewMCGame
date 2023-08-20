@@ -6,6 +6,8 @@ class Block {
 public:
     enum class BlockType : std::uint8_t {
         AIR,
+        DIRT,
+        GRASS,
         STONE
     };
 
@@ -14,10 +16,19 @@ public:
 private:
     BlockType blockType;
 public:
-    Block(BlockType bt = BlockType::STONE);
+    Block(BlockType bt = BlockType::GRASS);
     ~Block();
+
+    enum class BlockFace {
+        NORTH, // +X
+        SOUTH, // -X
+        EAST,  // +Z
+        WEST,  // -Z
+        TOP,   // +Y
+        BOTTOM // -Y
+    };
 
     BlockType getBlockType() const;
 
-    UVTexture getUVCoords() const;
+    UVTexture getUVCoords(BlockFace) const;
 };

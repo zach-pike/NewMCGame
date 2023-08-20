@@ -57,23 +57,17 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
         Vertex(x, y + 1, z + 1),     Vertex(x + 1, y + 1, z + 1), Vertex(x, y + 1, z),
     };
 
-    auto blockBaseUV = block.getUVCoords();
-
-    const std::array<UV, 6> oddUVs = {
-        blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
-        blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
-    };
-
-    const std::array<UV, 6> evenUVs = {
-        blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
-        blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
-    };
-
     using namespace glm;
 
     // +X Face Check
     if (cPos.x >= 15 || getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == Block::BlockType::AIR) {
         std::copy(xPos.begin(), xPos.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::NORTH);
+
+        const std::array<UV, 6> oddUVs = {
+            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
+            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
+        };
         std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
@@ -81,6 +75,11 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     // -X Face Check
     if (cPos.x < 1 || getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == Block::BlockType::AIR) {
         std::copy(xNeg.begin(), xNeg.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::SOUTH);
+        const std::array<UV, 6> evenUVs = {
+            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
+            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
+        };
         std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
@@ -88,6 +87,11 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     // +Z Face Check
     if (cPos.z >= 15 || getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == Block::BlockType::AIR) {
         std::copy(zPos.begin(), zPos.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::EAST);
+        const std::array<UV, 6> evenUVs = {
+            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
+            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
+        };
         std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
@@ -95,6 +99,12 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     // -Z Face Check
     if (cPos.z < 1 || getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == Block::BlockType::AIR) {
         std::copy(zNeg.begin(), zNeg.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::WEST);
+
+        const std::array<UV, 6> oddUVs = {
+            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
+            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
+        };
         std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
@@ -102,6 +112,11 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     // +Y Face Check
     if (cPos.y >= 15 || getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == Block::BlockType::AIR) {
         std::copy(yPos.begin(), yPos.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::TOP);
+        const std::array<UV, 6> evenUVs = {
+            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
+            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
+        };
         std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
@@ -109,6 +124,12 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     // -Y Face Check
     if (cPos.y < 1 || getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == Block::BlockType::AIR) {
         std::copy(yNeg.begin(), yNeg.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(Block::BlockFace::BOTTOM);
+
+        const std::array<UV, 6> oddUVs = {
+            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
+            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
+        };
         std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
         index += faceSideLen;
     }
