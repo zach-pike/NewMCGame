@@ -13,9 +13,7 @@ using namespace glm;
 
 Game::Game():
     player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)}
-{
-    world.generateWorld(2, 2, 2);
-}
+{}
 Game::~Game() {}
 
 GLFWwindow* Game::getGLFWwindow() {
@@ -98,78 +96,62 @@ void Game::gameloop() {
 	// Set our "myTextureSampler" sampler to use Texture Unit 0
 	glUniform1i(TextureID, 0);
 
-    // Data to be buffered
-    std::vector<Vertex> vertex_data;
-    std::vector<UV> uv_data;
+    // Generate world
+    world.generateWorld(5, 5, 5);
+
+    // Chunk buffers
+    auto chunks = world.getChunksReference();
 
     // Generate test chunk and data
-    world.getBlock(glm::vec3(31, 31, 31)) = Block(Block::BlockType::AIR);
-    world.generateWorldModel(vertex_data, uv_data);
+    // world.getBlock(glm::vec3(31, 31, 31)) = Block(Block::BlockType::AIR);
 
     // Buffers on the gpu
-    GLuint vertexbuffer, uvbuffer;
-
-    // Generate and upload the verticies
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(Vertex), vertex_data.data(), GL_STATIC_DRAW);
-
-	glGenBuffers(1, &uvbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, uv_data.size() * sizeof(UV), uv_data.data(), GL_STATIC_DRAW);
-
     // Render Loop
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         player.updatePlayer(*this);
-
-        if (world.getUpdateFlag()) {
-            vertex_data.clear();
-            uv_data.clear();
-
-            world.generateWorldModel(vertex_data, uv_data);
-
-            glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	        glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(Vertex), vertex_data.data(), GL_STATIC_DRAW);
-
-            glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	        glBufferData(GL_ARRAY_BUFFER, uv_data.size() * sizeof(UV), uv_data.data(), GL_STATIC_DRAW);
-        }
+        world.update();
 
         // Get the mvp from the player 
         auto MVP = player.getMVPmatrix(aspect, fov);
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
-        // Draw
-        // 1rst attribute buffer : vertices
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
-			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			3,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
 
-		glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-        glVertexAttribPointer(
-		    1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-			2,                  // size
-			GL_FLOAT,           // type
-			GL_FALSE,           // normalized?
-			0,                  // stride
-			(void*)0            // array buffer offset
-		);
+        for (Chunk* chunk : chunks) {
+            auto bufferInfo = chunk->getBufferInfo();
+            // Draw
+            // 1rst attribute buffer : vertices
+            
+            glEnableVertexAttribArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.vertexBuffer);
+            glVertexAttribPointer(
+                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+            );
 
-		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, vertex_data.size() * 3); // 3 indices starting at 0 -> 1 triangle
+            glEnableVertexAttribArray(1);
+            glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+            glVertexAttribPointer(
+                1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                2,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+            );
 
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+            // Draw the triangle !
+            glDrawArrays(GL_TRIANGLES, 0, chunk->getNVertices()); // 3 indices starting at 0 -> 1 triangle
+
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+        }
+
 
         // Swap buffers
         glfwSwapBuffers(game_window);
@@ -177,8 +159,6 @@ void Game::gameloop() {
 
     } while (glfwGetKey(game_window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(game_window) == 0);
 
-    glDeleteBuffers(1, &vertexbuffer);
-    glDeleteBuffers(1, &uvbuffer);
     glDeleteProgram(programID);
     glDeleteTextures(1, &Texture);
 	glDeleteVertexArrays(1, &VertexArrayID);

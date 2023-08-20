@@ -8,6 +8,9 @@
 #include <iostream>
 #include "ray/ray.hpp"
 
+const float mouseSens = .005f;
+const float moveSpeed = .25f;
+
 Player::Player(glm::vec3 _position, glm::vec3 _looking):
     position(_position),
     looking(_looking) {}
@@ -33,36 +36,36 @@ void Player::updatePlayer(Game& game) {
 
     glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
 
-    yaw += mx * .01;
+    yaw += mx * mouseSens;
 
     // Lock the camera to almost all the way down and almost all the way up
-    pitch = std::min((double)4.6f, std::max((double)1.58f, pitch + my * .01));
+    pitch = std::min(1.5f*M_PI - .01, std::max((double)M_PI_2 + .01, pitch + my * mouseSens));
 
     looking = glm::vec3(cos(pitch)*cos(yaw), sin(pitch), sin(yaw) * cos(pitch));
 
     // Now player movement
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_W) == GLFW_PRESS) {
-        position += looking;
+        position += looking * moveSpeed;
     }
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS) {
-        position -= looking;
+        position -= looking * moveSpeed;
     }
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_A) == GLFW_PRESS) {
-        position += glm::vec3(looking.z, 0, -looking.x);
+        position += glm::vec3(looking.z, 0, -looking.x) * moveSpeed;
     }
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_D) == GLFW_PRESS) {
-        position -= glm::vec3(looking.z, 0, -looking.x);
+        position -= glm::vec3(looking.z, 0, -looking.x) * moveSpeed;
     }
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-        position += glm::vec3(0, 1, 0);
+        position += glm::vec3(0, 1, 0) * moveSpeed;
     }
 
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        position -= glm::vec3(0, 1, 0);
+        position -= glm::vec3(0, 1, 0) * moveSpeed;
     }
 
     static bool wireframeButtonWasPressed = false;
@@ -99,7 +102,7 @@ void Player::updatePlayer(Game& game) {
 }
 
 glm::mat4 Player::getMVPmatrix(float aspect, float fov) const {
-    auto projection = glm::perspective(glm::radians(fov), aspect, 0.1f, 100.0f);
+    auto projection = glm::perspective(glm::radians(fov), aspect, 0.01f, 1000.0f);
     auto view = glm::lookAt(
 		position, // Camera is at (4,3,3), in World Space
 		position + looking, // and looks at the origin

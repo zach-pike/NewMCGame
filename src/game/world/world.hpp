@@ -2,6 +2,7 @@
 
 #include <map>
 #include <tuple>
+#include <vector>
 
 #include "chunk/chunk.hpp"
 
@@ -14,15 +15,13 @@ private:
     int sizeY;
     int sizeZ;
 
-    bool updateFlag = false;
+    Chunk& getChunkFromWorldCoords(glm::vec3 pos);
 public:
     World();
     ~World();
 
-    Block& getBlock(glm::vec3 pos);
-
-    void setUpdateFlag();
-    bool getUpdateFlag();
+    Block getBlock(glm::vec3 pos);
+    void setBlock(glm::vec3 pos, Block block);
 
     // Returns true if the coordinates are in the world
     bool coordinatesInWorld(glm::vec3 pos);
@@ -30,5 +29,7 @@ public:
     // This could take awhile
     void generateWorld(int xs, int ys, int zs);
 
-    void generateWorldModel(std::vector<Vertex>& vertices, std::vector<UV>& uvs);
+    std::vector<Chunk*> getChunksReference();
+
+    void update();
 };

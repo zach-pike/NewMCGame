@@ -22,8 +22,7 @@ void Ray::tryBreakBlock(Game& game, float maxDist) {
         if (game.getWorld().coordinatesInWorld(position)
          && game.getWorld().getBlock(position).getBlockType() != Block::BlockType::AIR) {
 
-            game.getWorld().getBlock(position) = Block(Block::BlockType::AIR);
-            game.getWorld().setUpdateFlag(); // Tell draw loop to reload the mesh
+            game.getWorld().setBlock(position, Block(Block::BlockType::AIR));
             
             break;
         }

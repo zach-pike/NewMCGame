@@ -16,7 +16,7 @@ public:
 private:
     BlockType blockType;
 public:
-    Block(BlockType bt = BlockType::GRASS);
+    Block(BlockType bt = BlockType::AIR);
     ~Block();
 
     enum class BlockFace {

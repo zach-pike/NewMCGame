@@ -6,13 +6,48 @@
 
 Chunk::Chunk() {
     blocks.resize(16*16*16);
-}
-Chunk::~Chunk() {}
 
-Block& Chunk::getBlock(glm::vec3 localPos) {
+    glGenBuffers(1, &buffers.vertexBuffer);
+    glGenBuffers(1, &buffers.uvBuffer);
+}
+Chunk::Chunk(Chunk&& ochunk) {
+    blocks = ochunk.blocks;
+    buffers = ochunk.buffers;
+    nVertices = ochunk.nVertices;
+    meshUpdatedNeeded = ochunk.meshUpdatedNeeded;
+
+    ochunk._hasBeenMoved = true;
+}
+
+Chunk::~Chunk() {
+    if (!_hasBeenMoved) {
+        glDeleteBuffers(1, &buffers.vertexBuffer);
+        glDeleteBuffers(1, &buffers.uvBuffer);
+    }
+}
+
+bool Chunk::pendingMeshUpdate() const {
+    return meshUpdatedNeeded;
+}
+
+std::size_t Chunk::getNVertices() const {
+    return nVertices;
+}
+
+
+Block& Chunk::getBlockRefrence(glm::vec3 localPos) {
     int i = localPos.x + localPos.z * 16 + localPos.y * 16 * 16;
 
     return blocks.at(i);
+}
+
+Block Chunk::getBlock(glm::vec3 pos) {
+    return getBlockRefrence(pos);
+}
+
+void Chunk::setBlock(glm::vec3 pos, Block block) {
+    getBlockRefrence(pos) = block;
+    meshUpdatedNeeded = true;
 }
 
 void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const {
@@ -139,7 +174,16 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     }
 }
 
-void Chunk::generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs, glm::vec3 chunkPos) const {
+Chunk::BufferInfo Chunk::getBufferInfo() const {
+    return buffers;
+}
+
+void Chunk::update(glm::vec3 chunkPos) {
+    meshUpdatedNeeded = false;
+
+    std::vector<Vertex> vertices;
+    std::vector<UV> uvs;
+
     // Chunk generation code
     for (int y=0; y<16; y++) {
         for (int z=0; z<16; z++) {
@@ -159,4 +203,12 @@ void Chunk::generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs
             }
         }
     }
+
+    nVertices = vertices.size();
+
+	glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(UV), uvs.data(), GL_STATIC_DRAW);
 }

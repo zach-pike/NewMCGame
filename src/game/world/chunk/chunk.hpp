@@ -2,6 +2,7 @@
 
 #include <array>
 #include <vector>
+#include <GL/glew.h>
 
 #include "block/block.hpp"
 
@@ -10,15 +11,37 @@
 #include <vector>
 
 class Chunk {
+public:
+    struct BufferInfo {
+        GLuint vertexBuffer, uvBuffer;
+    };
+
 private:
+    bool _hasBeenMoved = false;
+
     std::vector<Block> blocks;
 
+    BufferInfo buffers;
+    std::size_t nVertices;
+
+    bool meshUpdatedNeeded = true;
+
     void blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const;
+
+    Block& getBlockRefrence(glm::vec3 pos);
 public:
     Chunk();
+    Chunk(Chunk&&);
     ~Chunk();
 
-    Block& getBlock(glm::vec3 localPos);
+    bool pendingMeshUpdate() const;
 
-    void generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs, glm::vec3 chunkPos) const;
+    std::size_t getNVertices() const;
+
+    Block getBlock(glm::vec3 localPos);
+    void setBlock(glm::vec3 localPos, Block block);
+
+    BufferInfo getBufferInfo() const;
+
+    void update(glm::vec3 chunkPos);
 };
