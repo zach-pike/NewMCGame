@@ -97,7 +97,7 @@ void Game::gameloop() {
 	glUniform1i(TextureID, 0);
 
     // Generate world
-    world.generateWorld(5, 5, 5);
+    world.generateWorld(10, 5, 10);
 
     // Chunk buffers
     auto chunks = world.getChunksReference();

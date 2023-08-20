@@ -26,9 +26,16 @@ private:
 
     bool meshUpdatedNeeded = true;
 
-    void blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const;
+    void blockDrawer(
+        std::array<Vertex, 36>& vtx_data,
+        std::array<UV, 36>& uv_data,
+        std::size_t& index,
+        glm::vec3 gPos, // Global coordinates of thr block (WorldPos)
+        glm::vec3 cPos, // Chunk position each axis that follows 0 <= x < 16
+        World& world
+    ) const;
 
-    Block& getBlockRefrence(glm::vec3 pos);
+    Block& getBlockReference(glm::vec3 pos);
 public:
     Chunk();
     Chunk(Chunk&&);
@@ -43,5 +50,5 @@ public:
 
     BufferInfo getBufferInfo() const;
 
-    void update(glm::vec3 chunkPos);
+    void update(glm::vec3 chunkPos, World& world);
 };

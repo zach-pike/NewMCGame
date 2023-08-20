@@ -1,7 +1,7 @@
 #include "chunk.hpp"
 
 #include <string.h>
-
+#include "../world.hpp"
 #include <stdexcept>
 
 Chunk::Chunk() {
@@ -35,22 +35,29 @@ std::size_t Chunk::getNVertices() const {
 }
 
 
-Block& Chunk::getBlockRefrence(glm::vec3 localPos) {
+Block& Chunk::getBlockReference(glm::vec3 localPos) {
     int i = localPos.x + localPos.z * 16 + localPos.y * 16 * 16;
 
     return blocks.at(i);
 }
 
 Block Chunk::getBlock(glm::vec3 pos) {
-    return getBlockRefrence(pos);
+    return getBlockReference(pos);
 }
 
 void Chunk::setBlock(glm::vec3 pos, Block block) {
-    getBlockRefrence(pos) = block;
+    getBlockReference(pos) = block;
     meshUpdatedNeeded = true;
 }
 
-void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const {
+void Chunk::blockDrawer(
+    std::array<Vertex, 36>& vtx_data,
+    std::array<UV, 36>& uv_data,
+    std::size_t& index,
+    glm::vec3 gPos,
+    glm::vec3 cPos,
+    World& world
+) const {
     auto getBlockInChunk = [&](glm::vec3 b_pos) {
         int i = b_pos.x + b_pos.z * 16 + b_pos.y * 16 * 16;
         return blocks.at(i);
@@ -178,7 +185,7 @@ Chunk::BufferInfo Chunk::getBufferInfo() const {
     return buffers;
 }
 
-void Chunk::update(glm::vec3 chunkPos) {
+void Chunk::update(glm::vec3 chunkPos, World& world) {
     meshUpdatedNeeded = false;
 
     std::vector<Vertex> vertices;
@@ -193,7 +200,7 @@ void Chunk::update(glm::vec3 chunkPos) {
 
                 std::size_t index = 0;
 
-                blockDrawer(vtx, uvx, index, glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z), glm::vec3(x, y, z));
+                blockDrawer(vtx, uvx, index, glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z), glm::vec3(x, y, z), world);
 
                 auto vtx_begin = vtx.begin();
                 auto uvx_begin = uvx.begin();

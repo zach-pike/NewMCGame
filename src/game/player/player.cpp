@@ -35,7 +35,7 @@ void Player::updatePlayer(Game& game) {
     my -= hheight;
 
     glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
-
+        
     yaw += mx * mouseSens;
 
     // Lock the camera to almost all the way down and almost all the way up
