@@ -54,13 +54,18 @@ void Chunk::blockDrawer(
     std::array<Vertex, 36>& vtx_data,
     std::array<UV, 36>& uv_data,
     std::size_t& index,
-    glm::vec3 gPos,
-    glm::vec3 cPos,
+    glm::vec3 gPos,        // Global world coordinates of the block to draw
+    glm::vec3 cPos,        // XYZ position within a chunk
+    glm::vec3 chunkCoords, // Chunk coordinates
     World& world
 ) const {
     auto getBlockInChunk = [&](glm::vec3 b_pos) {
         int i = b_pos.x + b_pos.z * 16 + b_pos.y * 16 * 16;
         return blocks.at(i);
+    };
+
+    auto vec3totuple = [](glm::vec3 pos) {
+        return std::tuple<int, int, int>(pos.x, pos.y, pos.z);
     };
 
     // Get global block coordinates
@@ -105,84 +110,83 @@ void Chunk::blockDrawer(
 
     using namespace glm;
 
-    // +X Face Check
-    if (cPos.x >= 15 || getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(xPos.begin(), xPos.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::NORTH);
+    auto addFace = [&vtx_data, &uv_data, &index, block](std::array<Vertex, 6> verts, bool uvsToUse, Block::BlockFace face) {
+        std::copy(verts.begin(), verts.end(), vtx_data.begin() + index);
+        auto blockBaseUV = block.getUVCoords(face);
 
         const std::array<UV, 6> oddUVs = {
             blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
             blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
         };
-        std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
+        const std::array<UV, 6> evenUVs = {
+            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
+            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
+        };
+        if (uvsToUse) {
+            std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
+        } else {
+            std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
+        }
+        
         index += faceSideLen;
-    }
+    };
+    // +X Face Check
+    if (cPos.x >= 15) {
+        if (chunkCoords.x + 1 >= world.chunkSizeX()
+         || world.getChunk(chunkCoords + vec3(1, 0, 0)).getBlock(vec3(0.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+            addFace(xPos, false, Block::BlockFace::NORTH);
+    } else if (getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == Block::BlockType::AIR)
+        addFace(xPos, false, Block::BlockFace::NORTH);
 
     // -X Face Check
-    if (cPos.x < 1 || getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(xNeg.begin(), xNeg.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::SOUTH);
-        const std::array<UV, 6> evenUVs = {
-            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
-            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
-        };
-        std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
-        index += faceSideLen;
-    }
+    if (cPos.x < 1) {
+        if (chunkCoords.x - 1 < 0
+         || world.getChunk(chunkCoords + vec3(-1, 0, 0)).getBlock(vec3(15.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+            addFace(xNeg, true, Block::BlockFace::SOUTH);
+    } else if (getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == Block::BlockType::AIR)
+        addFace(xNeg, true, Block::BlockFace::SOUTH);
 
     // +Z Face Check
-    if (cPos.z >= 15 || getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(zPos.begin(), zPos.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::EAST);
-        const std::array<UV, 6> evenUVs = {
-            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
-            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
-        };
-        std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
-        index += faceSideLen;
-    }
+    if (cPos.z >= 15) {
+        // Next block over
+        if (chunkCoords.z + 1 >= world.chunkSizeZ()
+         || world.getChunk(chunkCoords + vec3(0, 0, 1)).getBlock(vec3(cPos.x, cPos.y, 0)).getBlockType() == Block::BlockType::AIR)
+            addFace(zPos, true, Block::BlockFace::EAST);
+    } else if (getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == Block::BlockType::AIR)
+        addFace(zPos, true, Block::BlockFace::EAST);
 
     // -Z Face Check
-    if (cPos.z < 1 || getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(zNeg.begin(), zNeg.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::WEST);
-
-        const std::array<UV, 6> oddUVs = {
-            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
-            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
-        };
-        std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
-        index += faceSideLen;
-    }
+    if (cPos.z < 1) {
+        // Next block over
+        if (chunkCoords.z - 1 < 0
+         || world.getChunk(chunkCoords + vec3(0, 0, -1)).getBlock(vec3(cPos.x, cPos.y, 15)).getBlockType() == Block::BlockType::AIR)
+            addFace(zNeg, false, Block::BlockFace::WEST);
+    } else if (getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == Block::BlockType::AIR)
+        addFace(zNeg, false, Block::BlockFace::WEST);
 
     // +Y Face Check
-    if (cPos.y >= 15 || getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(yPos.begin(), yPos.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::TOP);
-        const std::array<UV, 6> evenUVs = {
-            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
-            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
-        };
-        std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
-        index += faceSideLen;
-    }
+    if (cPos.y >= 15) {
+        if (chunkCoords.y + 1 >= world.chunkSizeY()
+         || world.getChunk(chunkCoords + vec3(0, 1, 0)).getBlock(vec3(cPos.x, 0, cPos.z)).getBlockType() == Block::BlockType::AIR)
+            addFace(yPos, true, Block::BlockFace::TOP);
+    } else if (getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == Block::BlockType::AIR)
+        addFace(yPos, true, Block::BlockFace::TOP);
 
     // -Y Face Check
-    if (cPos.y < 1 || getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == Block::BlockType::AIR) {
-        std::copy(yNeg.begin(), yNeg.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(Block::BlockFace::BOTTOM);
-
-        const std::array<UV, 6> oddUVs = {
-            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
-            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
-        };
-        std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
-        index += faceSideLen;
-    }
+    if (cPos.y < 1) {
+        if (chunkCoords.y - 1 < 0
+         || world.getChunk(chunkCoords + vec3(0, -1, 0)).getBlock(vec3(cPos.x, 15, cPos.z)).getBlockType() == Block::BlockType::AIR)
+            addFace(yNeg, false, Block::BlockFace::BOTTOM);
+    } else if (getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == Block::BlockType::AIR)
+        addFace(yNeg, false, Block::BlockFace::BOTTOM);
 }
 
 Chunk::BufferInfo Chunk::getBufferInfo() const {
     return buffers;
+}
+
+void Chunk::markRerender() {
+    meshUpdatedNeeded = true;
 }
 
 void Chunk::update(glm::vec3 chunkPos, World& world) {
@@ -200,7 +204,15 @@ void Chunk::update(glm::vec3 chunkPos, World& world) {
 
                 std::size_t index = 0;
 
-                blockDrawer(vtx, uvx, index, glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z), glm::vec3(x, y, z), world);
+                blockDrawer(
+                    vtx,
+                    uvx,
+                    index,
+                    glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z),
+                    glm::vec3(x, y, z),
+                    chunkPos,
+                    world
+                );
 
                 auto vtx_begin = vtx.begin();
                 auto uvx_begin = uvx.begin();

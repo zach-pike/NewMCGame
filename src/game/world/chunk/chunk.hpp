@@ -10,6 +10,8 @@
 
 #include <vector>
 
+class World;
+
 class Chunk {
 public:
     struct BufferInfo {
@@ -32,6 +34,7 @@ private:
         std::size_t& index,
         glm::vec3 gPos, // Global coordinates of thr block (WorldPos)
         glm::vec3 cPos, // Chunk position each axis that follows 0 <= x < 16
+        glm::vec3 chunkCoords,
         World& world
     ) const;
 
@@ -49,6 +52,9 @@ public:
     void setBlock(glm::vec3 localPos, Block block);
 
     BufferInfo getBufferInfo() const;
+
+    // Mark the chunk to be rerendered
+    void markRerender();
 
     void update(glm::vec3 chunkPos, World& world);
 };
