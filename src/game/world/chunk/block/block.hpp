@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 class Block {
 public:
-    enum class BlockType {
+    enum class BlockType : std::uint8_t {
         AIR,
         STONE
     };

@@ -2,12 +2,19 @@
 
 #include <string.h>
 
-Chunk::Chunk() {}
+#include <stdexcept>
+
+Chunk::Chunk() {
+    blocks.resize(16*16*16);
+}
+
+
 Chunk::~Chunk() {}
 
 void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const {
     auto getBlockInChunk = [&](glm::vec3 b_pos) {
-        return blocks.at(b_pos.x + b_pos.z * 16 + b_pos.y * 16 * 16);
+        int i = b_pos.x + b_pos.z * 16 + b_pos.y * 16 * 16;
+        return blocks.at(i);
     };
 
     // Get global block coordinates
@@ -107,7 +114,7 @@ void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv
     }
 }
 
-void Chunk::generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs) const {
+void Chunk::generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs, glm::vec3 chunkPos) const {
     // Chunk generation code
     for (int y=0; y<16; y++) {
         for (int z=0; z<16; z++) {
@@ -117,7 +124,7 @@ void Chunk::generateVertices(std::vector<Vertex>& vertices, std::vector<UV>& uvs
 
                 std::size_t index = 0;
 
-                blockDrawer(vtx, uvx, index, glm::vec3(x, y, z), glm::vec3(x, y, z));
+                blockDrawer(vtx, uvx, index, glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z), glm::vec3(x, y, z));
 
                 auto vtx_begin = vtx.begin();
                 auto uvx_begin = uvx.begin();

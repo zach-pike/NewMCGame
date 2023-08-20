@@ -10,7 +10,7 @@ using namespace glm;
 
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
-#include "world/chunk/chunk.hpp"
+#include "world/world.hpp"
 
 Game::Game():
     player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)} {}
@@ -93,8 +93,9 @@ void Game::gameloop() {
     std::vector<UV> uv_data;
 
     // Generate test chunk and data
-    Chunk chunk;
-    chunk.generateVertices(vertex_data, uv_data);
+    World world;
+    world.generateWorld(2, 2, 2);
+    world.generateWorldModel(vertex_data, uv_data);
 
     // Buffers on the gpu
     GLuint vertexbuffer, uvbuffer;
