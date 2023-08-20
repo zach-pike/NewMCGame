@@ -7,9 +7,13 @@
 Chunk::Chunk() {
     blocks.resize(16*16*16);
 }
-
-
 Chunk::~Chunk() {}
+
+Block& Chunk::getBlock(glm::vec3 localPos) {
+    int i = localPos.x + localPos.z * 16 + localPos.y * 16 * 16;
+
+    return blocks.at(i);
+}
 
 void Chunk::blockDrawer(std::array<Vertex, 36>& vtx_data, std::array<UV, 36>& uv_data, std::size_t& index, glm::vec3 gPos, glm::vec3 cPos) const {
     auto getBlockInChunk = [&](glm::vec3 b_pos) {

@@ -10,14 +10,24 @@ using namespace glm;
 
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
-#include "world/world.hpp"
 
 Game::Game():
-    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)} {}
+    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)}
+{
+    world.generateWorld(2, 2, 2);
+}
 Game::~Game() {}
 
 GLFWwindow* Game::getGLFWwindow() {
     return game_window;
+}
+
+Player& Game::getPlayer() {
+    return player;
+}
+
+World& Game::getWorld() {
+    return world;
 }
 
 void Game::gameloop() {
@@ -72,7 +82,7 @@ void Game::gameloop() {
 
     // Visual settings
     const float aspect = 1300.f / 768.f;
-    const float fov = 45.f;
+    const float fov = 70.f;
 
     // ID for setting the MVP matrix
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
@@ -93,8 +103,7 @@ void Game::gameloop() {
     std::vector<UV> uv_data;
 
     // Generate test chunk and data
-    World world;
-    world.generateWorld(2, 2, 2);
+    world.getBlock(glm::vec3(31, 31, 31)) = Block(Block::BlockType::AIR);
     world.generateWorldModel(vertex_data, uv_data);
 
     // Buffers on the gpu
@@ -114,6 +123,19 @@ void Game::gameloop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         player.updatePlayer(*this);
+
+        if (world.getUpdateFlag()) {
+            vertex_data.clear();
+            uv_data.clear();
+
+            world.generateWorldModel(vertex_data, uv_data);
+
+            glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+	        glBufferData(GL_ARRAY_BUFFER, vertex_data.size() * sizeof(Vertex), vertex_data.data(), GL_STATIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	        glBufferData(GL_ARRAY_BUFFER, uv_data.size() * sizeof(UV), uv_data.data(), GL_STATIC_DRAW);
+        }
 
         // Get the mvp from the player 
         auto MVP = player.getMVPmatrix(aspect, fov);

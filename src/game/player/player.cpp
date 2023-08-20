@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
+#include "ray/ray.hpp"
 
 Player::Player(glm::vec3 _position, glm::vec3 _looking):
     position(_position),
@@ -81,6 +82,19 @@ void Player::updatePlayer(Game& game) {
         }
     } else {
         wireframeButtonWasPressed = false;
+    }
+
+    static bool breakButtonWasPressed = false;
+    if (glfwGetMouseButton(game.getGLFWwindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (breakButtonWasPressed == false) {
+            breakButtonWasPressed = true;
+
+            Ray r(position, looking, .1f);
+
+            r.tryBreakBlock(game);
+        }
+    } else {
+        breakButtonWasPressed = false;
     }
 }
 
