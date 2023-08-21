@@ -5,7 +5,7 @@
 int main(int argc, char** argv) {
     Game game;
 
-    game.gameloop();
+    game.gameLoop();
 
     return 0;
 }

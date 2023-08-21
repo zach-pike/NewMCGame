@@ -2,7 +2,9 @@
 
 #include <exception>
 #include <stdexcept>
-
+#include <chrono>
+#include <iostream>
+#include <thread>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -10,14 +12,45 @@ using namespace glm;
 
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
+#include "world/debug/ChunkBorderDebugger.hpp"
 
 Game::Game():
-    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0)}
-{}
-Game::~Game() {}
+    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0), 70.f}
+{
+    gfxInit();
+
+    // Generate world
+    world.generateWorld(10, 5, 10);
+
+    // VAO
+    glGenVertexArrays(1, &vertexArrayID);
+    glBindVertexArray(vertexArrayID);
+
+    // Shaders
+    worldShader = LoadShaders(
+        "/home/zachary/Desktop/mc-clone/resources/shaders/vertex.glsl",
+        "/home/zachary/Desktop/mc-clone/resources/shaders/fragment.glsl");
+    lineDebugShader = LoadShaders(
+        "/home/zachary/Desktop/mc-clone/resources/shaders/lineVertex.glsl",
+        "/home/zachary/Desktop/mc-clone/resources/shaders/lineFragment.glsl");
+    
+    // Textures
+    textureAtlas = LoadBMP("/home/zachary/Desktop/mc-clone/resources/Chunk.bmp");
+}
+Game::~Game() {
+    // Cleanup
+    glDeleteTextures(1, &textureAtlas);
+
+    glDeleteShader(worldShader);
+    glDeleteShader(lineDebugShader);
+
+    glDeleteVertexArrays(1, &vertexArrayID);
+
+    glfwTerminate();
+}
 
 GLFWwindow* Game::getGLFWwindow() {
-    return game_window;
+    return gameWindow;
 }
 
 Player& Game::getPlayer() {
@@ -28,41 +61,30 @@ World& Game::getWorld() {
     return world;
 }
 
-void Game::gameloop() {
-    glewExperimental = true; // Needed for core profile
-    
+void Game::gfxInit() {
+    // Init GLFW
     if (!glfwInit()) throw std::runtime_error("Unable to initialize GLFW!");
 
+    // Window stuff
     glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
 
-    // Open a window and create its OpenGL context
-     // (In the accompanying source code, this variable is global for simplicity)
-    game_window = glfwCreateWindow( 1300, 768, "MC Game", NULL, NULL);
+    // Create GLFW window
+    gameWindow = glfwCreateWindow(1300, 768, "MC Game", NULL, NULL);
 
-    if (game_window == NULL) {
+    if (gameWindow == NULL) {
         throw std::runtime_error("Unable to create GLFW window");
         glfwTerminate();
     }
 
-    glfwMakeContextCurrent(game_window); // Initialize GLEW
+    glfwMakeContextCurrent(gameWindow); // Initialize GLEW
+
+    // Initialize GLEW
     glewExperimental=true; // Needed in core profile
-
     if (glewInit() != GLEW_OK) throw std::runtime_error("Unable to initialize GLEW");
-
-    // OpenGL stuff
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-
-    // Load the shaders for the game
-    GLuint programID = LoadShaders(
-        "/home/zachary/Desktop/mc-clone/resources/shaders/vertex.glsl",
-        "/home/zachary/Desktop/mc-clone/resources/shaders/fragment.glsl");
-    glUseProgram(programID);
 
     // Set some OpenGL settings
     // Accept fragment if it closer to the camera than the former one
@@ -76,37 +98,32 @@ void Game::gameloop() {
     glCullFace(GL_BACK);
 
     // Ensure we can capture the escape key being pressed below
-    glfwSetInputMode(game_window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(gameWindow, GLFW_STICKY_KEYS, GL_TRUE);
+}
 
+void Game::gameLoop() {
     // Visual settings
     const float aspect = 1300.f / 768.f;
-    const float fov = 70.f;
 
     // ID for setting the MVP matrix
-    GLuint MatrixID = glGetUniformLocation(programID, "MVP");
+    GLuint worldMatrixID = glGetUniformLocation(worldShader, "MVP");
+    GLuint debugMatrixID = glGetUniformLocation(lineDebugShader, "MVP");
 
     // --- TEXTURE STUFF ---
     // Texture atlas for game
-    GLuint Texture = LoadBMP("/home/zachary/Desktop/mc-clone/resources/Chunk.bmp");
-	// ID for setting the texture
-	GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
-    // Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Texture);
-	// Set our "myTextureSampler" sampler to use Texture Unit 0
-	glUniform1i(TextureID, 0);
-
-    // Generate world
-    world.generateWorld(10, 5, 10);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glUniform1i(glGetUniformLocation(worldShader, "myTextureSampler"), 0);
 
     // Chunk buffers
     auto chunks = world.getChunksReference();
+    
+    ChunkBorderDebugger chunkBorderDebugger;
+    chunkBorderDebugger.draw(world);
+    auto chunkBorderDrawingInfo = chunkBorderDebugger.getDrawingInfo();
+    
+    // ------------------------------
 
-    // Generate test chunk and data
-    // world.getBlock(glm::vec3(31, 31, 31)) = Block(Block::BlockType::AIR);
-
-    // Buffers on the gpu
-    // Render Loop
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -114,19 +131,17 @@ void Game::gameloop() {
         world.update();
 
         // Get the mvp from the player 
-        auto MVP = player.getMVPmatrix(aspect, fov);
-        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+        glUseProgram(worldShader);
 
-
+        auto MVP = player.getMVPmatrix(aspect);
+        glUniformMatrix4fv(worldMatrixID, 1, GL_FALSE, &MVP[0][0]);
         for (Chunk* chunk : chunks) {
             auto bufferInfo = chunk->getBufferInfo();
-            // Draw
-            // 1rst attribute buffer : vertices
-            
+
             glEnableVertexAttribArray(0);
             glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.vertexBuffer);
             glVertexAttribPointer(
-                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                0,                  // attribute 0.
                 3,                  // size
                 GL_FLOAT,           // type
                 GL_FALSE,           // normalized?
@@ -137,7 +152,7 @@ void Game::gameloop() {
             glEnableVertexAttribArray(1);
             glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
             glVertexAttribPointer(
-                1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                1,                  // attribute 1.
                 2,                  // size
                 GL_FLOAT,           // type
                 GL_FALSE,           // normalized?
@@ -152,17 +167,39 @@ void Game::gameloop() {
             glDisableVertexAttribArray(1);
         }
 
+        if (player.showingDebug()) {
+            glUseProgram(lineDebugShader);
+            glUniformMatrix4fv(debugMatrixID, 1, GL_FALSE, &MVP[0][0]);
+            glEnableVertexAttribArray(0);
+            glBindBuffer(GL_ARRAY_BUFFER, chunkBorderDrawingInfo.vertexBuffer);
+            glVertexAttribPointer(
+                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+            );
+
+            glEnableVertexAttribArray(1);
+            glBindBuffer(GL_ARRAY_BUFFER, chunkBorderDrawingInfo.colorBuffer);
+            glVertexAttribPointer(
+                1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+                3,                  // size
+                GL_FLOAT,           // type
+                GL_FALSE,           // normalized?
+                0,                  // stride
+                (void*)0            // array buffer offset
+            );
+
+            glDrawArrays(GL_LINES, 0, chunkBorderDrawingInfo.nVerts);
+
+            glDisableVertexAttribArray(0);
+            glDisableVertexAttribArray(1);
+        }
 
         // Swap buffers
-        glfwSwapBuffers(game_window);
+        glfwSwapBuffers(gameWindow);
         glfwPollEvents();
-
-    } while (glfwGetKey(game_window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(game_window) == 0);
-
-    glDeleteProgram(programID);
-    glDeleteTextures(1, &Texture);
-	glDeleteVertexArrays(1, &VertexArrayID);
-	glDeleteProgram(programID);
-
-    glfwTerminate();
+    } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0); 
 }

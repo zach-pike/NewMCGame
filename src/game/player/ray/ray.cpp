@@ -2,28 +2,25 @@
 #include "../../game.hpp"
 
 Ray::Ray(glm::vec3 _position, glm::vec3 _direction, float _moveScalar):
-    position{_position},
+    startPosition{_position},
     direction{glm::normalize(_direction)},
     moveScalar{_moveScalar} {}
 
 Ray::~Ray() {}
 
-void Ray::step() {
-    auto a = direction * moveScalar;
-    position += a;
-    distancedMoved += glm::length(a);
-}
+void Ray::tryBreakBlock(World& world, float maxDist) {
+    glm::vec3 cPos = startPosition;
+    glm::vec3 moveVec = direction * moveScalar;
+    double distTraveled = 0;
 
-void Ray::tryBreakBlock(Game& game, float maxDist) {
-    while(distancedMoved < maxDist) {
-        step();
+    while(distTraveled < maxDist) {
+        cPos += moveVec;
+        distTraveled += moveScalar;
         // Check if the ray is in world bounds
 
-        if (game.getWorld().coordinatesInWorld(position)
-         && game.getWorld().getBlock(position).getBlockType() != Block::BlockType::AIR) {
-
-            game.getWorld().setBlock(position, Block(Block::BlockType::AIR));
-            
+        if (world.coordinatesInWorld(cPos)
+         && world.getBlock(cPos).getBlockType() != Block::BlockType::AIR) {
+            world.setBlock(cPos, Block(Block::BlockType::AIR));
             break;
         }
     }
