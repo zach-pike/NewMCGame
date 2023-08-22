@@ -1,25 +1,28 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 class World;
 
 class ChunkBorderDebugger {
 public:
-    struct ChunkBorderDebuggerDrawInfo {
+    struct ChunkBorderDebuggerBuffers {
         GLuint vertexBuffer, colorBuffer;
-        std::size_t nVerts;
     };
 private:
-    ChunkBorderDebuggerDrawInfo info;
+    ChunkBorderDebuggerBuffers buffers;
+    std::size_t nVerts;
+    GLuint debugShader;
+    GLuint viewProjectionID;
+
+    void drawLines(int, int, int);
 public:
-    ChunkBorderDebugger();
+    ChunkBorderDebugger(const World&);
     ChunkBorderDebugger(const ChunkBorderDebugger&) = delete;
     ChunkBorderDebugger(const ChunkBorderDebugger&&) = delete;
 
-    void draw(const World&);
-
-    ChunkBorderDebuggerDrawInfo getDrawingInfo() const;
+    void draw(const glm::mat4& viewProjection);
 
     ~ChunkBorderDebugger();
 };

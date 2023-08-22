@@ -16,9 +16,17 @@ private:
     int sizeZ;
 
     Chunk& getChunkFromWorldCoords(glm::vec3 pos);
+    
+    bool gfxReady = false;
+    GLuint worldShader;
+    GLuint viewProjectionID, chunkCoordID;
+    GLuint textureAtlas;
 public:
     World();
     ~World();
+
+    // Does all the necessary calls to OpenGL related functions
+    void gfxInit();
 
     int chunkSizeX() const;
     int chunkSizeY() const;
@@ -35,7 +43,13 @@ public:
 
     Chunk& getChunk(glm::vec3 chunkCoords);
 
-    std::vector<Chunk*> getChunksReference();
+    std::map<ChunkPos, Chunk>& getChunksReference();
 
     void update();
+
+    void draw(const glm::mat4& viewProjection);
+
+    inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
+        return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
+    }
 };

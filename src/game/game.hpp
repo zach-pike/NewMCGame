@@ -13,8 +13,6 @@ class Game {
 private:
     // OpenGL stuff
     GLuint vertexArrayID;
-    GLuint worldShader, lineDebugShader;
-    GLuint textureAtlas;
 
     // Game vars
     GLFWwindow* gameWindow;
@@ -27,7 +25,7 @@ private:
     PluginManager pluginManager;
 
     // Gets initialized after opengl in constructor
-    std::unique_ptr<BillboardManager> billboardManager = nullptr;
+    BillboardManager billboardManager;
 
     int windowWidth, windowHeight;
 public:

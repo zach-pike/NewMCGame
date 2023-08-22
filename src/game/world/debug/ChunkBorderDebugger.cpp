@@ -1,19 +1,31 @@
 #include "ChunkBorderDebugger.hpp"
 #include "../world.hpp"
 
-ChunkBorderDebugger::ChunkBorderDebugger() {
-    glGenBuffers(1, &info.vertexBuffer);
-    glGenBuffers(1, &info.colorBuffer);
+#include "shader/shader.hpp"
+#include "utils/path.hpp"
+
+ChunkBorderDebugger::ChunkBorderDebugger(const World& world) {
+    glGenBuffers(1, &buffers.vertexBuffer);
+    glGenBuffers(1, &buffers.colorBuffer);
+
+    debugShader = loadShaders(
+        getResourcePath("shaders/lineVertex.glsl"),
+        getResourcePath("shaders/lineFragment.glsl")
+    );
+
+    viewProjectionID = glGetUniformLocation(debugShader, "viewProjection");
+
+    drawLines(world.chunkSizeX(), world.chunkSizeY(), world.chunkSizeZ());
 }
 
-void ChunkBorderDebugger::draw(const World& world) {
+void ChunkBorderDebugger::drawLines(int worldX, int worldY, int worldZ) {
     std::vector<Vertex> vtx;
     std::vector<glm::vec3> colors;
 
     const auto chunkBorderColors = glm::vec3(1, 1, 0);
-    for (int y=0; y<world.chunkSizeY(); y++) {
-        for (int z=0; z<world.chunkSizeZ(); z++) {
-            for(int x=0; x<world.chunkSizeX(); x++) {
+    for (int y=0; y<worldX; y++) {
+        for (int z=0; z<worldZ; z++) {
+            for(int x=0; x<worldX; x++) {
                 // Bottom +X line
                 vtx.push_back(Vertex(x*16, y*16, z*16));
                 vtx.push_back(Vertex((x + 1)*16, y*16, z*16));
@@ -92,20 +104,49 @@ void ChunkBorderDebugger::draw(const World& world) {
         }
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, info.vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, vtx.size() * sizeof(Vertex), vtx.data(), GL_STATIC_DRAW);
 
-    info.nVerts = vtx.size();
+    nVerts = vtx.size();
 
-    glBindBuffer(GL_ARRAY_BUFFER, info.colorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.colorBuffer);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_STATIC_DRAW);
 }
 
-ChunkBorderDebugger::ChunkBorderDebuggerDrawInfo ChunkBorderDebugger::getDrawingInfo() const {
-    return info;
+void ChunkBorderDebugger::draw(const glm::mat4& viewProjection) {
+    glUseProgram(debugShader);
+    glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
+    glVertexAttribPointer(
+        0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+        3,                  // size
+        GL_FLOAT,           // type
+        GL_FALSE,           // normalized?
+        0,                  // stride
+        (void*)0            // array buffer offset
+    );
+
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.colorBuffer);
+    glVertexAttribPointer(
+        1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+        3,                  // size
+        GL_FLOAT,           // type
+        GL_FALSE,           // normalized?
+        0,                  // stride
+        (void*)0            // array buffer offset
+    );
+
+    glDrawArrays(GL_LINES, 0, nVerts);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
 ChunkBorderDebugger::~ChunkBorderDebugger() {
-    glDeleteBuffers(1, &info.vertexBuffer);
-    glDeleteBuffers(1, &info.colorBuffer);
+    glDeleteBuffers(1, &buffers.vertexBuffer);
+    glDeleteBuffers(1, &buffers.colorBuffer);
+
+    glDeleteShader(debugShader);
 }

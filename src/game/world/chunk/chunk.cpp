@@ -54,7 +54,6 @@ void Chunk::blockDrawer(
     std::array<Vertex, 36>& vtx_data,
     std::array<UV, 36>& uv_data,
     std::size_t& index,
-    glm::vec3 gPos,        // Global world coordinates of the block to draw
     glm::vec3 cPos,        // XYZ position within a chunk
     glm::vec3 chunkCoords, // Chunk coordinates
     World& world
@@ -69,9 +68,9 @@ void Chunk::blockDrawer(
     };
 
     // Get global block coordinates
-    auto x = gPos.x;
-    auto y = gPos.y;
-    auto z = gPos.z;
+    auto x = cPos.x;
+    auto y = cPos.y;
+    auto z = cPos.z;
 
     // Get the block by using its chunk coordinates
     auto block = getBlockInChunk(cPos);
@@ -189,7 +188,7 @@ void Chunk::markRerender() {
     meshUpdatedNeeded = true;
 }
 
-void Chunk::update(glm::vec3 chunkPos, World& world) {
+void Chunk::update(glm::vec3 chunkCoords, World& world) {
     meshUpdatedNeeded = false;
 
     std::vector<Vertex> vertices;
@@ -205,12 +204,11 @@ void Chunk::update(glm::vec3 chunkPos, World& world) {
                 std::size_t index = 0;
 
                 blockDrawer(
-                    vtx,
-                    uvx,
-                    index,
-                    glm::vec3(chunkPos.x*16 + x, chunkPos.y*16 + y, chunkPos.z*16 + z),
-                    glm::vec3(x, y, z),
-                    chunkPos,
+                    vtx,   // Vertex buffer
+                    uvx,   // UV buffer
+                    index, // Buffer offset
+                    glm::vec3(x, y, z),  // Chunk x, y, z
+                    chunkCoords,         // Chunk coordinate (chunk origin)
                     world
                 );
 

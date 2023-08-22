@@ -21,36 +21,26 @@ using FP = T(*)(Args...);
 Game::Game():
     player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0), 70.f}
 {
-    gfxInit();
-
     std::cout << "WARNING: Make sure the CWD is the base path of the folder!!! Or else nothing will load correctly\n";
 
-    // Generate world
-    world.generateWorld(10, 5, 10);
+    // Initiate GLFW / glew / OpenGL
+    gfxInit();
 
     // VAO
     glGenVertexArrays(1, &vertexArrayID);
     glBindVertexArray(vertexArrayID);
 
-    // Shaders
-    worldShader = loadShaders(
-        getResourcePath("shaders/vertex.glsl"),
-        getResourcePath("shaders/fragment.glsl")
-    );
-    lineDebugShader = loadShaders(
-        getResourcePath("shaders/lineVertex.glsl"),
-        getResourcePath("shaders/lineFragment.glsl")
-    );
-    
-    // Textures
-    textureAtlas = loadBMP(getResourcePath("Chunk.bmp"));
+    // Initializes all the shaders/textures/buffers
+    world.gfxInit();
+    billboardManager.gfxInit();
+
+    billboardManager.addBillboard(glm::vec3(0, 40, 0), "hello world");
+
+    // Generate world
+    world.generateWorld(10, 5, 10);
 
     // Load the plugins and enable them
-    pluginManager.loadPlugins();
-
-    billboardManager = std::make_unique<BillboardManager>();
-
-    billboardManager->addBillboard(glm::vec3(0, 40, 0), "hello world");
+    pluginManager.loadPlugins(true);
 
     // Resize the viewport on window size change
     glfwSetFramebufferSizeCallback(gameWindow, [](GLFWwindow* win, int w, int h) {
@@ -59,15 +49,7 @@ Game::Game():
 }
 Game::~Game() {
     pluginManager.unloadPlugins();
-
-    // Cleanup
-    glDeleteTextures(1, &textureAtlas);
-
-    glDeleteShader(worldShader);
-    glDeleteShader(lineDebugShader);
-
     glDeleteVertexArrays(1, &vertexArrayID);
-
     glfwTerminate();
 }
 void Game::gfxInit() {
@@ -111,25 +93,9 @@ void Game::gfxInit() {
 }
 
 void Game::gameLoop() {
-    // ID for setting the MVP matrix
-    GLuint worldMatrixID = glGetUniformLocation(worldShader, "MVP");
-    GLuint debugMatrixID = glGetUniformLocation(lineDebugShader, "MVP");
-
-    // --- TEXTURE STUFF ---
-    // Texture atlas for game
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
-	glUniform1i(glGetUniformLocation(worldShader, "myTextureSampler"), 0);
-
-    // Chunk buffers
-    auto chunks = world.getChunksReference();
-    
     // Debugger
-    ChunkBorderDebugger chunkBorderDebugger;
-    chunkBorderDebugger.draw(world);
-    auto chunkBorderDrawingInfo = chunkBorderDebugger.getDrawingInfo();
+    ChunkBorderDebugger chunkBorderDebugger(world);
     // ------------------------------
-
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwGetWindowSize(gameWindow, &windowWidth, &windowHeight);
@@ -142,117 +108,14 @@ void Game::gameLoop() {
         // Update the plugins
         pluginManager.pluginFrameUpdate(*this);
 
-        // Get the mvp from the player 
-        glUseProgram(worldShader);
-
+        // 3d stuff
+        auto viewMatrix = player.getCameraViewMatrix();
         auto viewProjection = player.getViewProjection(aspect);
-        glUniformMatrix4fv(worldMatrixID, 1, GL_FALSE, &viewProjection[0][0]);
-        for (Chunk* chunk : chunks) {
-            auto bufferInfo = chunk->getBufferInfo();
 
-            glEnableVertexAttribArray(0);
-            glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.vertexBuffer);
-            glVertexAttribPointer(
-                0,                  // attribute 0.
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
+        world.draw(viewProjection);
 
-            glEnableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
-            glVertexAttribPointer(
-                1,                  // attribute 1.
-                2,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
-
-            // Draw the triangle !
-            glDrawArrays(GL_TRIANGLES, 0, chunk->getNVertices()); // 3 indices starting at 0 -> 1 triangle
-
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-        }
-
-        if (player.showingDebug()) {
-            glUseProgram(lineDebugShader);
-            glUniformMatrix4fv(debugMatrixID, 1, GL_FALSE, &viewProjection[0][0]);
-            glEnableVertexAttribArray(0);
-            glBindBuffer(GL_ARRAY_BUFFER, chunkBorderDrawingInfo.vertexBuffer);
-            glVertexAttribPointer(
-                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
-
-            glEnableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, chunkBorderDrawingInfo.colorBuffer);
-            glVertexAttribPointer(
-                1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
-
-            glDrawArrays(GL_LINES, 0, chunkBorderDrawingInfo.nVerts);
-
-            glDisableVertexAttribArray(0);
-            glDisableVertexAttribArray(1);
-        }
-
-        glUseProgram(billboardManager->getBillboardShader());
-        auto billboardUniforms = billboardManager->getBillboardUniforms();
-
-        glUniform3fv(billboardUniforms.cameraPosition, 1, &player.getPositionReference()[0]);
-        glUniformMatrix4fv(billboardUniforms.cameraViewProjection, 1, GL_FALSE, &viewProjection[0][0]);
-
-        glm::mat4 viewMatrix = player.getCameraViewMatrix();
-        glm::vec3 cameraRight_worldspace = glm::vec3(viewMatrix[0][0], viewMatrix[1][0], viewMatrix[2][0]);
-        glm::vec3 cameraUp_worldspace = glm::vec3(viewMatrix[0][1], viewMatrix[1][1], viewMatrix[2][1]);
-        glUniform3fv(billboardUniforms.cameraRightWorldspace, 1, &cameraRight_worldspace[0]);
-        glUniform3fv(billboardUniforms.cameraUpWorldspace, 1, &cameraUp_worldspace[0]);
-
-        for (const auto& billboard : billboardManager->getBillboards()) {
-            auto position = billboard->getPosition();
-            auto buffers = billboard->getDrawBuffers();
-            glUniform3fv(billboardUniforms.modelPosition, 1, &position[0]); // Update this for every billboard
-
-            glEnableVertexAttribArray(0);
-            glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
-            glVertexAttribPointer(
-                0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-                3,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
-
-            glEnableVertexAttribArray(1);
-            glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
-            glVertexAttribPointer(
-                1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-                2,                  // size
-                GL_FLOAT,           // type
-                GL_FALSE,           // normalized?
-                0,                  // stride
-                (void*)0            // array buffer offset
-            );
-
-            glDrawArrays(GL_TRIANGLES, 0, billboard->vertCount());
-
-            glDisableVertexAttribArray(0);
-        }
+        if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
+        billboardManager.draw(player.getPositionReference(), viewMatrix, viewProjection);
 
         // Swap buffers
         glfwSwapBuffers(gameWindow);

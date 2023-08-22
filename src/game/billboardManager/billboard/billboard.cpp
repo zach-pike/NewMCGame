@@ -29,10 +29,10 @@ public:
 #include <vector>
 
 void Billboard::draw() {
-    std::vector<Vertex> vertexes = {
-        Vertex(0, 0, 0),
-        Vertex(1, 0, 0),
-        Vertex(1, 1, 0),
+    std::vector<glm::vec2> vertexes = {
+        glm::vec2(0, 0),
+        glm::vec2(1, 0),
+        glm::vec2(1, 1)
     };
 
     std::vector<UV> uv;

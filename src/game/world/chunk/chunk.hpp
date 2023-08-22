@@ -32,7 +32,6 @@ private:
         std::array<Vertex, 36>& vtx_data,
         std::array<UV, 36>& uv_data,
         std::size_t& index,
-        glm::vec3 gPos, // Global coordinates of thr block (WorldPos)
         glm::vec3 cPos, // Chunk position each axis that follows 0 <= x < 16
         glm::vec3 chunkCoords,
         World& world
@@ -56,5 +55,5 @@ public:
     // Mark the chunk to be rerendered
     void markRerender();
 
-    void update(glm::vec3 chunkPos, World& world);
+    void update(glm::vec3 chunkCoord, World& world);
 };

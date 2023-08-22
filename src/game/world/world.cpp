@@ -3,9 +3,38 @@
 #include "../utils/PerlinNoise.hpp"
 #include <GL/glew.h>
 
+#include "texture/texture.hpp"
+#include "shader/shader.hpp"
+#include "utils/path.hpp"
+
 
 World::World() {}
-World::~World() {}
+
+// Does all the necessary calls to OpenGL related functions
+void World::gfxInit() {
+    worldShader = loadShaders(
+        getResourcePath("shaders/vertex.glsl"),
+        getResourcePath("shaders/fragment.glsl")
+    );
+
+    viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
+    chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
+
+    textureAtlas = loadBMP(getResourcePath("Chunk.bmp"));
+
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glUniform1i(glGetUniformLocation(worldShader, "textureAtlas"), 0);
+
+    gfxReady = true;
+}
+
+World::~World() {
+    if (gfxReady) {
+        glDeleteTextures(1, &textureAtlas);
+        glDeleteShader(worldShader);
+    }
+}
 
 int World::chunkSizeX() const { return sizeX; }
 int World::chunkSizeY() const { return sizeY; }
@@ -32,8 +61,6 @@ Block World::getBlock(glm::vec3 pos) {
 
     return chunk.getBlock(glm::vec3(localX, localY, localZ));
 }
-
-
 
 void World::setBlock(glm::vec3 pos, Block b, bool noCheck) {
     ChunkPos chunkCoords = getChunkCoords(pos);
@@ -116,10 +143,8 @@ bool World::coordinatesInWorld(glm::vec3 pos) {
         && pos.z > 0 && pos.z < maxZ;
 }
 
-std::vector<Chunk*> World::getChunksReference() {
-    std::vector<Chunk*> chunksL;
-    for (auto& kv : chunks) chunksL.push_back(&kv.second);
-    return chunksL;
+std::map<World::ChunkPos, Chunk>& World::getChunksReference() {
+    return chunks;
 }
 
 void World::update() {
@@ -131,5 +156,49 @@ void World::update() {
         auto chunkCoord = glm::vec3(std::get<0>(chunkPos), std::get<1>(chunkPos), std::get<2>(chunkPos));
 
         chunk.update(chunkCoord, *this);
+    }
+}
+
+void World::draw(const glm::mat4& viewProjection) {
+    // Render the world 
+    glUseProgram(worldShader);
+    glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
+
+    for (const auto& kv : getChunksReference()) {
+        // Get all necessary data
+        auto& chunk = kv.second;
+        auto bufferInfo = chunk.getBufferInfo();
+        auto chunkCoord = chunkPosToVec3(kv.first);
+
+        // Set the position origin of the chunk we are about to draw
+        glUniform3fv(chunkCoordID, 1, &chunkCoord[0]);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.vertexBuffer);
+        glVertexAttribPointer(
+            0,                  // attribute 0.
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+        glVertexAttribPointer(
+            1,                  // attribute 1.
+            2,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
+        // Draw the mesh
+        glDrawArrays(GL_TRIANGLES, 0, chunk.getNVertices()); // 3 indices starting at 0 -> 1 triangle
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
     }
 }
