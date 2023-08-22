@@ -6,9 +6,9 @@ class Game;
 
 class IPlugin {
 public:
-    virtual void setup() = 0;
+    virtual void setup(Game&) = 0;
     virtual void frameUpdate(Game& game) = 0;
-    virtual void cleanup() = 0;
+    virtual void cleanup(Game&) = 0;
 
     virtual std::string getPluginName() = 0;
 };

@@ -26,7 +26,7 @@ bool hasEnding(const std::string& fullString, const std::string& ending) {
 }
 
 
-void PluginManager::loadPlugins(bool autoEnable) {
+void PluginManager::loadPlugins() {
     if (pluginHandles.empty() != true) throw std::runtime_error("Plugin manager already has loaded plugins!");
 
     // Get directory iterator for the plugins folder
@@ -65,15 +65,11 @@ void PluginManager::loadPlugins(bool autoEnable) {
     }
 
     std::cout << "[PluginManager] Loaded " << getPluginsLoaded() << " Plugin(s)\n";
-
-    if (autoEnable) {
-        enablePlugins();
-    }
 }
 
 void PluginManager::unloadPlugins() {
     // If the plugin objects are still enabled then clean then up before we delete the handles
-    if (pluginsEnabled) disablePlugins();
+    if (pluginsEnabled) throw std::runtime_error("Plugins still enabled!");
 
     // This will call the destructor on all the std::unique_ptr's which will
     // call the destructor on all the Plugins
@@ -89,21 +85,21 @@ void PluginManager::unloadPlugins() {
     std::cout << "[PluginManager] Unloaded " << pluginHandleCount << " Plugin(s)\n";
 }
 
-void PluginManager::enablePlugins() {
+void PluginManager::enablePlugins(Game& game) {
     // Setup all the plugins
     for (auto& plugin : plugins) {
-        plugin->setup();
+        plugin->setup(game);
     }
 
     std::cout << "[PluginManager] Enabled " << plugins.size() << " Plugin(s)\n";
     pluginsEnabled = true;
 }
 
-void PluginManager::disablePlugins() {
+void PluginManager::disablePlugins(Game& game) {
     // Cleanup all the plugins
     std::size_t n = plugins.size();
     for (auto& plugin : plugins) {
-        plugin->cleanup();
+        plugin->cleanup(game);
     }
 
     std::cout << "[PluginManager] Disabled " << n << " Plugin(s)\n";

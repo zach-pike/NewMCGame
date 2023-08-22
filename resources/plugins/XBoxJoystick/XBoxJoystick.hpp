@@ -6,9 +6,9 @@ public:
     XBoxJoystickPlugin();
     ~XBoxJoystickPlugin();
 
-    void setup();
+    void setup(Game&);
     void frameUpdate(Game&);
-    void cleanup();
+    void cleanup(Game&);
     std::string getPluginName();
 };
 

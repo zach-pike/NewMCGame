@@ -40,7 +40,8 @@ Game::Game():
     world.generateWorld(10, 5, 10);
 
     // Load the plugins and enable them
-    pluginManager.loadPlugins(true);
+    pluginManager.loadPlugins();
+    pluginManager.enablePlugins(*this);
 
     // Resize the viewport on window size change
     glfwSetFramebufferSizeCallback(gameWindow, [](GLFWwindow* win, int w, int h) {
@@ -48,7 +49,9 @@ Game::Game():
     });
 }
 Game::~Game() {
+    pluginManager.disablePlugins(*this);
     pluginManager.unloadPlugins();
+    
     glDeleteVertexArrays(1, &vertexArrayID);
     glfwTerminate();
 }

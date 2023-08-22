@@ -22,11 +22,11 @@ public:
     PluginManager(std::string pluginsDirectory = "cplugins/");
     ~PluginManager();
 
-    void loadPlugins(bool enable = true);
+    void loadPlugins();
     void unloadPlugins();
 
-    void enablePlugins();
-    void disablePlugins();
+    void enablePlugins(Game&);
+    void disablePlugins(Game&);
 
     void pluginFrameUpdate(Game&);
 
