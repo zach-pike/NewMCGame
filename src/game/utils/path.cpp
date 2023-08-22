@@ -8,5 +8,5 @@ std::string getFullPath(std::string path) {
 
 // Get Path to something in the resources folder
 std::string getResourcePath(std::string path) {
-    return getFullPath("/resources/" + path);
+    return "/home/zachary/Desktop/mc-clone/resources/" + path;
 }

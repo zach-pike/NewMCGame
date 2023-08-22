@@ -23,7 +23,10 @@ public:
     bool showingDebug() const;
 
     void updatePlayer(Game& game);
-    glm::mat4 getMVPmatrix(float aspect) const;
+
+    glm::mat4 getCameraProjectionMatrix(float aspect) const;
+    glm::mat4 getCameraViewMatrix() const;
+    glm::mat4 getViewProjection(float aspect) const;
 
     glm::vec3& getLookingVectorReference();
     glm::vec3& getPositionReference();

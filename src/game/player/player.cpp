@@ -138,16 +138,22 @@ bool Player::showingDebug() const {
     return settings.showDebug;
 }
 
-glm::mat4 Player::getMVPmatrix(float aspect) const {
-    auto projection = glm::perspective(glm::radians(settings.fov), aspect, 0.01f, 1000.0f);
-    auto view = glm::lookAt(
+glm::mat4 Player::getCameraProjectionMatrix(float aspect) const {
+    return glm::perspective(glm::radians(settings.fov), aspect, 0.01f, 1000.0f);
+}
+
+glm::mat4 Player::getCameraViewMatrix() const {
+    return glm::lookAt(
 		position, // Camera is at (4,3,3), in World Space
 		position + looking, // and looks at the origin
 		glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
-    auto model = glm::mat4(1.f);
+}
 
-    return projection * view * model;
+glm::mat4 Player::getViewProjection(float aspect) const {
+    auto projection = getCameraProjectionMatrix(aspect);
+    auto view = getCameraViewMatrix();
+    return projection * view;
 }
 
 glm::vec3& Player::getLookingVectorReference() {

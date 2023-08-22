@@ -6,6 +6,7 @@
 #include "player/player.hpp"
 #include "world/world.hpp"
 #include "pluginManager/pluginManager.hpp"
+#include "billboardManager/billboardManager.hpp"
 
 #include <memory>
 class Game {
@@ -24,6 +25,9 @@ private:
     std::int64_t fps = 1.f / 30.f * 1000000.f;
 
     PluginManager pluginManager;
+
+    // Gets initialized after opengl in constructor
+    std::unique_ptr<BillboardManager> billboardManager = nullptr;
 
     int windowWidth, windowHeight;
 public:
