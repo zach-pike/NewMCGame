@@ -1,5 +1,7 @@
 #include "block.hpp"
 
+#include <stdexcept>
+
 Block::Block(BlockType bt):
     blockType(bt) {}
 
@@ -30,6 +32,8 @@ Block::UVTexture Block::getUVCoords(BlockFace f) const {
             }
         };
     }
+
+    throw std::runtime_error("Invalid block type or face");
 }
 
 Block::BlockType Block::getBlockType() const {

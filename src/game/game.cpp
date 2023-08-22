@@ -5,6 +5,8 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <filesystem>
+#include <dlfcn.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,6 +15,11 @@ using namespace glm;
 #include "shader/shader.hpp"
 #include "texture/texture.hpp"
 #include "world/debug/ChunkBorderDebugger.hpp"
+
+namespace fs = std::filesystem;
+
+template <typename T, typename... Args>
+using FP = T(*)(Args...);
 
 Game::Game():
     player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0), 70.f}
@@ -36,8 +43,13 @@ Game::Game():
     
     // Textures
     textureAtlas = LoadBMP("/home/zachary/Desktop/mc-clone/resources/Chunk.bmp");
+
+    // Load plugins
+    loadPlugins();
 }
 Game::~Game() {
+    unloadPlugins();
+
     // Cleanup
     glDeleteTextures(1, &textureAtlas);
 
@@ -49,16 +61,61 @@ Game::~Game() {
     glfwTerminate();
 }
 
-GLFWwindow* Game::getGLFWwindow() {
-    return gameWindow;
+void Game::loadPlugins() {
+    // Look in the resources/cplugins folder and get all the files
+    auto paths = fs::directory_iterator("/home/zachary/Desktop/mc-clone/resources/cplugins/");
+
+    // Open them all first
+    for (auto path : paths) {
+        std::string ldpath = path.path();
+
+        void* pluginHandle = dlopen(ldpath.c_str(), RTLD_NOW);
+
+        if (pluginHandle == nullptr) {
+            std::string error = "Failed to load plugin " + ldpath + " Error \"";
+            error.append(dlerror());
+            throw std::runtime_error(error);
+        }
+        pluginHandles.push_back(pluginHandle);
+    }
+
+    // Create all the plugin instances
+    for (void* pluginHandle : pluginHandles) {
+        auto createFn = (FP<IPlugin*>)dlsym(pluginHandle, "create");
+        auto destroyFn = (FP<void, IPlugin*>)dlsym(pluginHandle, "destroy");
+
+        auto plugin = std::unique_ptr<IPlugin, PluginDestroyerFunction>(createFn(), destroyFn);
+        std::string name = plugin->getPluginName();
+        plugins.push_back(std::move(plugin));
+        std::cout << "[Plugins] Loaded plugin " << name << '\n';
+    }
+
+    // Run all the setup functions
+    for (auto& plugin : plugins) {
+        plugin->setup(*this);
+    }
 }
 
-Player& Game::getPlayer() {
-    return player;
-}
+void Game::unloadPlugins() {
+    // Call the cleanup function on all plugins
+    for(auto& plugin : plugins) {
+        plugin->cleanup(*this);
+    }
 
-World& Game::getWorld() {
-    return world;
+    plugins.clear(); // This will destroy all the Plugin Classes with their destructor
+
+    // Unload all the open libraries
+    for (void* pluginHandle : pluginHandles) {
+        dlclose(pluginHandle);
+    }
+
+    // Get rid of the plugin handles
+    pluginHandles.clear();
+}
+void Game::pluginFrameUpdate() {
+    for (auto& plugin : plugins) {
+        plugin->frameUpdate(*this);
+    }
 }
 
 void Game::gfxInit() {
@@ -129,6 +186,9 @@ void Game::gameLoop() {
 
         player.updatePlayer(*this);
         world.update();
+
+        // Update the plugins
+        pluginFrameUpdate();
 
         // Get the mvp from the player 
         glUseProgram(worldShader);
@@ -201,5 +261,17 @@ void Game::gameLoop() {
         // Swap buffers
         glfwSwapBuffers(gameWindow);
         glfwPollEvents();
-    } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0); 
+    } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0); 
+}
+
+GLFWwindow* Game::getGLFWwindow() {
+    return gameWindow;
+}
+
+Player& Game::getPlayer() {
+    return player;
+}
+
+World& Game::getWorld() {
+    return world;
 }

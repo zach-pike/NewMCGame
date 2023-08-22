@@ -22,6 +22,8 @@ public:
     bool showingDebug() const;
 
     void updatePlayer(Game& game);
-
     glm::mat4 getMVPmatrix(float aspect) const;
+
+    glm::vec3& getLookingVectorReference();
+    glm::vec3& getPositionReference();
 };

@@ -137,3 +137,11 @@ glm::mat4 Player::getMVPmatrix(float aspect) const {
 
     return projection * view * model;
 }
+
+glm::vec3& Player::getLookingVectorReference() {
+    return looking;
+}
+
+glm::vec3& Player::getPositionReference() {
+    return position;
+}

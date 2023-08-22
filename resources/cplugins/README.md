@@ -1,0 +1,1 @@
+# Compile your plugins and put the shared object here
