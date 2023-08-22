@@ -1,4 +1,4 @@
-#include "plugins/include/IPlugin.hpp"
+#include "pluginManager/include/IPlugin.hpp"
 #include "game.hpp"
 
 class XBoxJoystickPlugin : public IPlugin {
@@ -6,9 +6,9 @@ public:
     XBoxJoystickPlugin();
     ~XBoxJoystickPlugin();
 
-    void setup(Game&);
+    void setup();
     void frameUpdate(Game&);
-    void cleanup(Game&);
+    void cleanup();
     std::string getPluginName();
 };
 

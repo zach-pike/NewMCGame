@@ -32,10 +32,10 @@ XBoxJoystickPlugin::~XBoxJoystickPlugin() {}
 
 const float sens = 0.05f;
 const float moveSpeed = .25f;
-const float cameraPitchMax = M_PI * 1.5;
+const float cameraPitchMax = M_PI * 1.49;
 const float cameraPitchMin = M_PI_2 + .01f;
 
-void XBoxJoystickPlugin::setup(Game& game) {
+void XBoxJoystickPlugin::setup() {
     if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
         const char* name = glfwGetJoystickName(GLFW_JOYSTICK_1);
 
@@ -86,6 +86,9 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
     if (buttons[BUTTON_A]) {
         position += glm::vec3(0, 1, 0) * moveSpeed;
     }
+    if (buttons[BUTTON_B]) {
+        position -= glm::vec3(0, 1, 0) * moveSpeed;
+    }
 
     static bool breakTriggerPressed = false;
     if (axes[RIGHT_TRIGGER_AXES] > .75f) {
@@ -100,7 +103,7 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
     }
 }
 
-void XBoxJoystickPlugin::cleanup(Game& game) {}
+void XBoxJoystickPlugin::cleanup() {}
 
 std::string XBoxJoystickPlugin::getPluginName() {
     return "XBoxJoystickPlugin VERSION 1.0";

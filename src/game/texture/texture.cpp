@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 
-GLuint LoadBMP(const char* imagepath){
+GLuint loadBMP(std::string imagepath){
 
 	std::cout << "Reading image " << imagepath << '\n';
 
@@ -16,7 +16,7 @@ GLuint LoadBMP(const char* imagepath){
 	unsigned char * data;
 
 	// Open the file
-	FILE * file = fopen(imagepath,"rb");
+	FILE* file = fopen(imagepath.c_str(), "rb");
 	if (!file){
 		std::cout << imagepath << " could not be opened.\n";
 		getchar();

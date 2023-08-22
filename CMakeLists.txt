@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project(mc_clone VERSION 1.0)
 
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
-file(GLOB XBOXJOY_SRC src/game/plugins/modules/XBoxJoystick/*.cpp)
+file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
 
 include_directories(src/game)
 

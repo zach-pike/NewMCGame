@@ -1,4 +1,5 @@
 #pragma once
 #include <GL/glew.h>
+#include <string>
 
-GLuint LoadBMP(const char* imagepath);
+GLuint loadBMP(std::string imagepath);
