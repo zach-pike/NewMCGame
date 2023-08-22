@@ -14,42 +14,43 @@ const float moveSpeed = .25f;
 Player::Player(glm::vec3 _position, glm::vec3 _looking, float _fov):
     position(_position),
     looking(_looking),
-    settings({ .fov = _fov, .showDebug = false}) {}
+    settings({ .fov = _fov, .showDebug = false, .mouseLookFocus = true}) {}
 
 Player::~Player() {}
 
 void Player::updatePlayer(Game& game) {
-    // Get screen width and height
-    int width, height;
-    glfwGetWindowSize(game.getGLFWwindow(), &width, &height);
-
-    // Half screen width and heigh
-    const int hwidth = width / 2;
-    const int hheight = height / 2;
-
-    // First, do the player look code
     static double pitch = 2.8f;
     static double yaw = 0;
     static double mx, my = 0.f;
 
-    glfwGetCursorPos(game.getGLFWwindow(), &mx, &my);
+    if (settings.mouseLookFocus) {
+        // Get screen width and height
 
-    // Subtract the halfWidth and halfHeight to get a mouse movement amount based around (0, 0)
-    mx -= hwidth;
-    my -= hheight;
+        // Half screen width and heigh
+        const int hwidth = game.getWindowWidth() / 2;
+        const int hheight = game.getWindowHeight() / 2;
 
-    // Set the cursor back to the middle of the frame
-    glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
-    
-    // Yaw is the left to right movement of the camera
-    // mouseSens is a scalar to control move speed
-    yaw += mx * mouseSens;
+        // First, do the player look code
 
-    // Lock the camera to almost all the way down and almost all the way up
-    pitch = std::min(1.5f*M_PI - .01, std::max((double)M_PI_2 + .01, pitch + my * mouseSens));
+        glfwGetCursorPos(game.getGLFWwindow(), &mx, &my);
 
-    // Calculate the look vector
-    looking = glm::vec3(cos(pitch)*cos(yaw), sin(pitch), sin(yaw) * cos(pitch));
+        // Subtract the halfWidth and halfHeight to get a mouse movement amount based around (0, 0)
+        mx -= hwidth;
+        my -= hheight;
+
+        // Set the cursor back to the middle of the frame
+        glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
+        
+        // Yaw is the left to right movement of the camera
+        // mouseSens is a scalar to control move speed
+        yaw += mx * mouseSens;
+
+        // Lock the camera to almost all the way down and almost all the way up
+        pitch = std::min(1.5f*M_PI - .01, std::max((double)M_PI_2 + .01, pitch + my * mouseSens));
+
+        // Calculate the look vector
+        looking = glm::vec3(cos(pitch)*cos(yaw), sin(pitch), sin(yaw) * cos(pitch));
+    }
 
     // Now player movement
     // Forward
@@ -119,6 +120,17 @@ void Player::updatePlayer(Game& game) {
         }
     } else {
         debugButtonWasPressed = false;
+    }
+
+    static bool mouseUnlockWasPressed = false;
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_F) == GLFW_PRESS) {
+        if (mouseUnlockWasPressed == false) {
+            mouseUnlockWasPressed = true;
+
+            settings.mouseLookFocus = !settings.mouseLookFocus;
+        }
+    } else {
+        mouseUnlockWasPressed = false;
     }
 }
 

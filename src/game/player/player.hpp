@@ -9,6 +9,7 @@ public:
     struct PlayerSettings {
         float fov;
         bool showDebug;
+        bool mouseLookFocus;
     };
 private:
     glm::vec3 position;

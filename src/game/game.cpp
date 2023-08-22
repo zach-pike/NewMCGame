@@ -47,6 +47,11 @@ Game::Game():
 
     // Load the plugins and enable them
     pluginManager.loadPlugins();
+
+    // Resize the viewport on window size change
+    glfwSetFramebufferSizeCallback(gameWindow, [](GLFWwindow* win, int w, int h) {
+        glViewport(0, 0, w, h);
+    });
 }
 Game::~Game() {
     pluginManager.unloadPlugins();
@@ -102,9 +107,6 @@ void Game::gfxInit() {
 }
 
 void Game::gameLoop() {
-    // Visual settings
-    const float aspect = 1300.f / 768.f;
-
     // ID for setting the MVP matrix
     GLuint worldMatrixID = glGetUniformLocation(worldShader, "MVP");
     GLuint debugMatrixID = glGetUniformLocation(lineDebugShader, "MVP");
@@ -127,6 +129,7 @@ void Game::gameLoop() {
 
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwGetWindowSize(gameWindow, &windowWidth, &windowHeight);
 
         player.updatePlayer(*this);
         world.update();
@@ -137,7 +140,7 @@ void Game::gameLoop() {
         // Get the mvp from the player 
         glUseProgram(worldShader);
 
-        auto MVP = player.getMVPmatrix(aspect);
+        auto MVP = player.getMVPmatrix((float)windowWidth / (float)windowHeight);
         glUniformMatrix4fv(worldMatrixID, 1, GL_FALSE, &MVP[0][0]);
         for (Chunk* chunk : chunks) {
             auto bufferInfo = chunk->getBufferInfo();
@@ -218,4 +221,11 @@ Player& Game::getPlayer() {
 
 World& Game::getWorld() {
     return world;
+}
+
+int Game::getWindowWidth() const {
+    return windowWidth;
+}
+int Game::getWindowHeight() const {
+    return windowHeight;
 }

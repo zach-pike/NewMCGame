@@ -24,6 +24,8 @@ private:
     std::int64_t fps = 1.f / 30.f * 1000000.f;
 
     PluginManager pluginManager;
+
+    int windowWidth, windowHeight;
 public:
     Game();
     ~Game();
@@ -36,4 +38,7 @@ public:
     void gfxInit();
 
     void gameLoop();
+
+    int getWindowWidth() const;
+    int getWindowHeight() const;
 };
