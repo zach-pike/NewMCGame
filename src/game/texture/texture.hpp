@@ -2,4 +2,4 @@
 #include <GL/glew.h>
 #include <string>
 
-GLuint loadBMP(std::string imagepath);
+GLuint loadImageTexture(std::string s);

@@ -34,8 +34,6 @@ Game::Game():
     world.gfxInit();
     billboardManager.gfxInit();
 
-    billboardManager.addBillboard(glm::vec3(0, 40, 0), "hello world");
-
     // Generate world
     world.generateWorld(10, 5, 10);
 
@@ -51,7 +49,7 @@ Game::Game():
 Game::~Game() {
     pluginManager.disablePlugins(*this);
     pluginManager.unloadPlugins();
-    
+
     glDeleteVertexArrays(1, &vertexArrayID);
     glfwTerminate();
 }
@@ -136,6 +134,14 @@ Player& Game::getPlayer() {
 
 World& Game::getWorld() {
     return world;
+}
+
+PluginManager& Game::getPluginManager() {
+    return pluginManager;
+}
+
+BillboardManager& Game::getBillboardManager() {
+    return billboardManager;
 }
 
 int Game::getWindowWidth() const {

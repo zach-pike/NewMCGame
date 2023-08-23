@@ -27,18 +27,52 @@ public:
 #include "types/types.hpp"
 
 #include <vector>
+#include <array>
+#include <glm/glm.hpp>
+#include <iostream>
 
 void Billboard::draw() {
-    std::vector<glm::vec2> vertexes = {
-        glm::vec2(0, 0),
-        glm::vec2(1, 0),
-        glm::vec2(1, 1)
-    };
-
+    std::vector<glm::vec2> vertexes;
     std::vector<UV> uv;
 
+    const float charDim = .2f;
+
+    const float billboardWidth = charDim * text.size();
+    const float charOffset = billboardWidth / 2.f;
+
+    for (int i=0; i < text.size(); i++) {
+        unsigned char letter = text.at(i);
+
+        float xPosition = i * charDim - charOffset;
+
+        UV charUV = glm::vec2(letter% 16 , letter / 16);
+
+        std::array<glm::vec2, 6> vtxs = {
+            glm::vec2(xPosition, 0),                      // Bottom left
+            glm::vec2(xPosition + charDim, charDim),      // Top right
+            glm::vec2(xPosition, charDim),                // Top left
+
+            glm::vec2(xPosition, 0),                      // Bottom left
+            glm::vec2(xPosition + charDim, 0),            // Bottom right
+            glm::vec2(xPosition + charDim, charDim),      // Top right
+        };
+
+        std::array<UV, 6> uvs = {
+            charUV + UV(0, 1),
+            charUV + UV(1, 0),
+            charUV,
+
+            charUV + UV(0, 1),
+            charUV + UV(1, 1),
+            charUV + UV(1, 0),
+        };
+
+        vertexes.insert(vertexes.end(), vtxs.begin(), vtxs.end());
+        uv.insert(uv.end(), uvs.begin(), uvs.end());
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, vertexes.size() * sizeof(Vertex), vertexes.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexes.size() * sizeof(glm::vec2), vertexes.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
     glBufferData(GL_ARRAY_BUFFER, uv.size() * sizeof(UV), uv.data(), GL_STATIC_DRAW);
@@ -46,9 +80,10 @@ void Billboard::draw() {
     nVerts = vertexes.size();
 }
 
-Billboard::Billboard(glm::vec3 _position, std::string _text):
+Billboard::Billboard(glm::vec3 _position, std::string _text, std::string _billboardID):
  position(_position),
- text(_text)
+ text(_text),
+ billboardID(_billboardID)
 {
     glGenBuffers(1, &buffers.vertexBuffer);
     glGenBuffers(1, &buffers.uvBuffer);
@@ -71,4 +106,16 @@ Billboard::Buffers Billboard::getDrawBuffers() const {
 
 std::size_t Billboard::vertCount() const {
     return nVerts;
+}
+
+const std::string& Billboard::getBillboardID() const {
+    return billboardID;
+}
+
+void Billboard::setText(std::string _text) {
+    text = _text;
+    draw();
+}
+std::string Billboard::getText() const {
+    return text;
 }

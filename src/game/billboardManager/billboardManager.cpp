@@ -1,5 +1,6 @@
 #include "billboardManager.hpp"
 #include "shader/shader.hpp"
+#include "texture/texture.hpp"
 #include "utils/path.hpp"
 
 BillboardManager::BillboardManager() {
@@ -9,6 +10,7 @@ BillboardManager::BillboardManager() {
 BillboardManager::~BillboardManager() {
     if (gfxReady) {
         glDeleteShader(billboardShader);
+        glDeleteTextures(1, &billboardTexture);
     }
 }
 
@@ -17,6 +19,9 @@ void BillboardManager::gfxInit() {
         getResourcePath("shaders/billboardVertex.glsl"),
         getResourcePath("shaders/billboardFragment.glsl")
     );
+
+    billboardTexture = loadImageTexture(getResourcePath("TextAtlas.png"));
+    textureID = glGetUniformLocation(billboardShader, "myTexture");
 
     uniforms.cameraPosition = glGetUniformLocation(billboardShader, "cameraPosition");
     uniforms.cameraRightWorldspace = glGetUniformLocation(billboardShader, "cameraRightWorldspace");
@@ -28,9 +33,11 @@ void BillboardManager::gfxInit() {
     gfxReady = true;
 }
 
-std::size_t BillboardManager::addBillboard(glm::vec3 position, std::string text) {
-    auto billboard = std::make_unique<Billboard>(position, text);
+std::size_t BillboardManager::addBillboard(glm::vec3 position, std::string text, std::string id) {
+    auto billboard = std::make_shared<Billboard>(position, text, id);
     billboards.push_back(std::move(billboard));
+
+    return billboards.size();
 }
 
 BillboardManager::Uniforms BillboardManager::getBillboardUniforms() const {
@@ -40,6 +47,10 @@ BillboardManager::Uniforms BillboardManager::getBillboardUniforms() const {
 void BillboardManager::draw(glm::vec3 viewerPos, const glm::mat4& viewMatrix, const glm::mat4& viewProjection) {
     // Use the billboard rendering shader
     glUseProgram(getBillboardShader());
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, billboardTexture);
+    glUniform1i(textureID, 1);
 
     // Set some camera related variables
     glUniform3fv(uniforms.cameraPosition, 1, &viewerPos[0]);
@@ -85,6 +96,14 @@ void BillboardManager::draw(glm::vec3 viewerPos, const glm::mat4& viewMatrix, co
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
+}
+
+std::shared_ptr<Billboard>& BillboardManager::getBillboardByID(std::string id) {
+    for (auto& billboard : billboards) {
+        if (billboard->getBillboardID() == id) return billboard;
+    }
+
+    throw std::runtime_error("No billboard with ID " + id);
 }
 
 const BillboardManager::BillboardList& BillboardManager::getBillboards() const {

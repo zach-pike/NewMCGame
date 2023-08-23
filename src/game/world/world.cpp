@@ -19,12 +19,9 @@ void World::gfxInit() {
 
     viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
     chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
+    textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
 
-    textureAtlas = loadBMP(getResourcePath("Chunk.bmp"));
-
-    glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
-	glUniform1i(glGetUniformLocation(worldShader, "textureAtlas"), 0);
+    textureAtlas = loadImageTexture(getResourcePath("Chunk.bmp"));
 
     gfxReady = true;
 }
@@ -162,6 +159,11 @@ void World::update() {
 void World::draw(const glm::mat4& viewProjection) {
     // Render the world 
     glUseProgram(worldShader);
+
+    glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+    glUniform1i(textureAtlasID, 0);
+    
     glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
 
     for (const auto& kv : getChunksReference()) {
@@ -200,5 +202,12 @@ void World::draw(const glm::mat4& viewProjection) {
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+    }
+}
+
+std::size_t World::getNVertices() const {
+    std::size_t n = 0;
+    for (auto& chunk : chunks) {
+        n += chunk.second.getNVertices();
     }
 }

@@ -18,8 +18,10 @@ private:
     std::size_t nVerts;
 
     void draw();
+
+    std::string billboardID;
 public:
-    Billboard(glm::vec3 position, std::string text);
+    Billboard(glm::vec3 position, std::string text, std::string billboardID);
     Billboard(const Billboard&) = delete;
     Billboard(const Billboard&&) = delete;
 
@@ -27,6 +29,11 @@ public:
     Buffers getDrawBuffers() const;
 
     std::size_t vertCount() const;
+
+    void setText(std::string text);
+    std::string getText() const;
+
+    const std::string& getBillboardID() const;
 
     ~Billboard();
 };

@@ -27,9 +27,6 @@ void destroy(IPlugin* plugin) {
     delete plugin;
 }
 
-XBoxJoystickPlugin::XBoxJoystickPlugin() {}
-XBoxJoystickPlugin::~XBoxJoystickPlugin() {}
-
 const float sens = 0.05f;
 const float moveSpeed = .25f;
 const float cameraPitchMax = M_PI * 1.49;

@@ -34,6 +34,8 @@ public:
 
     Player& getPlayer();
     World& getWorld();
+    PluginManager& getPluginManager();
+    BillboardManager& getBillboardManager();
 
     GLFWwindow* getGLFWwindow();
 

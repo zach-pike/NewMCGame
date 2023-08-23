@@ -8,7 +8,7 @@
 
 class BillboardManager : private NonCopyable {
 public:
-    using BillboardList = std::vector<std::unique_ptr<Billboard>>;
+    using BillboardList = std::vector<std::shared_ptr<Billboard>>;
 
     struct Uniforms {
         GLuint cameraPosition, cameraViewProjection, modelPosition, cameraRightWorldspace, cameraUpWorldspace;
@@ -18,6 +18,8 @@ private:
 
     bool gfxReady = false;
     GLuint billboardShader;
+    GLuint billboardTexture;
+    GLuint textureID;
     Uniforms uniforms;
 public:
     BillboardManager();
@@ -27,11 +29,13 @@ public:
     // Does all the necessary calls to OpenGL related functions
     void gfxInit();
 
-    std::size_t addBillboard(glm::vec3 position, std::string text);
+    std::size_t addBillboard(glm::vec3 position, std::string text, std::string id);
 
     Uniforms getBillboardUniforms() const;
 
     void draw(glm::vec3 viewerPos, const glm::mat4& viewMatrix, const glm::mat4& viewProjection);
+
+    std::shared_ptr<Billboard>& getBillboardByID(std::string id);
 
     const BillboardList& getBillboards() const;
     GLuint getBillboardShader() const;

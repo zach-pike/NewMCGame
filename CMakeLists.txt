@@ -4,6 +4,7 @@ project(mc_clone VERSION 1.0)
 
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
 file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
+file(GLOB WORLDINFOSIGN_SRC resources/plugins/WorldInfoSign/*.cpp)
 
 include_directories(src/game)
 
@@ -13,11 +14,16 @@ add_executable(main src/main.cpp)
 # Minecraft Game library
 add_library(gameLib SHARED ${GAME_SRC})
 
-# Joystick library
+# Plugins
 add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
+add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
 
-# Set the output location of the shared object
+# Set the output location of the plugins
 set_target_properties(XBoxJoystickLib
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
+)
+set_target_properties(WorldInfoSignLib
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
 )
@@ -28,6 +34,9 @@ target_link_libraries(gameLib GL GLEW glfw m X11 Xi Xrandr dl)
 # Link gameLib
 link_libraries(${CMAKE_BINARY_DIR}/libgameLib.so)
 
-# Link for main executable
+# Link the main executable to the gameLib
 target_link_libraries(main gameLib)
+
+# Link the game library to the plugins
 target_link_libraries(XBoxJoystickLib gameLib)
+target_link_libraries(WorldInfoSignLib gameLib)
