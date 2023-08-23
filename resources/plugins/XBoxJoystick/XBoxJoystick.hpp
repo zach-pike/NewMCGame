@@ -7,6 +7,7 @@ public:
     void frameUpdate(Game&);
     void cleanup(Game&);
     std::string getPluginName();
+    Version getPluginVersion();
 };
 
 extern "C" {

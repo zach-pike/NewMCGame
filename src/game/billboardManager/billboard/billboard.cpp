@@ -100,6 +100,10 @@ glm::vec3 Billboard::getPosition() const {
     return position;
 }
 
+void Billboard::setPosition(glm::vec3 _pos) {
+    position = _pos;
+}
+
 Billboard::Buffers Billboard::getDrawBuffers() const {
     return buffers;
 }
@@ -108,14 +112,23 @@ std::size_t Billboard::vertCount() const {
     return nVerts;
 }
 
-const std::string& Billboard::getBillboardID() const {
-    return billboardID;
-}
-
 void Billboard::setText(std::string _text) {
     text = _text;
     draw();
 }
+
 std::string Billboard::getText() const {
     return text;
+}
+
+const std::string& Billboard::getBillboardID() const {
+    return billboardID;
+}
+
+glm::vec2 Billboard::getScale() const {
+    return billboardScale;
+}
+
+void Billboard::setScale(glm::vec2 _scale) {
+    billboardScale = _scale;
 }

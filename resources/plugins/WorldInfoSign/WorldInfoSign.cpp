@@ -11,10 +11,11 @@ void destroy(IPlugin* plugin) {
 void WorldInfoSign::setup(Game& game) {
     auto& billboardManager = game.getBillboardManager();
 
-    billboardManager.addBillboard(glm::vec3(0, 30, 0), "<placeholder>", "worldInfoSign");
+    billboardManager.addBillboard(glm::vec3(0, 50, 0), "<placeholder>", "worldInfoSign");
     billboard = billboardManager.getBillboardByID("worldInfoSign");
 
     billboard->setText("World info sign");
+    billboard->setScale(glm::vec2(5));
 }
 
 void WorldInfoSign::frameUpdate(Game& game) {
@@ -23,7 +24,7 @@ void WorldInfoSign::frameUpdate(Game& game) {
         std::string billboardText = "# Polygons: ";
         billboardText += std::to_string(game.getWorld().getNVertices() / 3);
         billboardText += " # Chunks: ";
-        billboardText += std::to_string(game.getWorld().getChunksReference().size());
+        billboardText += std::to_string(game.getWorld().getChunks().size());
 
         billboard->setText(billboardText);
     }
@@ -36,5 +37,9 @@ void WorldInfoSign::cleanup(Game& game) {
 }
 
 std::string WorldInfoSign::getPluginName() {
-    return "WorldInfoSign VERSION 1.0";
+    return "WorldInfoSign";
+}
+
+IPlugin::Version WorldInfoSign::getPluginVersion() {
+    return Version { 1, 0 };
 }

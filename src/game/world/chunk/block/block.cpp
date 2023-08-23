@@ -7,13 +7,17 @@ Block::Block(BlockType bt):
 
 Block::~Block() {}
 
-Block::UVTexture Block::getUVCoords(BlockFace f) const {
+Block::BlockType Block::getBlockType() const {
+    return blockType;
+}
+
+UV Block::getUVCoords(BlockFace f) const {
     switch (blockType) {
         case BlockType::STONE: {
-            return UVTexture(1, 0);
+            return UV(1, 0);
         } break;
         case BlockType::DIRT: {
-            return UVTexture(2, 0);
+            return UV(2, 0);
         } break;
         case BlockType::GRASS: {
             switch(f) {
@@ -21,21 +25,17 @@ Block::UVTexture Block::getUVCoords(BlockFace f) const {
                 case BlockFace::SOUTH:
                 case BlockFace::EAST:
                 case BlockFace::WEST: {
-                    return UVTexture(3, 0);
+                    return UV(3, 0);
                 } break;
                 case BlockFace::BOTTOM: {
-                    return UVTexture(2, 0);
+                    return UV(2, 0);
                 } break;
                 case BlockFace::TOP: {
-                    return UVTexture(0, 0);
+                    return UV(0, 0);
                 } break;
             }
         };
     }
 
     throw std::runtime_error("Invalid block type or face");
-}
-
-Block::BlockType Block::getBlockType() const {
-    return blockType;
 }

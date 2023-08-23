@@ -27,7 +27,7 @@ public:
 
     // Does all the necessary calls to OpenGL related functions
     void gfxInit();
-
+    
     int chunkSizeX() const;
     int chunkSizeY() const;
     int chunkSizeZ() const;
@@ -43,7 +43,7 @@ public:
 
     Chunk& getChunk(glm::vec3 chunkCoords);
 
-    std::map<ChunkPos, Chunk>& getChunksReference();
+    std::map<ChunkPos, Chunk>& getChunks();
 
     void update();
 

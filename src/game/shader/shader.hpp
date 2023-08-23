@@ -3,4 +3,9 @@
 #include <GL/glew.h>
 #include <string>
 
-GLuint loadShaders(std::string vertex_file_path, std::string fragment_file_path);
+/**
+ * Loads in shaders and creates a program for them
+ * @param vertexFilePath Path to vertex shader
+ * @param fragmentFilePath Path to fragment shader
+*/
+GLuint loadShaders(std::string vertexFilePath, std::string fragmentFilePath);

@@ -116,7 +116,7 @@ void Game::gameLoop() {
         world.draw(viewProjection);
 
         if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
-        billboardManager.draw(player.getPositionReference(), viewMatrix, viewProjection);
+        billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);
 
         // Swap buffers
         glfwSwapBuffers(gameWindow);

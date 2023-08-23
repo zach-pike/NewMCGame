@@ -69,8 +69,8 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
     }
 
     Player& p = game.getPlayer();
-    glm::vec3& looking = p.getLookingVectorReference();
-    glm::vec3& position = p.getPositionReference();
+    glm::vec3& looking = p.getLookingVectorRef();
+    glm::vec3& position = p.getPositionRef();
 
     glm::vec3 newLookVec = glm::vec3(cos(cameraPitch)*cos(cameraYaw), sin(cameraPitch), sin(cameraYaw) * cos(cameraPitch));
     looking = newLookVec;
@@ -103,5 +103,9 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
 void XBoxJoystickPlugin::cleanup(Game& game) {}
 
 std::string XBoxJoystickPlugin::getPluginName() {
-    return "XBoxJoystickPlugin VERSION 1.0";
+    return "XBoxJoystickPlugin";
+}
+
+IPlugin::Version XBoxJoystickPlugin::getPluginVersion() {
+    return Version{ 1, 0 };
 }

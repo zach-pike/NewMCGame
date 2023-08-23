@@ -3,9 +3,7 @@
 #include "texture/texture.hpp"
 #include "utils/path.hpp"
 
-BillboardManager::BillboardManager() {
-
-}
+BillboardManager::BillboardManager() {}
 
 BillboardManager::~BillboardManager() {
     if (gfxReady) {
@@ -16,11 +14,11 @@ BillboardManager::~BillboardManager() {
 
 void BillboardManager::gfxInit() {
     billboardShader = loadShaders(
-        getResourcePath("shaders/billboardVertex.glsl"),
-        getResourcePath("shaders/billboardFragment.glsl")
+        getResourcePath("shaders/billboard/vertex.glsl"),
+        getResourcePath("shaders/billboard/fragment.glsl")
     );
 
-    billboardTexture = loadImageTexture(getResourcePath("TextAtlas.png"));
+    billboardTexture = loadImageTexture(getResourcePath("textures/TextAtlas.png"));
     textureID = glGetUniformLocation(billboardShader, "myTexture");
 
     uniforms.cameraPosition = glGetUniformLocation(billboardShader, "cameraPosition");
@@ -29,6 +27,7 @@ void BillboardManager::gfxInit() {
     uniforms.cameraViewProjection = glGetUniformLocation(billboardShader, "cameraViewProjection");
 
     uniforms.modelPosition = glGetUniformLocation(billboardShader, "modelPosition");
+    uniforms.billboardScale = glGetUniformLocation(billboardShader, "billboardScale");
 
     gfxReady = true;
 }
@@ -40,13 +39,9 @@ std::size_t BillboardManager::addBillboard(glm::vec3 position, std::string text,
     return billboards.size();
 }
 
-BillboardManager::Uniforms BillboardManager::getBillboardUniforms() const {
-    return uniforms;
-}
-
 void BillboardManager::draw(glm::vec3 viewerPos, const glm::mat4& viewMatrix, const glm::mat4& viewProjection) {
     // Use the billboard rendering shader
-    glUseProgram(getBillboardShader());
+    glUseProgram(billboardShader);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, billboardTexture);
@@ -62,12 +57,14 @@ void BillboardManager::draw(glm::vec3 viewerPos, const glm::mat4& viewMatrix, co
     glUniform3fv(uniforms.cameraRightWorldspace, 1, &cameraRightWorldspace[0]);
     glUniform3fv(uniforms.cameraUpWorldspace, 1, &cameraUpWorldspace[0]);
 
-    for (const auto& billboard : getBillboards()) {
+    for (const auto& billboard : getBillboardsRef()) {
         auto position = billboard->getPosition();
         auto buffers = billboard->getDrawBuffers();
+        auto scale = billboard->getScale();
 
         // Set the position of the billboard
         glUniform3fv(uniforms.modelPosition, 1, &position[0]); // Update this for every billboard
+        glUniform2fv(uniforms.billboardScale, 1, &scale[0]);
 
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
@@ -106,9 +103,6 @@ std::shared_ptr<Billboard>& BillboardManager::getBillboardByID(std::string id) {
     throw std::runtime_error("No billboard with ID " + id);
 }
 
-const BillboardManager::BillboardList& BillboardManager::getBillboards() const {
+BillboardManager::BillboardList& BillboardManager::getBillboardsRef() {
     return billboards;
-}
-GLuint BillboardManager::getBillboardShader() const {
-    return billboardShader;
 }

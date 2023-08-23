@@ -22,13 +22,36 @@ public:
     PluginManager(std::string pluginsDirectory = "cplugins/");
     ~PluginManager();
 
+    /**
+     * Load the .so files and create the plugin objects
+    */
     void loadPlugins();
+
+    /**
+     * Destroy the plugins and unload the .so files
+    */
     void unloadPlugins();
 
-    void enablePlugins(Game&);
-    void disablePlugins(Game&);
+    /**
+     * Calls all the setup functions
+     * @param game The game object to pass to IPlugin::setup()
+    */
+    void enablePlugins(Game& game);
 
-    void pluginFrameUpdate(Game&);
+    /**
+     * Calls all the cleanup functions
+     * @param game The game object to pass to IPlugin::cleanup()
+    */
+    void disablePlugins(Game& game);
 
+    /**
+     * Calls IPlugin::frameUpdate() on every plugin
+     * @param game The game object to pass
+    */
+    void pluginFrameUpdate(Game& game);
+
+    /**
+     * Returns the number of plugins loaded
+    */
     std::size_t getPluginsLoaded() const;
 };

@@ -134,10 +134,6 @@ void Player::updatePlayer(Game& game) {
     }
 }
 
-bool Player::showingDebug() const {
-    return settings.showDebug;
-}
-
 glm::mat4 Player::getCameraProjectionMatrix(float aspect) const {
     return glm::perspective(glm::radians(settings.fov), aspect, 0.01f, 1000.0f);
 }
@@ -156,10 +152,15 @@ glm::mat4 Player::getViewProjection(float aspect) const {
     return projection * view;
 }
 
-glm::vec3& Player::getLookingVectorReference() {
+
+bool Player::showingDebug() const {
+    return settings.showDebug;
+}
+
+glm::vec3& Player::getLookingVectorRef() {
     return looking;
 }
 
-glm::vec3& Player::getPositionReference() {
+glm::vec3& Player::getPositionRef() {
     return position;
 }

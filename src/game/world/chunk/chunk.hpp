@@ -43,17 +43,43 @@ public:
     Chunk(Chunk&&);
     ~Chunk();
 
-    bool pendingMeshUpdate() const;
-
-    std::size_t getNVertices() const;
-
-    Block getBlock(glm::vec3 localPos);
-    void setBlock(glm::vec3 localPos, Block block);
-
-    BufferInfo getBufferInfo() const;
-
-    // Mark the chunk to be rerendered
+    /**
+     * Mark the chunk to be rerendered
+    */
     void markRerender();
 
-    void update(glm::vec3 chunkCoord, World& world);
+    /**
+     * Return true if the mesh in the GPU is outdated
+    */
+    bool pendingMeshUpdate() const;
+
+    /**
+     * Returns the number of vertices in the buffer
+    */
+    std::size_t getNVertices() const;
+
+    /**
+     * Get a block inside of the chunk
+     * @param localPos Position inside of the chunk
+    */
+    Block getBlock(glm::vec3 localPos);
+
+    /**
+     * Set a block inside of the chunk
+     * @param localPos The position
+     * @param block Block to set
+    */
+    void setBlock(glm::vec3 localPos, Block block);
+
+    /**
+     * Get the buffer information for the chunk mesh
+    */
+    BufferInfo getBufferInfo() const;
+
+    /**
+     * Generates the mesh for the chunk
+     * @param chunkCoord The chunk coordinate of this chunk
+     * @param world The world object
+    */
+    void generateMesh(glm::vec3 chunkCoord, World& world);
 };

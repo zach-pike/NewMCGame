@@ -7,36 +7,6 @@
 #include "shader/shader.hpp"
 #include "utils/path.hpp"
 
-
-World::World() {}
-
-// Does all the necessary calls to OpenGL related functions
-void World::gfxInit() {
-    worldShader = loadShaders(
-        getResourcePath("shaders/vertex.glsl"),
-        getResourcePath("shaders/fragment.glsl")
-    );
-
-    viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
-    chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
-    textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
-
-    textureAtlas = loadImageTexture(getResourcePath("Chunk.bmp"));
-
-    gfxReady = true;
-}
-
-World::~World() {
-    if (gfxReady) {
-        glDeleteTextures(1, &textureAtlas);
-        glDeleteShader(worldShader);
-    }
-}
-
-int World::chunkSizeX() const { return sizeX; }
-int World::chunkSizeY() const { return sizeY; }
-int World::chunkSizeZ() const { return sizeZ; }
-
 World::ChunkPos getChunkCoords(glm::vec3 pos) {
     int chunkX = std::floor(pos.x / 16.f);
     int chunkY = std::floor(pos.y / 16.f);
@@ -48,6 +18,35 @@ World::ChunkPos getChunkCoords(glm::vec3 pos) {
 Chunk& World::getChunkFromWorldCoords(glm::vec3 pos) {
     return chunks.at(getChunkCoords(pos));
 }
+
+World::World() {}
+
+World::~World() {
+    if (gfxReady) {
+        glDeleteTextures(1, &textureAtlas);
+        glDeleteShader(worldShader);
+    }
+}
+
+// Does all the necessary calls to OpenGL related functions
+void World::gfxInit() {
+    worldShader = loadShaders(
+        getResourcePath("shaders/world/vertex.glsl"),
+        getResourcePath("shaders/world/fragment.glsl")
+    );
+
+    viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
+    chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
+    textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
+
+    textureAtlas = loadImageTexture(getResourcePath("textures/Chunk.bmp"));
+
+    gfxReady = true;
+}
+
+int World::chunkSizeX() const { return sizeX; }
+int World::chunkSizeY() const { return sizeY; }
+int World::chunkSizeZ() const { return sizeZ; }
 
 Block World::getBlock(glm::vec3 pos) {
     Chunk& chunk = getChunkFromWorldCoords(pos);
@@ -96,6 +95,16 @@ void World::setBlock(glm::vec3 pos, Block b, bool noCheck) {
     return chunk.setBlock(glm::vec3(localX, localY, localZ), b);
 }
 
+bool World::coordinatesInWorld(glm::vec3 pos) {
+    float maxX = sizeX * 16;
+    float maxY = sizeY * 16;
+    float maxZ = sizeZ * 16;
+
+    return pos.x > 0 && pos.x < maxX
+        && pos.y > 0 && pos.y < maxY
+        && pos.z > 0 && pos.z < maxZ;
+}
+
 void World::generateWorld(int xs, int ys, int zs) {
     chunks.clear();
 
@@ -130,17 +139,7 @@ Chunk& World::getChunk(glm::vec3 chunkCoord) {
     return chunks.at(ChunkPos(chunkCoord.x, chunkCoord.y, chunkCoord.z));
 }
 
-bool World::coordinatesInWorld(glm::vec3 pos) {
-    float maxX = sizeX * 16;
-    float maxY = sizeY * 16;
-    float maxZ = sizeZ * 16;
-
-    return pos.x > 0 && pos.x < maxX
-        && pos.y > 0 && pos.y < maxY
-        && pos.z > 0 && pos.z < maxZ;
-}
-
-std::map<World::ChunkPos, Chunk>& World::getChunksReference() {
+std::map<World::ChunkPos, Chunk>& World::getChunks() {
     return chunks;
 }
 
@@ -152,7 +151,7 @@ void World::update() {
         auto chunkPos = a.first;
         auto chunkCoord = glm::vec3(std::get<0>(chunkPos), std::get<1>(chunkPos), std::get<2>(chunkPos));
 
-        chunk.update(chunkCoord, *this);
+        chunk.generateMesh(chunkCoord, *this);
     }
 }
 
@@ -166,7 +165,7 @@ void World::draw(const glm::mat4& viewProjection) {
     
     glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
 
-    for (const auto& kv : getChunksReference()) {
+    for (const auto& kv : getChunks()) {
         // Get all necessary data
         auto& chunk = kv.second;
         auto bufferInfo = chunk.getBufferInfo();
@@ -210,4 +209,6 @@ std::size_t World::getNVertices() const {
     for (auto& chunk : chunks) {
         n += chunk.second.getNVertices();
     }
+
+    return n;
 }

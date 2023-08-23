@@ -59,9 +59,11 @@ void PluginManager::loadPlugins() {
         // Create the plugin
         auto plugin = std::unique_ptr<IPlugin, PluginDestroyerFunction>(createFn(), destroyFn);
         std::string name = plugin->getPluginName();
+        IPlugin::Version version = plugin->getPluginVersion();
         plugins.push_back(std::move(plugin));
 
-        std::cout << "[PluginManager] Created plugin " << name << '\n';
+        std::cout << "[PluginManager] Created plugin " << name << " version "
+                  << version.major << '.' << version.minor << '\n';
     }
 
     std::cout << "[PluginManager] Loaded " << getPluginsLoaded() << " Plugin(s)\n";

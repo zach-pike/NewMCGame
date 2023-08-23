@@ -10,14 +10,14 @@ uniform vec3 cameraUpWorldspace;
 uniform mat4 cameraViewProjection;
 
 uniform vec3 modelPosition;
-
+uniform vec2 billboardScale;
 out vec2 UV;
 
 void main(){
     vec3 vertexPositionWorldspace =
         modelPosition
-        + cameraRightWorldspace * vertexPositionModelspace.x
-        + cameraUpWorldspace * vertexPositionModelspace.y;
+        + cameraRightWorldspace * vertexPositionModelspace.x * billboardScale.x
+        + cameraUpWorldspace * vertexPositionModelspace.y * billboardScale.y;
 
     gl_Position = cameraViewProjection * vec4(vertexPositionWorldspace, 1);
 

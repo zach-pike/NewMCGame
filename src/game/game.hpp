@@ -19,12 +19,7 @@ private:
 
     Player player;
     World world;
-
-    std::int64_t fps = 1.f / 30.f * 1000000.f;
-
     PluginManager pluginManager;
-
-    // Gets initialized after opengl in constructor
     BillboardManager billboardManager;
 
     int windowWidth, windowHeight;

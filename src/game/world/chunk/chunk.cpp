@@ -4,52 +4,6 @@
 #include "../world.hpp"
 #include <stdexcept>
 
-Chunk::Chunk() {
-    blocks.resize(16*16*16);
-
-    glGenBuffers(1, &buffers.vertexBuffer);
-    glGenBuffers(1, &buffers.uvBuffer);
-}
-Chunk::Chunk(Chunk&& ochunk) {
-    blocks = ochunk.blocks;
-    buffers = ochunk.buffers;
-    nVertices = ochunk.nVertices;
-    meshUpdatedNeeded = ochunk.meshUpdatedNeeded;
-
-    ochunk._hasBeenMoved = true;
-}
-
-Chunk::~Chunk() {
-    if (!_hasBeenMoved) {
-        glDeleteBuffers(1, &buffers.vertexBuffer);
-        glDeleteBuffers(1, &buffers.uvBuffer);
-    }
-}
-
-bool Chunk::pendingMeshUpdate() const {
-    return meshUpdatedNeeded;
-}
-
-std::size_t Chunk::getNVertices() const {
-    return nVertices;
-}
-
-
-Block& Chunk::getBlockReference(glm::vec3 localPos) {
-    int i = localPos.x + localPos.z * 16 + localPos.y * 16 * 16;
-
-    return blocks.at(i);
-}
-
-Block Chunk::getBlock(glm::vec3 pos) {
-    return getBlockReference(pos);
-}
-
-void Chunk::setBlock(glm::vec3 pos, Block block) {
-    getBlockReference(pos) = block;
-    meshUpdatedNeeded = true;
-}
-
 void Chunk::blockDrawer(
     std::array<Vertex, 36>& vtx_data,
     std::array<UV, 36>& uv_data,
@@ -180,15 +134,61 @@ void Chunk::blockDrawer(
         addFace(yNeg, false, Block::BlockFace::BOTTOM);
 }
 
-Chunk::BufferInfo Chunk::getBufferInfo() const {
-    return buffers;
+Block& Chunk::getBlockReference(glm::vec3 localPos) {
+    int i = localPos.x + localPos.z * 16 + localPos.y * 16 * 16;
+
+    return blocks.at(i);
+}
+
+Chunk::Chunk() {
+    blocks.resize(16*16*16);
+
+    glGenBuffers(1, &buffers.vertexBuffer);
+    glGenBuffers(1, &buffers.uvBuffer);
+}
+
+Chunk::Chunk(Chunk&& ochunk) {
+    blocks = ochunk.blocks;
+    buffers = ochunk.buffers;
+    nVertices = ochunk.nVertices;
+    meshUpdatedNeeded = ochunk.meshUpdatedNeeded;
+
+    ochunk._hasBeenMoved = true;
+}
+
+Chunk::~Chunk() {
+    if (!_hasBeenMoved) {
+        glDeleteBuffers(1, &buffers.vertexBuffer);
+        glDeleteBuffers(1, &buffers.uvBuffer);
+    }
 }
 
 void Chunk::markRerender() {
     meshUpdatedNeeded = true;
 }
 
-void Chunk::update(glm::vec3 chunkCoords, World& world) {
+bool Chunk::pendingMeshUpdate() const {
+    return meshUpdatedNeeded;
+}
+
+std::size_t Chunk::getNVertices() const {
+    return nVertices;
+}
+
+Block Chunk::getBlock(glm::vec3 pos) {
+    return getBlockReference(pos);
+}
+
+void Chunk::setBlock(glm::vec3 pos, Block block) {
+    getBlockReference(pos) = block;
+    meshUpdatedNeeded = true;
+}
+
+Chunk::BufferInfo Chunk::getBufferInfo() const {
+    return buffers;
+}
+
+void Chunk::generateMesh(glm::vec3 chunkCoords, World& world) {
     meshUpdatedNeeded = false;
 
     std::vector<Vertex> vertices;

@@ -9,8 +9,8 @@ ChunkBorderDebugger::ChunkBorderDebugger(const World& world) {
     glGenBuffers(1, &buffers.colorBuffer);
 
     debugShader = loadShaders(
-        getResourcePath("shaders/lineVertex.glsl"),
-        getResourcePath("shaders/lineFragment.glsl")
+        getResourcePath("shaders/debug/vertex.glsl"),
+        getResourcePath("shaders/debug/fragment.glsl")
     );
 
     viewProjectionID = glGetUniformLocation(debugShader, "viewProjection");
