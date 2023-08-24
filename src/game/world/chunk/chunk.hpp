@@ -82,4 +82,9 @@ public:
      * @param world The world object
     */
     void generateMesh(glm::vec3 chunkCoord, World& world);
+
+    std::vector<std::uint8_t> serialize() const;
+    void deserialize(const std::vector<std::uint8_t>&);
+
+    static std::size_t serializedChunkSize();
 };

@@ -19,7 +19,7 @@ template <typename T, typename... Args>
 using FP = T(*)(Args...);
 
 Game::Game():
-    player{glm::vec3(.5f, 1.5f, .5f), glm::vec3(1, 0, 0), 70.f}
+    player{glm::vec3(0, 50, 0), glm::vec3(1, 0, 0), 70.f}
 {
     std::cout << "WARNING: Make sure the CWD is the base path of the folder!!! Or else nothing will load correctly\n";
 
@@ -35,8 +35,12 @@ Game::Game():
     billboardManager.gfxInit();
 
     // Generate world
-    world.generateWorld(10, 5, 10);
-
+    if (world.worldSaveExists("test")) {
+        world.loadWorld("test");
+    } else {
+        world.generateWorld(10, 5, 10);
+    }
+    
     // Load the plugins and enable them
     pluginManager.loadPlugins();
     pluginManager.enablePlugins(*this);

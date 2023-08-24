@@ -117,7 +117,7 @@ void Player::updatePlayer(Game& game) {
             placeButtonWasPressed = true;
             
             // Cast a ray and try to break the block we are looking at
-            Ray r(position, looking);
+            Ray r(position, looking, .05);
             r.tryPlaceBlock(game.getWorld(), Block(*selectedBlock));
         }
     } else {
@@ -157,6 +157,17 @@ void Player::updatePlayer(Game& game) {
         }
     } else {
         blockSwitchKeyPressed = false;
+    }
+
+    static bool createSavePressed = false;
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_H) == GLFW_PRESS) {
+        if (createSavePressed == false) {
+            createSavePressed = true;
+
+            game.getWorld().saveWorld("test");
+        }
+    } else {
+        createSavePressed = false;
     }
 }
 

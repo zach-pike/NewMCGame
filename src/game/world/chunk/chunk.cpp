@@ -229,3 +229,16 @@ void Chunk::generateMesh(glm::vec3 chunkCoords, World& world) {
     glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(UV), uvs.data(), GL_STATIC_DRAW);
 }
+
+std::vector<std::uint8_t> Chunk::serialize() const {
+    const std::uint8_t* blockData = (std::uint8_t*)blocks.data();
+    return std::vector<std::uint8_t>(blockData, blockData + blocks.size() * sizeof(Block));
+}
+void Chunk::deserialize(const std::vector<std::uint8_t>& data) {
+    const Block* blockData = (Block*)data.data();
+    blocks = std::vector<Block>(blockData, blockData + data.size());
+}
+
+std::size_t Chunk::serializedChunkSize() {
+    return 16 * 16 * 16 * sizeof(Block);
+}

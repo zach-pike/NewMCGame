@@ -7,6 +7,11 @@
 #include "shader/shader.hpp"
 #include "utils/path.hpp"
 
+#include <filesystem>
+#include <string>
+#include <fstream>
+namespace fs = std::filesystem;
+
 World::ChunkPos getChunkCoords(glm::vec3 pos) {
     int chunkX = std::floor(pos.x / 16.f);
     int chunkY = std::floor(pos.y / 16.f);
@@ -122,7 +127,8 @@ void World::generateWorld(int xs, int ys, int zs) {
         }
     }
 
-    const siv::PerlinNoise::seed_type seed = 1743993u;
+    srand(time(nullptr));
+    const siv::PerlinNoise::seed_type seed = rand();
 	const siv::PerlinNoise perlin{ seed };
 
     for (int z=0; z<sizeZ*16; z++) {
@@ -211,4 +217,100 @@ std::size_t World::getNVertices() const {
     }
 
     return n;
+}
+
+void World::saveWorld(std::string saveName) const {
+    if (!fs::is_directory(getResourcePath("saves/"))) fs::create_directories(getResourcePath("saves/"));
+    
+    // Check if the folder exists already
+    std::string saveFolder = getResourcePath("saves/" + saveName);
+    std::string worldDataFilepath = saveFolder + "/world.bin";
+    std::string chunksFolder = saveFolder + "/chunks";
+
+    fs::create_directory(saveFolder);
+
+    auto worldData = SerializedWorldData{
+        .chunkSizeX = sizeX,
+        .chunkSizeY = sizeY,
+        .chunkSizeZ = sizeZ
+    };
+
+    std::fstream worldDataFile(worldDataFilepath, std::ios::out | std::ios::binary);
+    worldDataFile.write((char*)&worldData, sizeof(worldData));
+    worldDataFile.close();
+
+    // Create the chunk data folder
+    fs::create_directory(chunksFolder);
+
+    // Write all the chunks
+    for (const auto& chunk : chunks) {
+        std::stringstream fnamess;
+        fnamess << "/(";
+        fnamess << std::get<0>(chunk.first);
+        fnamess << ',';
+        fnamess << std::get<1>(chunk.first);
+        fnamess << ',';
+        fnamess << std::get<2>(chunk.first);
+        fnamess << ").chunk";
+
+        std::string fName = chunksFolder + fnamess.str();
+        std::vector<std::uint8_t> chunkData = chunk.second.serialize();
+
+        std::fstream chunkFile(fName, std::ios::out | std::ios::binary);
+        chunkFile.write((char*)chunkData.data(), chunkData.size());
+        chunkFile.close();
+    }
+}
+
+void World::loadWorld(std::string saveName) {
+    std::string saveFolder = getResourcePath("saves/" + saveName);
+    std::string worldDataFilepath = saveFolder + "/world.bin";
+    std::string chunksFolder = saveFolder + "/chunks";
+
+    // Read the world data
+    SerializedWorldData worldData = { 0, 0, 0 };
+    std::fstream worldDataFile(worldDataFilepath, std::ios::in | std::ios::binary);
+    worldDataFile.read((char*)&worldData, sizeof(SerializedWorldData));
+    worldDataFile.close();
+
+    // Clear the world
+    chunks.clear();
+
+    sizeX = worldData.chunkSizeX;
+    sizeY = worldData.chunkSizeY;
+    sizeZ = worldData.chunkSizeZ;
+
+    // Load the chunks
+    for (int y=0; y < worldData.chunkSizeY; y++) {
+        for (int z=0; z < worldData.chunkSizeZ; z++) {
+            for (int x=0; x < worldData.chunkSizeX; x++) {
+                std::stringstream fnamess;
+                fnamess << "/(";
+                fnamess << x;
+                fnamess << ',';
+                fnamess << y;
+                fnamess << ',';
+                fnamess << z;
+                fnamess << ").chunk";
+
+                std::string fName = chunksFolder + fnamess.str();
+                std::fstream chunkFile(fName, std::ios::in | std::ios::binary);
+
+                std::vector<std::uint8_t> chunkData;
+                chunkData.resize(Chunk::serializedChunkSize());
+                chunkFile.read((char*)chunkData.data(), chunkData.size());
+                chunkFile.close();
+
+                chunks[ChunkPos(x, y, z)].deserialize(chunkData);
+            }
+        }
+    }
+}
+
+bool World::worldSaveExists(std::string saveName) const {
+    std::string saveFolder = getResourcePath("saves/" + saveName);
+    std::string worldDataFilepath = saveFolder + "/world.bin";
+    std::string chunksFolder = saveFolder + "/chunks";
+
+    return fs::is_directory(saveFolder) && fs::exists(worldDataFilepath) && fs::is_directory(chunksFolder);
 }

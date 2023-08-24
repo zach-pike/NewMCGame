@@ -3,12 +3,17 @@
 #include <map>
 #include <tuple>
 #include <vector>
+#include <string>
 
 #include "chunk/chunk.hpp"
 
 class World {
 public:
     using ChunkPos = std::tuple<int, int, int>;
+
+    struct SerializedWorldData {
+        int chunkSizeX, chunkSizeY, chunkSizeZ;
+    };
 private:
     std::map<ChunkPos, Chunk> chunks;
     int sizeX;
@@ -50,6 +55,11 @@ public:
     void draw(const glm::mat4& viewProjection);
 
     std::size_t getNVertices() const;
+
+    void saveWorld(std::string saveName) const;
+    void loadWorld(std::string saveName);
+
+    bool worldSaveExists(std::string saveName) const;
 
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
         return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
