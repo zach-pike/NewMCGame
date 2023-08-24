@@ -18,6 +18,13 @@ ChunkBorderDebugger::ChunkBorderDebugger(const World& world) {
     drawLines(world.chunkSizeX(), world.chunkSizeY(), world.chunkSizeZ());
 }
 
+ChunkBorderDebugger::~ChunkBorderDebugger() {
+    glDeleteBuffers(1, &buffers.vertexBuffer);
+    glDeleteBuffers(1, &buffers.colorBuffer);
+
+    glDeleteShader(debugShader);
+}
+
 void ChunkBorderDebugger::drawLines(int worldX, int worldY, int worldZ) {
     std::vector<Vertex> vtx;
     std::vector<glm::vec3> colors;
@@ -142,11 +149,4 @@ void ChunkBorderDebugger::draw(const glm::mat4& viewProjection) {
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-}
-
-ChunkBorderDebugger::~ChunkBorderDebugger() {
-    glDeleteBuffers(1, &buffers.vertexBuffer);
-    glDeleteBuffers(1, &buffers.colorBuffer);
-
-    glDeleteShader(debugShader);
 }

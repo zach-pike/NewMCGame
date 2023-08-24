@@ -21,8 +21,7 @@ public:
     ChunkBorderDebugger(const World&);
     ChunkBorderDebugger(const ChunkBorderDebugger&) = delete;
     ChunkBorderDebugger(const ChunkBorderDebugger&&) = delete;
+    ~ChunkBorderDebugger();
 
     void draw(const glm::mat4& viewProjection);
-
-    ~ChunkBorderDebugger();
 };

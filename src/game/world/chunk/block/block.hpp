@@ -10,7 +10,17 @@ public:
         AIR,
         DIRT,
         GRASS,
-        STONE
+        STONE,
+
+        OAK_WOOD,
+        DOUBLE_SLAB,
+        WHOLE_SLAB,
+        BRICKS,
+        TNT,
+        COBBLESTONE,
+        BEDROCK,
+        SAND,
+        GRAVEL
     };
 
     enum class BlockFace {

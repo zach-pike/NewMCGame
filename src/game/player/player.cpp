@@ -111,6 +111,19 @@ void Player::updatePlayer(Game& game) {
         breakButtonWasPressed = false;
     }
 
+    static bool placeButtonWasPressed = false;
+    if (glfwGetMouseButton(game.getGLFWwindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+        if (placeButtonWasPressed == false) {
+            placeButtonWasPressed = true;
+            
+            // Cast a ray and try to break the block we are looking at
+            Ray r(position, looking);
+            r.tryPlaceBlock(game.getWorld(), Block(*selectedBlock));
+        }
+    } else {
+        placeButtonWasPressed = false;
+    }
+
     static bool debugButtonWasPressed = false;
     if(glfwGetKey(game.getGLFWwindow(), GLFW_KEY_T) == GLFW_PRESS) {
         if (debugButtonWasPressed == false) {
@@ -132,6 +145,19 @@ void Player::updatePlayer(Game& game) {
     } else {
         mouseUnlockWasPressed = false;
     }
+
+    static bool blockSwitchKeyPressed = false;
+    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_G) == GLFW_PRESS) {
+        if (blockSwitchKeyPressed == false) {
+            blockSwitchKeyPressed = true;
+
+            selectedBlock++;
+
+            if (selectedBlock == selectableBlocks.end()) selectedBlock = selectableBlocks.begin();
+        }
+    } else {
+        blockSwitchKeyPressed = false;
+    }
 }
 
 glm::mat4 Player::getCameraProjectionMatrix(float aspect) const {
@@ -142,7 +168,7 @@ glm::mat4 Player::getCameraViewMatrix() const {
     return glm::lookAt(
 		position, // Camera is at (4,3,3), in World Space
 		position + looking, // and looks at the origin
-		glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 }
 

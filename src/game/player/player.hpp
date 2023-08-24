@@ -1,7 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-
+#include <vector>
+#include "world/chunk/block/block.hpp"
 class Game;
 
 class Player {
@@ -16,6 +17,22 @@ private:
     glm::vec3 looking;
 
     PlayerSettings settings;
+
+    std::vector<Block::BlockType> selectableBlocks = {
+        Block::BlockType::DIRT,
+        Block::BlockType::GRASS,
+        Block::BlockType::STONE,
+        Block::BlockType::OAK_WOOD,
+        Block::BlockType::DOUBLE_SLAB,
+        Block::BlockType::WHOLE_SLAB,
+        Block::BlockType::BRICKS,
+        Block::BlockType::TNT,
+        Block::BlockType::COBBLESTONE,
+        Block::BlockType::BEDROCK,
+        Block::BlockType::SAND,
+        Block::BlockType::GRAVEL
+    };
+    std::vector<Block::BlockType>::iterator selectedBlock = selectableBlocks.begin();
 public:
     Player(glm::vec3 position, glm::vec3 looking, float fov);
     ~Player();
