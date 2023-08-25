@@ -7,6 +7,7 @@
 #include "world/world.hpp"
 #include "pluginManager/pluginManager.hpp"
 #include "billboardManager/billboardManager.hpp"
+#include "hudTextManager/hudTextManager.hpp"
 
 #include <memory>
 class Game {
@@ -21,6 +22,7 @@ private:
     World world;
     PluginManager pluginManager;
     BillboardManager billboardManager;
+    HUDTextManager hudTextManager;
 
     int windowWidth, windowHeight;
 public:
@@ -31,6 +33,7 @@ public:
     World& getWorld();
     PluginManager& getPluginManager();
     BillboardManager& getBillboardManager();
+    HUDTextManager& getHUDTextManager();
 
     GLFWwindow* getGLFWwindow();
 

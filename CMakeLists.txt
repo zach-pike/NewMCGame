@@ -5,6 +5,7 @@ project(mc_clone VERSION 1.0)
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
 file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
 file(GLOB WORLDINFOSIGN_SRC resources/plugins/WorldInfoSign/*.cpp)
+file(GLOB EXTRADEBUG_SRC resources/plugins/extraDebug/*.cpp)
 
 include_directories(src/game)
 
@@ -17,6 +18,7 @@ add_library(gameLib SHARED ${GAME_SRC})
 # Plugins
 add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
 add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
+add_library(ExtraDebugLib SHARED ${EXTRADEBUG_SRC})
 
 # Set the output location of the plugins
 set_target_properties(XBoxJoystickLib
@@ -24,6 +26,10 @@ set_target_properties(XBoxJoystickLib
     LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
 )
 set_target_properties(WorldInfoSignLib
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
+)
+set_target_properties(ExtraDebugLib
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
 )
@@ -40,3 +46,4 @@ target_link_libraries(main gameLib)
 # Link the game library to the plugins
 target_link_libraries(XBoxJoystickLib gameLib)
 target_link_libraries(WorldInfoSignLib gameLib)
+target_link_libraries(ExtraDebugLib gameLib)

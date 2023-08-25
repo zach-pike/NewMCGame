@@ -33,6 +33,7 @@ Game::Game():
     // Initializes all the shaders/textures/buffers
     world.gfxInit();
     billboardManager.gfxInit();
+    hudTextManager.gfxInit();
 
     // Generate world
     if (world.worldSaveExists("test")) {
@@ -101,6 +102,7 @@ void Game::gameLoop() {
     // Debugger
     ChunkBorderDebugger chunkBorderDebugger(world);
     // ------------------------------
+    
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwGetWindowSize(gameWindow, &windowWidth, &windowHeight);
@@ -121,6 +123,7 @@ void Game::gameLoop() {
 
         if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
         billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);
+        hudTextManager.draw(aspect);
 
         // Swap buffers
         glfwSwapBuffers(gameWindow);
@@ -153,4 +156,7 @@ int Game::getWindowWidth() const {
 }
 int Game::getWindowHeight() const {
     return windowHeight;
+}
+HUDTextManager& Game::getHUDTextManager() {
+    return hudTextManager;
 }
