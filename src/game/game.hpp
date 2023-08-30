@@ -29,18 +29,53 @@ public:
     Game();
     ~Game();
 
-    Player& getPlayer();
-    World& getWorld();
-    PluginManager& getPluginManager();
-    BillboardManager& getBillboardManager();
-    HUDTextManager& getHUDTextManager();
+    /**
+     * Get a reference to the Player object
+    */
+    Player& getPlayerRef();
 
+    /**
+     * Get a reference to the world
+    */
+    World& getWorldRef();
+
+    /**
+     * Get a reference to the PluginManager
+    */
+    PluginManager& getPluginManagerRef();
+
+    /**
+     * Get a reference to the BillboardManager
+    */
+    BillboardManager& getBillboardManagerRef();
+
+    /**
+     * Get a reference to the HUDTextManager
+    */
+    HUDTextManager& getHUDTextManagerRef();
+
+    /**
+     * Returns the GLFWwindow handle.
+    */
     GLFWwindow* getGLFWwindow();
 
+    /**
+     * Initializes all OpenGL related stuff
+    */
     void gfxInit();
 
+    /**
+     * Do the gameLoop (returns when game quits)
+    */
     void gameLoop();
 
+    /**
+     * Returns the window width
+    */
     int getWindowWidth() const;
+
+    /**
+     * Returns the window height
+    */
     int getWindowHeight() const;
 };

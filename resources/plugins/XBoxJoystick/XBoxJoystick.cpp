@@ -68,7 +68,7 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
         cameraPitch = std::min(cameraPitchMax, std::max(cameraPitchMin, cameraPitch + lookAxisY * sens));
     }
 
-    Player& p = game.getPlayer();
+    Player& p = game.getPlayerRef();
     glm::vec3& looking = p.getLookingVectorRef();
     glm::vec3& position = p.getPositionRef();
 
@@ -93,7 +93,7 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
             breakTriggerPressed = true;
 
             Ray r(position, looking);
-            r.tryBreakBlock(game.getWorld());
+            r.tryBreakBlock(game.getWorldRef());
         }
     } else {
         breakTriggerPressed = false;

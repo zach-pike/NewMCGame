@@ -5,7 +5,7 @@ project(mc_clone VERSION 1.0)
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
 file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
 file(GLOB WORLDINFOSIGN_SRC resources/plugins/WorldInfoSign/*.cpp)
-file(GLOB EXTRADEBUG_SRC resources/plugins/extraDebug/*.cpp)
+file(GLOB EXTRADEBUG_SRC resources/plugins/ExtraDebug/*.cpp)
 
 include_directories(src/game)
 

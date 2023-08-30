@@ -37,28 +37,76 @@ public:
     int chunkSizeY() const;
     int chunkSizeZ() const;
 
+    /**
+     * Get a block in the world
+     * @param pos Block position
+    */
     Block getBlock(glm::vec3 pos);
+
+    /**
+     * Set a block in the world
+     * @param pos The position to set the block
+     * @param block The block to place
+     * @param noCheck Should skip the neighbor rerender
+    */
     void setBlock(glm::vec3 pos, Block block, bool noCheck = false);
 
-    // Returns true if the coordinates are in the world
+    /**
+     * Returns true if the coordinates are in the world
+     * @param pos Position to check
+    */
     bool coordinatesInWorld(glm::vec3 pos);
 
-    // This could take awhile
+    /**
+     * Generate a world using Perlin noise
+     * @param xs Number of chunks on the X Axis
+     * @param ys Number of chunks on the Y Axis
+     * @param zs Number of chunks on the Z Axis
+    */
     void generateWorld(int xs, int ys, int zs);
 
-    Chunk& getChunk(glm::vec3 chunkCoords);
+    /**
+     * Get a reference to a chunk at a chunkCoordinate
+     * @param chunkCoords The coordinate of the chunk to get
+    */
+    Chunk& getChunkRef(glm::vec3 chunkCoords);
 
-    std::map<ChunkPos, Chunk>& getChunks();
+    /**
+     * Get a reference to the container of Chunks
+    */
+    std::map<ChunkPos, Chunk>& getChunksRef();
 
+    /**
+     * Update all the chunks that need updating (should be called every frame)
+    */
     void update();
 
+    /**
+     * Draw the chunk meshes for the world
+     * @param viewProjection The camera View projection
+    */
     void draw(const glm::mat4& viewProjection);
 
+    /**
+     * Returns the total number of vertices in the world
+    */
     std::size_t getNVertices() const;
 
+    /**
+     * Save world to files
+     * @param saveName The name to save the world under
+    */
     void saveWorld(std::string saveName) const;
+
+    /**
+     * Load the world from a save
+     * @param saveName The saveName to load
+    */
     void loadWorld(std::string saveName);
 
+    /**
+     * Returns true if the saveName is a valid world save structure
+    */
     bool worldSaveExists(std::string saveName) const;
 
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {

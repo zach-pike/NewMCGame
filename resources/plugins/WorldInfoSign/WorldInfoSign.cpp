@@ -9,7 +9,7 @@ void destroy(IPlugin* plugin) {
 }
 
 void WorldInfoSign::setup(Game& game) {
-    auto& billboardManager = game.getBillboardManager();
+    auto& billboardManager = game.getBillboardManagerRef();
 
     billboardManager.addBillboard(glm::vec3(0, 50, 0), "<placeholder>", "worldInfoSign");
     billboard = billboardManager.getBillboardByID("worldInfoSign");
@@ -22,9 +22,9 @@ void WorldInfoSign::frameUpdate(Game& game) {
     static int i = 0;
     if (i % 100 == 0) {
         std::string billboardText = "# Polygons: ";
-        billboardText += std::to_string(game.getWorld().getNVertices() / 3);
+        billboardText += std::to_string(game.getWorldRef().getNVertices() / 3);
         billboardText += " # Chunks: ";
-        billboardText += std::to_string(game.getWorld().getChunks().size());
+        billboardText += std::to_string(game.getWorldRef().getChunksRef().size());
 
         billboard->setText(billboardText);
     }

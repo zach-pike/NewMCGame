@@ -131,24 +131,28 @@ void Game::gameLoop() {
     } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0); 
 }
 
-GLFWwindow* Game::getGLFWwindow() {
-    return gameWindow;
-}
-
-Player& Game::getPlayer() {
+Player& Game::getPlayerRef() {
     return player;
 }
 
-World& Game::getWorld() {
+World& Game::getWorldRef() {
     return world;
 }
 
-PluginManager& Game::getPluginManager() {
+PluginManager& Game::getPluginManagerRef() {
     return pluginManager;
 }
 
-BillboardManager& Game::getBillboardManager() {
+BillboardManager& Game::getBillboardManagerRef() {
     return billboardManager;
+}
+
+HUDTextManager& Game::getHUDTextManagerRef() {
+    return hudTextManager;
+}
+
+GLFWwindow* Game::getGLFWwindow() {
+    return gameWindow;
 }
 
 int Game::getWindowWidth() const {
@@ -156,7 +160,4 @@ int Game::getWindowWidth() const {
 }
 int Game::getWindowHeight() const {
     return windowHeight;
-}
-HUDTextManager& Game::getHUDTextManager() {
-    return hudTextManager;
 }

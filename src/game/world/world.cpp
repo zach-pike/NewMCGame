@@ -141,11 +141,11 @@ void World::generateWorld(int xs, int ys, int zs) {
     }
 }
 
-Chunk& World::getChunk(glm::vec3 chunkCoord) {
+Chunk& World::getChunkRef(glm::vec3 chunkCoord) {
     return chunks.at(ChunkPos(chunkCoord.x, chunkCoord.y, chunkCoord.z));
 }
 
-std::map<World::ChunkPos, Chunk>& World::getChunks() {
+std::map<World::ChunkPos, Chunk>& World::getChunksRef() {
     return chunks;
 }
 
@@ -171,7 +171,7 @@ void World::draw(const glm::mat4& viewProjection) {
     
     glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
 
-    for (const auto& kv : getChunks()) {
+    for (const auto& kv : getChunksRef()) {
         // Get all necessary data
         auto& chunk = kv.second;
         auto bufferInfo = chunk.getBufferInfo();

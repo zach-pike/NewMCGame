@@ -105,7 +105,7 @@ void Player::updatePlayer(Game& game) {
             
             // Cast a ray and try to break the block we are looking at
             Ray r(position, looking);
-            r.tryBreakBlock(game.getWorld(), 30);
+            r.tryBreakBlock(game.getWorldRef(), 30);
         }
     } else {
         breakButtonWasPressed = false;
@@ -118,7 +118,7 @@ void Player::updatePlayer(Game& game) {
             
             // Cast a ray and try to break the block we are looking at
             Ray r(position, looking, .05);
-            r.tryPlaceBlock(game.getWorld(), Block(*selectedBlock));
+            r.tryPlaceBlock(game.getWorldRef(), Block(*selectedBlock));
         }
     } else {
         placeButtonWasPressed = false;
@@ -164,7 +164,7 @@ void Player::updatePlayer(Game& game) {
         if (createSavePressed == false) {
             createSavePressed = true;
 
-            game.getWorld().saveWorld("test");
+            game.getWorldRef().saveWorld("test");
         }
     } else {
         createSavePressed = false;

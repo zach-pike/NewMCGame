@@ -86,7 +86,7 @@ void Chunk::blockDrawer(
     // +X Face Check
     if (cPos.x >= 15) {
         if (chunkCoords.x + 1 >= world.chunkSizeX()
-         || world.getChunk(chunkCoords + vec3(1, 0, 0)).getBlock(vec3(0.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(1, 0, 0)).getBlock(vec3(0.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
             addFace(xPos, false, Block::BlockFace::NORTH);
     } else if (getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == Block::BlockType::AIR)
         addFace(xPos, false, Block::BlockFace::NORTH);
@@ -94,7 +94,7 @@ void Chunk::blockDrawer(
     // -X Face Check
     if (cPos.x < 1) {
         if (chunkCoords.x - 1 < 0
-         || world.getChunk(chunkCoords + vec3(-1, 0, 0)).getBlock(vec3(15.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(-1, 0, 0)).getBlock(vec3(15.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
             addFace(xNeg, true, Block::BlockFace::SOUTH);
     } else if (getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == Block::BlockType::AIR)
         addFace(xNeg, true, Block::BlockFace::SOUTH);
@@ -103,7 +103,7 @@ void Chunk::blockDrawer(
     if (cPos.z >= 15) {
         // Next block over
         if (chunkCoords.z + 1 >= world.chunkSizeZ()
-         || world.getChunk(chunkCoords + vec3(0, 0, 1)).getBlock(vec3(cPos.x, cPos.y, 0)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 0, 1)).getBlock(vec3(cPos.x, cPos.y, 0)).getBlockType() == Block::BlockType::AIR)
             addFace(zPos, true, Block::BlockFace::EAST);
     } else if (getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == Block::BlockType::AIR)
         addFace(zPos, true, Block::BlockFace::EAST);
@@ -112,7 +112,7 @@ void Chunk::blockDrawer(
     if (cPos.z < 1) {
         // Next block over
         if (chunkCoords.z - 1 < 0
-         || world.getChunk(chunkCoords + vec3(0, 0, -1)).getBlock(vec3(cPos.x, cPos.y, 15)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 0, -1)).getBlock(vec3(cPos.x, cPos.y, 15)).getBlockType() == Block::BlockType::AIR)
             addFace(zNeg, false, Block::BlockFace::WEST);
     } else if (getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == Block::BlockType::AIR)
         addFace(zNeg, false, Block::BlockFace::WEST);
@@ -120,7 +120,7 @@ void Chunk::blockDrawer(
     // +Y Face Check
     if (cPos.y >= 15) {
         if (chunkCoords.y + 1 >= world.chunkSizeY()
-         || world.getChunk(chunkCoords + vec3(0, 1, 0)).getBlock(vec3(cPos.x, 0, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 1, 0)).getBlock(vec3(cPos.x, 0, cPos.z)).getBlockType() == Block::BlockType::AIR)
             addFace(yPos, true, Block::BlockFace::TOP);
     } else if (getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == Block::BlockType::AIR)
         addFace(yPos, true, Block::BlockFace::TOP);
@@ -128,7 +128,7 @@ void Chunk::blockDrawer(
     // -Y Face Check
     if (cPos.y < 1) {
         if (chunkCoords.y - 1 < 0
-         || world.getChunk(chunkCoords + vec3(0, -1, 0)).getBlock(vec3(cPos.x, 15, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, -1, 0)).getBlock(vec3(cPos.x, 15, cPos.z)).getBlockType() == Block::BlockType::AIR)
             addFace(yNeg, false, Block::BlockFace::BOTTOM);
     } else if (getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == Block::BlockType::AIR)
         addFace(yNeg, false, Block::BlockFace::BOTTOM);

@@ -11,12 +11,12 @@ void destroy(IPlugin* plugin) {
 } 
 
 void ExtraDebug::setup(Game& game) {
-    debugText = game.getHUDTextManager().addTextItem(glm::vec2(-1, .4), "<test>");
+    debugText = game.getHUDTextManagerRef().addTextItem(glm::vec2(-1, .4), "<test>");
     debugText->setScale(.2);
 }
 
 void ExtraDebug::frameUpdate(Game& game) {
-    auto& playerPos = game.getPlayer().getPositionRef();
+    auto& playerPos = game.getPlayerRef().getPositionRef();
 
     std::stringstream ss;
     ss << "Pos: (";
