@@ -1,4 +1,4 @@
 build/
-.vscode/
 resources/cplugins/*.so
 resources/saves
+imgui.ini

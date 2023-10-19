@@ -1,19 +1,18 @@
 cmake_minimum_required(VERSION 3.22.1)
 
-project(mc_clone VERSION 1.0)
 
+set(CXX_STANDARD 20)
+project(MCGame)
+
+# Source file for the game && helper functions
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
+file(GLOB_RECURSE HELPER_SRC src/glHelpers/*.cpp)
+
 file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
 file(GLOB WORLDINFOSIGN_SRC resources/plugins/WorldInfoSign/*.cpp)
 file(GLOB EXTRADEBUG_SRC resources/plugins/ExtraDebug/*.cpp)
 
 include_directories(src/game)
-
-# Main executable
-add_executable(main src/main.cpp)
-
-# Minecraft Game library
-add_library(gameLib SHARED ${GAME_SRC})
 
 # Plugins
 add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
@@ -34,7 +33,25 @@ set_target_properties(ExtraDebugLib
     LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
 )
 
-# Link libaries for gameLib
+# Stuff for external dependencies
+
+# Dear, ImGui
+
+include_directories(src/)
+
+# Hate this hack but it works
+include_directories(external/)
+include_directories(external/imgui)
+
+file(GLOB_RECURSE SRC src/*.cpp)
+file(GLOB IMGUI_SRC external/imgui/*.cpp)
+set(IMGUI_IMPL_SRC external/imgui/backends/imgui_impl_glfw.cpp external/imgui/backends/imgui_impl_opengl3.cpp)
+
+# Main executable
+add_executable(main src/main.cpp)
+
+# Minecraft Game library
+add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC})
 target_link_libraries(gameLib GL GLEW glfw m X11 Xi Xrandr dl)
 
 # Link gameLib
