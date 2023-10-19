@@ -3,14 +3,20 @@
 #include "../utils/PerlinNoise.hpp"
 #include <GL/glew.h>
 
-#include "texture/texture.hpp"
-#include "shader/shader.hpp"
-#include "utils/path.hpp"
+#include "glHelpers/texture/texture.hpp"
+#include "glHelpers/shader/shader.hpp"
 
 #include <filesystem>
 #include <string>
 #include <fstream>
 namespace fs = std::filesystem;
+
+static std::string getEnviromentVar(const char* c) {
+    char* a = getenv(c);
+
+    if (a != nullptr) return std::string(a);
+    else return std::string("");
+}
 
 World::ChunkPos getChunkCoords(glm::vec3 pos) {
     int chunkX = std::floor(pos.x / 16.f);
@@ -35,16 +41,13 @@ World::~World() {
 
 // Does all the necessary calls to OpenGL related functions
 void World::gfxInit() {
-    worldShader = loadShaders(
-        getResourcePath("shaders/world/vertex.glsl"),
-        getResourcePath("shaders/world/fragment.glsl")
-    );
+    worldShader = loadShaders("world/");
 
     viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
     chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
     textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
 
-    textureAtlas = loadImageTexture(getResourcePath("textures/Chunk.bmp"));
+    textureAtlas = loadImageTexture("Chunk.bmp");
 
     gfxReady = true;
 }
@@ -220,12 +223,16 @@ std::size_t World::getNVertices() const {
 }
 
 void World::saveWorld(std::string saveName) const {
-    if (!fs::is_directory(getResourcePath("saves/"))) fs::create_directories(getResourcePath("saves/"));
+    fs::path basePath = fs::current_path();
+    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+
+    fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
+
+    if (!fs::is_directory(saveFolder)) fs::create_directories(saveFolder);
     
     // Check if the folder exists already
-    std::string saveFolder = getResourcePath("saves/" + saveName);
-    std::string worldDataFilepath = saveFolder + "/world.bin";
-    std::string chunksFolder = saveFolder + "/chunks";
+    fs::path worldDataFilepath = saveFolder / "world.bin";
+    fs::path chunksFolder = saveFolder / "chunks";
 
     fs::create_directory(saveFolder);
 
@@ -253,7 +260,7 @@ void World::saveWorld(std::string saveName) const {
         fnamess << std::get<2>(chunk.first);
         fnamess << ").chunk";
 
-        std::string fName = chunksFolder + fnamess.str();
+        fs::path fName = chunksFolder / fnamess.str();
         std::vector<std::uint8_t> chunkData = chunk.second.serialize();
 
         std::fstream chunkFile(fName, std::ios::out | std::ios::binary);
@@ -263,9 +270,12 @@ void World::saveWorld(std::string saveName) const {
 }
 
 void World::loadWorld(std::string saveName) {
-    std::string saveFolder = getResourcePath("saves/" + saveName);
-    std::string worldDataFilepath = saveFolder + "/world.bin";
-    std::string chunksFolder = saveFolder + "/chunks";
+    fs::path basePath = fs::current_path();
+    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+
+    fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
+    fs::path worldDataFilepath = saveFolder / "/world.bin";
+    fs::path chunksFolder = saveFolder / "chunks";
 
     // Read the world data
     SerializedWorldData worldData = { 0, 0, 0 };
@@ -293,7 +303,7 @@ void World::loadWorld(std::string saveName) {
                 fnamess << z;
                 fnamess << ").chunk";
 
-                std::string fName = chunksFolder + fnamess.str();
+                fs::path fName = chunksFolder / fnamess.str();
                 std::fstream chunkFile(fName, std::ios::in | std::ios::binary);
 
                 std::vector<std::uint8_t> chunkData;
@@ -308,9 +318,12 @@ void World::loadWorld(std::string saveName) {
 }
 
 bool World::worldSaveExists(std::string saveName) const {
-    std::string saveFolder = getResourcePath("saves/" + saveName);
-    std::string worldDataFilepath = saveFolder + "/world.bin";
-    std::string chunksFolder = saveFolder + "/chunks";
+    fs::path basePath = fs::current_path();
+    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+
+    fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
+    std::string worldDataFilepath = saveFolder / "world.bin";
+    std::string chunksFolder = saveFolder / "/chunks";
 
     return fs::is_directory(saveFolder) && fs::exists(worldDataFilepath) && fs::is_directory(chunksFolder);
 }

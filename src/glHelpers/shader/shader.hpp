@@ -8,4 +8,4 @@
  * @param vertexFilePath Path to vertex shader
  * @param fragmentFilePath Path to fragment shader
 */
-GLuint loadShaders(std::string vertexFilePath, std::string fragmentFilePath);
+GLuint loadShaders(std::string f);

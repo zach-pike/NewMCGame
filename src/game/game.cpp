@@ -1,5 +1,9 @@
 #include "game.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
+
 #include <exception>
 #include <stdexcept>
 #include <chrono>
@@ -8,12 +12,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-using namespace glm;
 
-#include "shader/shader.hpp"
-#include "texture/texture.hpp"
 #include "world/debug/ChunkBorderDebugger.hpp"
-#include "utils/path.hpp"
+#include "glHelpers/utils/dotenv.h"
 
 template <typename T, typename... Args>
 using FP = T(*)(Args...);
@@ -21,6 +22,8 @@ using FP = T(*)(Args...);
 Game::Game():
     player{glm::vec3(0, 50, 0), glm::vec3(1, 0, 0), 70.f}
 {
+    // Load dotenv for shader and textures
+    dotenv::init();
     std::cout << "WARNING: Make sure the CWD is the base path of the folder!!! Or else nothing will load correctly\n";
 
     // Initiate GLFW / glew / OpenGL
@@ -99,12 +102,37 @@ void Game::gfxInit() {
 }
 
 void Game::gameLoop() {
+    // Dear, Imgui setup
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(gameWindow, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+    // End setup
+
+
     // Debugger
     ChunkBorderDebugger chunkBorderDebugger(world);
     // ------------------------------
+
+    // Stupid temp fix
+    glfwSetInputMode(gameWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Start new Imgui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow(); // Show demo window! :)
+
         glfwGetWindowSize(gameWindow, &windowWidth, &windowHeight);
 
         float aspect = (float)windowWidth / (float)windowHeight;
@@ -125,10 +153,18 @@ void Game::gameLoop() {
         billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);
         hudTextManager.draw(aspect);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // Swap buffers
         glfwSwapBuffers(gameWindow);
         glfwPollEvents();
-    } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0); 
+    } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0);
+
+    // Destroy ImGui
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 Player& Game::getPlayerRef() {

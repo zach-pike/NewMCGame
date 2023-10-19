@@ -3,23 +3,24 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 #include "include/IPlugin.hpp"
+#include "glHelpers/utils/logger/logger.hpp"
 
 class Game;
 
 class PluginManager {
 private:
-    std::string pluginDirectory;
-
     std::vector<void*> pluginHandles;
     std::vector<std::unique_ptr<IPlugin, PluginDestroyerFunction>> plugins;
 
+    Logger logger{ "PluginManager", Logger::FGColors::GREEN };
 
     bool pluginsEnabled = false;
 public:
     // The resources folder is the base path for the pluginsDirector
-    PluginManager(std::string pluginsDirectory = "cplugins/");
+    PluginManager();
     ~PluginManager();
 
     /**

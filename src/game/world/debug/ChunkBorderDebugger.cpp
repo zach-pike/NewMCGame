@@ -1,17 +1,13 @@
 #include "ChunkBorderDebugger.hpp"
 #include "../world.hpp"
 
-#include "shader/shader.hpp"
-#include "utils/path.hpp"
+#include "glHelpers/shader/shader.hpp"
 
 ChunkBorderDebugger::ChunkBorderDebugger(const World& world) {
     glGenBuffers(1, &buffers.vertexBuffer);
     glGenBuffers(1, &buffers.colorBuffer);
 
-    debugShader = loadShaders(
-        getResourcePath("shaders/debug/vertex.glsl"),
-        getResourcePath("shaders/debug/fragment.glsl")
-    );
+    debugShader = loadShaders("debug/");
 
     viewProjectionID = glGetUniformLocation(debugShader, "viewProjection");
 

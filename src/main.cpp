@@ -1,9 +1,7 @@
+#include <bits/stdc++.h>
 #include "game/game.hpp"
 
-int main(int argc, char** argv) {
+int main() {
     Game game;
-
     game.gameLoop();
-
-    return 0;
 }

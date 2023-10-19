@@ -1,8 +1,7 @@
 #include "hudTextManager.hpp"
 
-#include "shader/shader.hpp"
-#include "texture/texture.hpp"
-#include "utils/path.hpp"
+#include "glHelpers/shader/shader.hpp"
+#include "glHelpers/texture/texture.hpp"
 
 HUDTextManager::HUDTextManager() {}
 HUDTextManager::~HUDTextManager() {
@@ -13,12 +12,9 @@ HUDTextManager::~HUDTextManager() {
 }
 
 void HUDTextManager::gfxInit() {
-    shader = loadShaders(
-        getResourcePath("shaders/hudText/vertex.glsl"),
-        getResourcePath("shaders/hudText/fragment.glsl")
-    );
+    shader = loadShaders("hudText/");
 
-    charTextureAtlas = loadImageTexture(getResourcePath("textures/TextAtlas.png"));
+    charTextureAtlas = loadImageTexture("TextAtlas.png");
     textureUniform = glGetUniformLocation(shader, "myTexture");
     scaleUniform = glGetUniformLocation(shader, "scale");
     aspectUniform = glGetUniformLocation(shader, "aspect");

@@ -1,5 +1,4 @@
 #include "pluginManager.hpp"
-#include "utils/path.hpp"
 #include "game.hpp"
 
 #include <iostream>
@@ -8,8 +7,14 @@
 
 namespace fs = std::filesystem;
 
-PluginManager::PluginManager(std::string _dir):
-    pluginDirectory(getResourcePath(_dir)) {}
+static std::string getEnviromentVar(const char* c) {
+    char* a = getenv(c);
+
+    if (a != nullptr) return std::string(a);
+    else return std::string("");
+}
+
+PluginManager::PluginManager() {}
 
 PluginManager::~PluginManager() {
     if (getPluginsLoaded() != 0) {
@@ -30,7 +35,7 @@ void PluginManager::loadPlugins() {
     if (pluginHandles.empty() != true) throw std::runtime_error("Plugin manager already has loaded plugins!");
 
     // Get directory iterator for the plugins folder
-    auto paths = fs::directory_iterator(pluginDirectory);
+    auto paths = fs::directory_iterator(fs::absolute(getEnviromentVar("PLUGINS_FOLDER")));
     
     // Open them all first
     for (auto path : paths) {
@@ -43,8 +48,7 @@ void PluginManager::loadPlugins() {
         void* pluginHandle = dlopen(pluginObjectPath.c_str(), RTLD_NOW);
 
         if (pluginHandle == nullptr) {
-            std::cout << "[PluginManager] Failed to load a plugin!\nPath: " << pluginObjectPath
-                      << "\nError message from dlerror(): " << dlerror() << '\n';
+            logger.warn("Failed to load a plugin!\nPath: " + pluginObjectPath + "\nError message from dlerror(): " + dlerror());
         } else {
             pluginHandles.push_back(pluginHandle);
         }
@@ -62,11 +66,10 @@ void PluginManager::loadPlugins() {
         IPlugin::Version version = plugin->getPluginVersion();
         plugins.push_back(std::move(plugin));
 
-        std::cout << "[PluginManager] Created plugin " << name << " version "
-                  << version.major << '.' << version.minor << '\n';
+        logger.info("Loaded plugin " + name + " version " + std::to_string(version.major) + "." + std::to_string(version.minor));
     }
 
-    std::cout << "[PluginManager] Loaded " << getPluginsLoaded() << " Plugin(s)\n";
+    logger.info("Loaded " + std::to_string(getPluginsLoaded()) + " Plugin(s)");
 }
 
 void PluginManager::unloadPlugins() {
@@ -84,7 +87,7 @@ void PluginManager::unloadPlugins() {
     }
     pluginHandles.clear();
 
-    std::cout << "[PluginManager] Unloaded " << pluginHandleCount << " Plugin(s)\n";
+    logger.info("Unloaded " + std::to_string(pluginHandleCount) + " Plugin(s)");
 }
 
 void PluginManager::enablePlugins(Game& game) {
@@ -93,7 +96,7 @@ void PluginManager::enablePlugins(Game& game) {
         plugin->setup(game);
     }
 
-    std::cout << "[PluginManager] Enabled " << plugins.size() << " Plugin(s)\n";
+    logger.info("Enabled " + std::to_string(plugins.size()) + " Plugin(s)");
     pluginsEnabled = true;
 }
 
@@ -104,7 +107,8 @@ void PluginManager::disablePlugins(Game& game) {
         plugin->cleanup(game);
     }
 
-    std::cout << "[PluginManager] Disabled " << n << " Plugin(s)\n";
+    logger.info("Disabled " + std::to_string(n) + " Plugin(s)");
+
     pluginsEnabled = false;
 }
 

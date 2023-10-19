@@ -1,7 +1,9 @@
 #include "billboardManager.hpp"
-#include "shader/shader.hpp"
-#include "texture/texture.hpp"
-#include "utils/path.hpp"
+#include "glHelpers/shader/shader.hpp"
+#include "glHelpers/texture/texture.hpp"
+
+#include <exception>
+#include <stdexcept>
 
 BillboardManager::BillboardManager() {}
 
@@ -13,12 +15,9 @@ BillboardManager::~BillboardManager() {
 }
 
 void BillboardManager::gfxInit() {
-    billboardShader = loadShaders(
-        getResourcePath("shaders/billboard/vertex.glsl"),
-        getResourcePath("shaders/billboard/fragment.glsl")
-    );
+    billboardShader = loadShaders("billboard/");
 
-    billboardTexture = loadImageTexture(getResourcePath("textures/TextAtlas.png"));
+    billboardTexture = loadImageTexture("TextAtlas.png");
     textureID = glGetUniformLocation(billboardShader, "myTexture");
 
     uniforms.cameraPosition = glGetUniformLocation(billboardShader, "cameraPosition");
