@@ -140,6 +140,11 @@ void Player::updatePlayer(Game& game) {
         if (mouseUnlockWasPressed == false) {
             mouseUnlockWasPressed = true;
 
+            if (settings.mouseLookFocus)
+                glfwSetInputMode(game.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            else
+                glfwSetInputMode(game.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
             settings.mouseLookFocus = !settings.mouseLookFocus;
         }
     } else {

@@ -19,6 +19,8 @@
 template <typename T, typename... Args>
 using FP = T(*)(Args...);
 
+namespace chrono = std::chrono;
+
 Game::Game():
     player{glm::vec3(0, 50, 0), glm::vec3(1, 0, 0), 70.f}
 {
@@ -122,16 +124,30 @@ void Game::gameLoop() {
 
     // Stupid temp fix
     glfwSetInputMode(gameWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    bool debugOpen = false;
+
+    float lastDrawTime = 0;
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        auto startTime = chrono::steady_clock::now();
 
         // Start new Imgui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow(); // Show demo window! :)
+        // On screen menu
+        ImGui::Begin("Debug", &debugOpen, ImGuiWindowFlags_MenuBar);
+
+        auto pos = player.getPositionRef();
+        ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
+        ImGui::Text("Polygon Count %ld", world.getNVertices() / 3);
+        ImGui::Text("Last draw time %fms", lastDrawTime);
+
+        ImGui::End();
 
         glfwGetWindowSize(gameWindow, &windowWidth, &windowHeight);
 
@@ -155,6 +171,10 @@ void Game::gameLoop() {
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        auto endTime = chrono::steady_clock::now();
+
+        lastDrawTime = (float)chrono::duration_cast<chrono::microseconds>(endTime - startTime).count() / 1000.f;
 
         // Swap buffers
         glfwSwapBuffers(gameWindow);

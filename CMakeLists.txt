@@ -17,7 +17,7 @@ include_directories(src/game)
 # Plugins
 add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
 add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
-add_library(ExtraDebugLib SHARED ${EXTRADEBUG_SRC})
+#add_library(ExtraDebugLib SHARED ${EXTRADEBUG_SRC})
 
 # Set the output location of the plugins
 set_target_properties(XBoxJoystickLib
@@ -28,10 +28,10 @@ set_target_properties(WorldInfoSignLib
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
 )
-set_target_properties(ExtraDebugLib
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
-)
+#set_target_properties(ExtraDebugLib
+#    PROPERTIES
+#    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
+#)
 
 # Stuff for external dependencies
 
@@ -63,4 +63,4 @@ target_link_libraries(main gameLib)
 # Link the game library to the plugins
 target_link_libraries(XBoxJoystickLib gameLib)
 target_link_libraries(WorldInfoSignLib gameLib)
-target_link_libraries(ExtraDebugLib gameLib)
+#target_link_libraries(ExtraDebugLib gameLib)
