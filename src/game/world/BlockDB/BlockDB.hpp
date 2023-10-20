@@ -15,6 +15,7 @@ public:
 
     struct BlockInfo {
         FaceLayers faces;
+        int blockId;
     };
 
     Logger logger{ "BlockDB", Logger::FGColors::CYAN };
@@ -40,4 +41,6 @@ public:
 
     // Do not modify contents only use for binding to texture unit
     GLuint getTextureId();
+
+    int getIdByName(std::string name) const;
 };

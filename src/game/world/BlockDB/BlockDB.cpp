@@ -126,9 +126,11 @@ void BlockDB::loadBlocks() {
             faces.south = faceTable["south"].as_integer()->get() + nTextures;
             faces.east = faceTable["east"].as_integer()->get() + nTextures;
             faces.west = faceTable["west"].as_integer()->get() + nTextures;
+        
+            int newBlockId = blocks.size();
 
-            blocks[blockName] = BlockInfo{ .faces = faces };
-            blockById.push_back(BlockInfo{ .faces = faces });
+            blocks[blockName] = BlockInfo{ .faces = faces, .blockId = newBlockId };
+            blockById.push_back(BlockInfo{ .faces = faces, .blockId = newBlockId });
         }
 
         // Add number of textures from this pack to the total
@@ -159,4 +161,8 @@ GLuint BlockDB::getTextureId() {
 
 const BlockDB::BlockInfo& BlockDB::getBlockInfoByID(int idx) const {
     return blockById.at(idx);
+}
+
+int BlockDB::getIdByName(std::string name) const {
+    return blocks.at(name).blockId;
 }
