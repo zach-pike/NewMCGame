@@ -10,9 +10,11 @@ out float textureLayer;
 uniform mat4 viewProjection;
 uniform vec3 chunkCoord;
 
+
+// Keep in mind theese are for a texture that is upside down because stbi is wierd
 vec2[] UVs = vec2[6](
     vec2(0, 1), vec2(0, 0), vec2(1, 0),
-    vec2(0, 1),  vec2(1, 0), vec2(1, 1)
+    vec2(0, 1), vec2(1, 0), vec2(1, 1)
 );
 
 void main(){

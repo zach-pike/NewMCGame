@@ -3,6 +3,7 @@
 #include <GL/gl.h>
 
 #include <map>
+#include <vector>
 
 #include "glHelpers/utils/logger/logger.hpp"
 
@@ -24,9 +25,12 @@ private:
     bool gfxReady = false;
 
     std::map<std::string, BlockInfo> blocks;
+    std::vector<BlockInfo> blockById;
 public:
     BlockDB();
     ~BlockDB();
+
+    const BlockInfo& getBlockInfoByID(int idx) const;
 
     // Called when opengl glfw context has been created
     void gfxInit();

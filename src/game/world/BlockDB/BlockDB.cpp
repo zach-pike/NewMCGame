@@ -21,7 +21,7 @@ void BlockDB::gfxInit() {
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); 
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     gfxReady = true;
 }
@@ -124,6 +124,7 @@ void BlockDB::loadBlocks() {
             faces.west = faceTable["west"].as_integer()->get() + nTextures;
 
             blocks[blockName] = BlockInfo{ .faces = faces };
+            blockById.push_back(BlockInfo{ .faces = faces });
         }
 
         // Add number of textures from this pack to the total
@@ -137,6 +138,10 @@ void BlockDB::loadBlocks() {
         logger.info("Loaded BlockPack \"" + blockPackName + "\"!");
     }
 
+    for (const auto& p : blocks) {
+        blockById.push_back(p.second);
+    }
+
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 
     // Allocate the storage && Upload pixel data.
@@ -146,4 +151,8 @@ void BlockDB::loadBlocks() {
 
 GLuint BlockDB::getTextureId() {
     return textureArrayId;
+}
+
+const BlockDB::BlockInfo& BlockDB::getBlockInfoByID(int idx) const {
+    return blockById.at(idx);
 }

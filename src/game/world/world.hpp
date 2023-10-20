@@ -117,6 +117,8 @@ public:
     */
     BlockDB& getBlockDBRef();
 
+    const BlockDB& getConstBlockDBRef() const;
+
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
         return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
     }

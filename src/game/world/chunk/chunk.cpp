@@ -41,37 +41,43 @@ void Chunk::blockDrawer(
     };
     const std::array<Vertex, 6> zPos = {
         // +Z Face
-        Vertex(x + 1, y + 1, z + 1), Vertex(x, y + 1, z + 1),     Vertex(x, y, z + 1),
-        Vertex(x + 1, y, z + 1),     Vertex(x + 1, y + 1, z + 1), Vertex(x, y, z + 1),
+        Vertex(x + 1, y, z + 1), Vertex(x + 1, y + 1, z + 1), Vertex(x, y + 1, z + 1),
+        Vertex(x + 1, y, z + 1), Vertex(x, y + 1, z + 1),     Vertex(x, y, z + 1),
     };
     const std::array<Vertex, 6> xPos = {
         Vertex(x + 1, y, z), Vertex(x + 1, y + 1, z),     Vertex(x + 1, y + 1, z + 1),
         Vertex(x + 1, y, z), Vertex(x + 1, y + 1, z + 1), Vertex(x + 1, y, z + 1),
     };
     const std::array<Vertex, 6> xNeg = {
-        Vertex(x, y + 1, z + 1), Vertex(x, y + 1, z),     Vertex(x, y, z),
-        Vertex(x, y, z + 1), Vertex(x, y + 1, z + 1), Vertex(x, y, z),
+        Vertex(x, y, z + 1), Vertex(x, y + 1, z + 1), Vertex(x, y + 1, z),
+        Vertex(x, y, z + 1), Vertex(x, y + 1, z),     Vertex(x, y, z),
     };
     const std::array<Vertex, 6> yNeg = {
         Vertex(x, y, z), Vertex(x + 1, y, z),     Vertex(x + 1, y, z + 1),
         Vertex(x, y, z), Vertex(x + 1, y, z + 1), Vertex(x, y, z + 1),
     };
     const std::array<Vertex, 6> yPos = {
-        Vertex(x + 1, y + 1, z + 1), Vertex(x + 1, y + 1, z),     Vertex(x, y + 1, z),
-        Vertex(x, y + 1, z + 1),     Vertex(x + 1, y + 1, z + 1), Vertex(x, y + 1, z),
+        Vertex(x, y + 1, z), Vertex(x, y + 1, z + 1),     Vertex(x + 1, y + 1, z + 1),
+        Vertex(x, y + 1, z), Vertex(x + 1, y + 1, z + 1), Vertex(x + 1, y + 1, z),
     };
 
     using namespace glm;
 
-    auto addFace = [&vtx_data, &layer_data, &index, block](std::array<Vertex, 6> verts, bool uvsToUse, Block::BlockFace face) {
+    auto addFace = [&vtx_data, &layer_data, &index, &world, block](std::array<Vertex, 6> verts, bool uvsToUse, Block::BlockFace face) {
         std::copy(verts.begin(), verts.end(), vtx_data.begin() + index);
-        int layerID = ((int)face) % 3;
+        auto data = world.getBlockDBRef().getBlockInfoByID(block.getBlockType());
 
-        const std::array<GLint, 6> lids = {
-            layerID, layerID, layerID,
-            layerID,  layerID, layerID,
-        };
-        std::copy(lids.begin(), lids.end(), layer_data.begin() + index);
+        int layerId;
+        switch(face){
+            case Block::BlockFace::NORTH:  layerId = data.faces.north; break;
+            case Block::BlockFace::SOUTH:  layerId = data.faces.south; break;
+            case Block::BlockFace::EAST:   layerId = data.faces.east;  break;
+            case Block::BlockFace::WEST:   layerId = data.faces.west;  break;
+            case Block::BlockFace::TOP:    layerId = data.faces.top;   break;
+            case Block::BlockFace::BOTTOM: layerId = data.faces.bottom; break;
+        }
+
+        for (int i=0; i<6; i++) *(layer_data.begin() + index + i) = layerId;
         
         index += faceSideLen;
     };

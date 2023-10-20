@@ -342,3 +342,7 @@ bool World::worldSaveExists(std::string saveName) const {
 BlockDB& World::getBlockDBRef() {
     return blockDB;
 }
+
+const BlockDB& World::getConstBlockDBRef() const {
+    return blockDB;
+}
