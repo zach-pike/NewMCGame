@@ -13,7 +13,11 @@
 namespace fs = std::filesystem;
 
 BlockDB::BlockDB() {}
-BlockDB::~BlockDB() {}
+BlockDB::~BlockDB() {
+    if (gfxReady) {
+        glDeleteTextures(1, &textureArrayId);
+    }
+}
 
 void BlockDB::gfxInit() {
     // Create the texture & set filtering

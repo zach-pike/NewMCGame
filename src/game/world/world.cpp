@@ -42,8 +42,7 @@ World::World() {
 
 World::~World() {
     if (gfxReady) {
-        glDeleteTextures(1, &textureAtlas);
-        glDeleteShader(worldShader);
+        glDeleteProgram(worldShader);
     }
 }
 
@@ -54,8 +53,6 @@ void World::gfxInit() {
     viewProjectionID = glGetUniformLocation(worldShader, "viewProjection");
     chunkCoordID = glGetUniformLocation(worldShader, "chunkCoord");
     textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
-
-    textureAtlas = loadImageTexture("Chunk.bmp");
 
     blockDB.gfxInit();
 
@@ -211,7 +208,7 @@ void World::draw(const glm::mat4& viewProjection) {
         glVertexAttribIPointer(
             1,                  // attribute 1.
             1,                  // size
-            GL_INT,           // type
+            GL_INT,             // type
             0,                  // stride
             (void*)0            // array buffer offset
         );
@@ -220,7 +217,7 @@ void World::draw(const glm::mat4& viewProjection) {
         glDrawArrays(GL_TRIANGLES, 0, chunk.getNVertices()); // 3 indices starting at 0 -> 1 triangle
 
         glDisableVertexAttribArray(0);
-        // glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(1);
     }
 }
 
@@ -340,9 +337,5 @@ bool World::worldSaveExists(std::string saveName) const {
 }
 
 BlockDB& World::getBlockDBRef() {
-    return blockDB;
-}
-
-const BlockDB& World::getConstBlockDBRef() const {
     return blockDB;
 }
