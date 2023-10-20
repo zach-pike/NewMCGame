@@ -19,8 +19,8 @@ bool Ray::tryBreakBlock(World& world, float maxDist) {
         // Check if the ray is in world bounds
 
         if (world.coordinatesInWorld(cPos)
-         && world.getBlock(cPos).getBlockType() != Block::BlockType::AIR) {
-            world.setBlock(cPos, Block(Block::BlockType::AIR));
+         && world.getBlock(cPos).getBlockType() != 0) {
+            world.setBlock(cPos, Block(0));
             return true;
         }
     }
@@ -45,7 +45,7 @@ bool Ray::tryPlaceBlock(World& world, Block block, float maxDist) {
         auto yPosCheck = cPos + vec3(0.f, moveVec.y, 0.f);
         auto zPosCheck = cPos + vec3(0.f, 0.f, moveVec.z);
 
-        if (world.getBlock(xPosCheck).getBlockType() != Block::BlockType::AIR) {
+        if (world.getBlock(xPosCheck).getBlockType() != 0) {
             // If moveVec.x is negative then the block face is the Positive X face
             // and that holds up for the opposite as well
             if (moveVec.x > 0.f) {
@@ -61,7 +61,7 @@ bool Ray::tryPlaceBlock(World& world, Block block, float maxDist) {
             }
 
             return true;
-        } else if (world.getBlock(yPosCheck).getBlockType() != Block::BlockType::AIR) {
+        } else if (world.getBlock(yPosCheck).getBlockType() != 0) {
             // If moveVec.y is negative then the block face is the Positive Y face
             // and that holds up for the opposite as well
             if (moveVec.y > 0.f) {
@@ -77,7 +77,7 @@ bool Ray::tryPlaceBlock(World& world, Block block, float maxDist) {
             }
 
             return true;
-        } else if (world.getBlock(zPosCheck).getBlockType() != Block::BlockType::AIR) {
+        } else if (world.getBlock(zPosCheck).getBlockType() != 0) {
             // If moveVec.z is negative then the block face is the Positive Z face
             // and that holds up for the opposite as well
             if (moveVec.z > 0.f) {

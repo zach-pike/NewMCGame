@@ -30,7 +30,15 @@ Chunk& World::getChunkFromWorldCoords(glm::vec3 pos) {
     return chunks.at(getChunkCoords(pos));
 }
 
-World::World() {}
+World::World() {
+    // std::vector<std::uint8_t> imageData;
+    // // Number of images to load
+    // int totalTextures = 5;
+    // int textureByteSize = 16*16*4;
+
+    // std::uint8_t* img = stbi_load()
+
+}
 
 World::~World() {
     if (gfxReady) {
@@ -48,6 +56,10 @@ void World::gfxInit() {
     textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
 
     textureAtlas = loadImageTexture("Chunk.bmp");
+
+    blockDB.gfxInit();
+
+    blockDB.loadBlocks();
 
     gfxReady = true;
 }
@@ -138,8 +150,8 @@ void World::generateWorld(int xs, int ys, int zs) {
         for (int x=0; x<sizeX*16; x++) {
             const double yMax = perlin.octave2D_01((x * 0.01), (z * 0.01), 4) * 50 + 10;
 
-            for(int y=0; y < yMax; y++) setBlock(glm::vec3(x, y, z), Block(Block::BlockType::DIRT));
-            setBlock(glm::vec3(x, yMax, z), Block(Block::BlockType::GRASS), true);
+            for(int y=0; y < yMax; y++) setBlock(glm::vec3(x, y, z), Block(2));
+            setBlock(glm::vec3(x, yMax, z), Block(1), true);
         }
     }
 }
@@ -169,7 +181,7 @@ void World::draw(const glm::mat4& viewProjection) {
     glUseProgram(worldShader);
 
     glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureAtlas);
+	glBindTexture(GL_TEXTURE_2D, blockDB.getTextureId());
     glUniform1i(textureAtlasID, 0);
     
     glUniformMatrix4fv(viewProjectionID, 1, GL_FALSE, &viewProjection[0][0]);
@@ -195,12 +207,11 @@ void World::draw(const glm::mat4& viewProjection) {
         );
 
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
-        glVertexAttribPointer(
+        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.layerBuffer);
+        glVertexAttribIPointer(
             1,                  // attribute 1.
-            2,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
+            1,                  // size
+            GL_INT,           // type
             0,                  // stride
             (void*)0            // array buffer offset
         );
@@ -209,7 +220,7 @@ void World::draw(const glm::mat4& viewProjection) {
         glDrawArrays(GL_TRIANGLES, 0, chunk.getNVertices()); // 3 indices starting at 0 -> 1 triangle
 
         glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
+        // glDisableVertexAttribArray(1);
     }
 }
 
@@ -326,4 +337,8 @@ bool World::worldSaveExists(std::string saveName) const {
     std::string chunksFolder = saveFolder / "/chunks";
 
     return fs::is_directory(saveFolder) && fs::exists(worldDataFilepath) && fs::is_directory(chunksFolder);
+}
+
+BlockDB& World::getBlockDBRef() {
+    return blockDB;
 }

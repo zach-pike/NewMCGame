@@ -6,23 +6,6 @@
 
 class Block {
 public:
-    enum class BlockType : std::uint8_t {
-        AIR,
-        DIRT,
-        GRASS,
-        STONE,
-
-        OAK_WOOD,
-        DOUBLE_SLAB,
-        WHOLE_SLAB,
-        BRICKS,
-        TNT,
-        COBBLESTONE,
-        BEDROCK,
-        SAND,
-        GRAVEL
-    };
-
     enum class BlockFace {
         NORTH, // +X
         SOUTH, // -X
@@ -33,9 +16,10 @@ public:
     };
 
 private:
+    using BlockType = unsigned int;
     BlockType blockType;
 public:
-    Block(BlockType bt = BlockType::AIR);
+    Block(BlockType bt = 0);
     ~Block();
 
     /**
@@ -46,6 +30,7 @@ public:
     /**
      * Get the UV coordinates for a specific side of the block
      * @param face Block face
+     * @deprecated using array textures now
     */
-    UV getUVCoords(BlockFace face) const;
+    // UV getUVCoords(BlockFace face) const;
 };

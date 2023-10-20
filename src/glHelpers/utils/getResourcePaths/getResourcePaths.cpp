@@ -1,11 +1,5 @@
 #include "getResourcePaths.hpp"
-
-static std::string getEnviromentVar(const char* c) {
-    char* a = getenv(c);
-
-    if (a != nullptr) return std::string(a);
-    else return std::string("");
-}
+#include "../getEnvVar/getEnvVar.hpp"
 
 std::pair<std::string, std::string> getShaderPaths(std::string shaderFolder) {
     // Get base path

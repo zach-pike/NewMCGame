@@ -111,19 +111,6 @@ void Player::updatePlayer(Game& game) {
         breakButtonWasPressed = false;
     }
 
-    static bool placeButtonWasPressed = false;
-    if (glfwGetMouseButton(game.getGLFWwindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        if (placeButtonWasPressed == false) {
-            placeButtonWasPressed = true;
-            
-            // Cast a ray and try to break the block we are looking at
-            Ray r(position, looking, .05);
-            r.tryPlaceBlock(game.getWorldRef(), Block(*selectedBlock));
-        }
-    } else {
-        placeButtonWasPressed = false;
-    }
-
     static bool debugButtonWasPressed = false;
     if(glfwGetKey(game.getGLFWwindow(), GLFW_KEY_T) == GLFW_PRESS) {
         if (debugButtonWasPressed == false) {
@@ -149,19 +136,6 @@ void Player::updatePlayer(Game& game) {
         }
     } else {
         mouseUnlockWasPressed = false;
-    }
-
-    static bool blockSwitchKeyPressed = false;
-    if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_G) == GLFW_PRESS) {
-        if (blockSwitchKeyPressed == false) {
-            blockSwitchKeyPressed = true;
-
-            selectedBlock++;
-
-            if (selectedBlock == selectableBlocks.end()) selectedBlock = selectableBlocks.begin();
-        }
-    } else {
-        blockSwitchKeyPressed = false;
     }
 
     static bool createSavePressed = false;

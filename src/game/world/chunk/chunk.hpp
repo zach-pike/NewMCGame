@@ -15,7 +15,7 @@ class World;
 class Chunk {
 public:
     struct BufferInfo {
-        GLuint vertexBuffer, uvBuffer;
+        GLuint vertexBuffer, layerBuffer;
     };
 
 private:
@@ -30,7 +30,7 @@ private:
 
     void blockDrawer(
         std::array<Vertex, 36>& vtx_data,
-        std::array<UV, 36>& uv_data,
+        std::array<GLint, 36>& uv_data,
         std::size_t& index,
         glm::vec3 cPos, // Chunk position each axis that follows 0 <= x < 16
         glm::vec3 chunkCoords,

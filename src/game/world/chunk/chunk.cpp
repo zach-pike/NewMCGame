@@ -6,7 +6,7 @@
 
 void Chunk::blockDrawer(
     std::array<Vertex, 36>& vtx_data,
-    std::array<UV, 36>& uv_data,
+    std::array<GLint, 36>& layer_data,
     std::size_t& index,
     glm::vec3 cPos,        // XYZ position within a chunk
     glm::vec3 chunkCoords, // Chunk coordinates
@@ -30,7 +30,7 @@ void Chunk::blockDrawer(
     auto block = getBlockInChunk(cPos);
 
     // if its air just do nothing
-    if (block.getBlockType() == Block::BlockType::AIR) return;
+    if (block.getBlockType() == 0) return;
 
     const int faceSideLen = 6;
     
@@ -63,74 +63,66 @@ void Chunk::blockDrawer(
 
     using namespace glm;
 
-    auto addFace = [&vtx_data, &uv_data, &index, block](std::array<Vertex, 6> verts, bool uvsToUse, Block::BlockFace face) {
+    auto addFace = [&vtx_data, &layer_data, &index, block](std::array<Vertex, 6> verts, bool uvsToUse, Block::BlockFace face) {
         std::copy(verts.begin(), verts.end(), vtx_data.begin() + index);
-        auto blockBaseUV = block.getUVCoords(face);
+        int layerID = ((int)face) % 3;
 
-        const std::array<UV, 6> oddUVs = {
-            blockBaseUV + UV(0, 1), blockBaseUV,            blockBaseUV + UV(1, 0),
-            blockBaseUV + UV(0, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(1, 1),
+        const std::array<GLint, 6> lids = {
+            layerID, layerID, layerID,
+            layerID,  layerID, layerID,
         };
-        const std::array<UV, 6> evenUVs = {
-            blockBaseUV + UV(1, 0), blockBaseUV,            blockBaseUV + UV(0, 1),
-            blockBaseUV + UV(1, 1), blockBaseUV + UV(1, 0), blockBaseUV + UV(0, 1),
-        };
-        if (uvsToUse) {
-            std::copy(evenUVs.begin(), evenUVs.end(), uv_data.begin() + index);
-        } else {
-            std::copy(oddUVs.begin(), oddUVs.end(), uv_data.begin() + index);
-        }
+        std::copy(lids.begin(), lids.end(), layer_data.begin() + index);
         
         index += faceSideLen;
     };
     // +X Face Check
     if (cPos.x >= 15) {
         if (chunkCoords.x + 1 >= world.chunkSizeX()
-         || world.getChunkRef(chunkCoords + vec3(1, 0, 0)).getBlock(vec3(0.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(1, 0, 0)).getBlock(vec3(0.f, cPos.y, cPos.z)).getBlockType() == 0)
             addFace(xPos, false, Block::BlockFace::NORTH);
-    } else if (getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(1, 0, 0)).getBlockType() == 0)
         addFace(xPos, false, Block::BlockFace::NORTH);
 
     // -X Face Check
     if (cPos.x < 1) {
         if (chunkCoords.x - 1 < 0
-         || world.getChunkRef(chunkCoords + vec3(-1, 0, 0)).getBlock(vec3(15.f, cPos.y, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(-1, 0, 0)).getBlock(vec3(15.f, cPos.y, cPos.z)).getBlockType() == 0)
             addFace(xNeg, true, Block::BlockFace::SOUTH);
-    } else if (getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(-1, 0, 0)).getBlockType() == 0)
         addFace(xNeg, true, Block::BlockFace::SOUTH);
 
     // +Z Face Check
     if (cPos.z >= 15) {
         // Next block over
         if (chunkCoords.z + 1 >= world.chunkSizeZ()
-         || world.getChunkRef(chunkCoords + vec3(0, 0, 1)).getBlock(vec3(cPos.x, cPos.y, 0)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 0, 1)).getBlock(vec3(cPos.x, cPos.y, 0)).getBlockType() == 0)
             addFace(zPos, true, Block::BlockFace::EAST);
-    } else if (getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(0, 0, 1)).getBlockType() == 0)
         addFace(zPos, true, Block::BlockFace::EAST);
 
     // -Z Face Check
     if (cPos.z < 1) {
         // Next block over
         if (chunkCoords.z - 1 < 0
-         || world.getChunkRef(chunkCoords + vec3(0, 0, -1)).getBlock(vec3(cPos.x, cPos.y, 15)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 0, -1)).getBlock(vec3(cPos.x, cPos.y, 15)).getBlockType() == 0)
             addFace(zNeg, false, Block::BlockFace::WEST);
-    } else if (getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(0, 0, -1)).getBlockType() == 0)
         addFace(zNeg, false, Block::BlockFace::WEST);
 
     // +Y Face Check
     if (cPos.y >= 15) {
         if (chunkCoords.y + 1 >= world.chunkSizeY()
-         || world.getChunkRef(chunkCoords + vec3(0, 1, 0)).getBlock(vec3(cPos.x, 0, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, 1, 0)).getBlock(vec3(cPos.x, 0, cPos.z)).getBlockType() == 0)
             addFace(yPos, true, Block::BlockFace::TOP);
-    } else if (getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(0, 1, 0)).getBlockType() == 0)
         addFace(yPos, true, Block::BlockFace::TOP);
 
     // -Y Face Check
     if (cPos.y < 1) {
         if (chunkCoords.y - 1 < 0
-         || world.getChunkRef(chunkCoords + vec3(0, -1, 0)).getBlock(vec3(cPos.x, 15, cPos.z)).getBlockType() == Block::BlockType::AIR)
+         || world.getChunkRef(chunkCoords + vec3(0, -1, 0)).getBlock(vec3(cPos.x, 15, cPos.z)).getBlockType() == 0)
             addFace(yNeg, false, Block::BlockFace::BOTTOM);
-    } else if (getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == Block::BlockType::AIR)
+    } else if (getBlockInChunk(cPos + vec3(0, -1, 0)).getBlockType() == 0)
         addFace(yNeg, false, Block::BlockFace::BOTTOM);
 }
 
@@ -144,7 +136,7 @@ Chunk::Chunk() {
     blocks.resize(16*16*16);
 
     glGenBuffers(1, &buffers.vertexBuffer);
-    glGenBuffers(1, &buffers.uvBuffer);
+    glGenBuffers(1, &buffers.layerBuffer);
 }
 
 Chunk::Chunk(Chunk&& ochunk) {
@@ -159,7 +151,7 @@ Chunk::Chunk(Chunk&& ochunk) {
 Chunk::~Chunk() {
     if (!_hasBeenMoved) {
         glDeleteBuffers(1, &buffers.vertexBuffer);
-        glDeleteBuffers(1, &buffers.uvBuffer);
+        glDeleteBuffers(1, &buffers.layerBuffer);
     }
 }
 
@@ -192,20 +184,20 @@ void Chunk::generateMesh(glm::vec3 chunkCoords, World& world) {
     meshUpdatedNeeded = false;
 
     std::vector<Vertex> vertices;
-    std::vector<UV> uvs;
+    std::vector<GLint> layers;
 
     // Chunk generation code
     for (int y=0; y<16; y++) {
         for (int z=0; z<16; z++) {
             for (int x=0; x<16; x++) {
                 std::array<Vertex, 36> vtx;
-                std::array<UV, 36> uvx;
+                std::array<GLint, 36> layerTmp;
 
                 std::size_t index = 0;
 
                 blockDrawer(
                     vtx,   // Vertex buffer
-                    uvx,   // UV buffer
+                    layerTmp,   // Layer buffer
                     index, // Buffer offset
                     glm::vec3(x, y, z),  // Chunk x, y, z
                     chunkCoords,         // Chunk coordinate (chunk origin)
@@ -213,10 +205,10 @@ void Chunk::generateMesh(glm::vec3 chunkCoords, World& world) {
                 );
 
                 auto vtx_begin = vtx.begin();
-                auto uvx_begin = uvx.begin();
+                auto layer_begin = layerTmp.begin();
 
                 vertices.insert(vertices.end(), vtx_begin, vtx_begin + index);
-                uvs.insert(uvs.end(), uvx_begin, uvx_begin + index);
+                layers.insert(layers.end(), layer_begin, layer_begin + index);
             }
         }
     }
@@ -226,8 +218,8 @@ void Chunk::generateMesh(glm::vec3 chunkCoords, World& world) {
 	glBindBuffer(GL_ARRAY_BUFFER, buffers.vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(UV), uvs.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers.layerBuffer);
+	glBufferData(GL_ARRAY_BUFFER, layers.size() * sizeof(GLint), layers.data(), GL_STATIC_DRAW);
 }
 
 std::vector<std::uint8_t> Chunk::serialize() const {

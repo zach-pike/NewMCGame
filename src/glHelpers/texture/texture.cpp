@@ -4,6 +4,7 @@
 #include <iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
 #include "../utils/stb_image.h"
 
 #include "glHelpers/utils/getResourcePaths/getResourcePaths.hpp"

@@ -1,0 +1,13 @@
+[loaderinfo]
+name="base"
+filesToLoad = [
+    "grass_side.png",
+    "grass_top.png",
+    "dirt.png"
+]
+
+[blocks.dirt]
+faces = { top = 2, bottom = 2, north = 2, south = 2, east = 2, west = 2 }
+
+[blocks.grass]
+faces = { top = 1, bottom = 2, north = 0, south = 0, east = 0, west = 0 }

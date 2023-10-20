@@ -6,6 +6,7 @@
 #include <string>
 
 #include "chunk/chunk.hpp"
+#include "BlockDB/BlockDB.hpp"
 
 class World {
 public:
@@ -26,6 +27,8 @@ private:
     GLuint worldShader;
     GLuint viewProjectionID, chunkCoordID, textureAtlasID;
     GLuint textureAtlas;
+
+    BlockDB blockDB;
 public:
     World();
     ~World();
@@ -108,6 +111,11 @@ public:
      * Returns true if the saveName is a valid world save structure
     */
     bool worldSaveExists(std::string saveName) const;
+
+    /**
+     * Get the BlockDB
+    */
+    BlockDB& getBlockDBRef();
 
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
         return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
