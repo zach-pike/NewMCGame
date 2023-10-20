@@ -7,7 +7,7 @@
 #include "world/world.hpp"
 #include "pluginManager/pluginManager.hpp"
 #include "billboardManager/billboardManager.hpp"
-#include "hudTextManager/hudTextManager.hpp"
+#include "old/hudTextManager/hudTextManager.hpp"
 
 #include <memory>
 class Game {
@@ -51,6 +51,7 @@ public:
 
     /**
      * Get a reference to the HUDTextManager
+     * @deprecated
     */
     HUDTextManager& getHUDTextManagerRef();
 
