@@ -22,7 +22,7 @@ private:
     bool texturesLoaded = false;
     bool gfxReady = false;
 
-    Logger logger{ "BlockDB", Logger::FGColors::CYAN };
+    Logger logger{ "BlockDB", Logger::FGColors::BLUE };
 
     std::map<std::string, BlockInfo> blocks;
     std::vector<BlockInfo> blockById;

@@ -76,13 +76,13 @@ void ModManager::unloadMods() {
     mods.clear();
 
     // Close the handles
-    std::size_t modHandleCount = getNModsLoaded();
+    std::size_t modHandleCount = modHandles.size();
     for (void* handle : modHandles) {
         dlclose(handle);
     }
     modHandles.clear();
 
-    logger.info("Unloaded " + std::to_string(modHandleCount) + " Mods(s)");
+    logger.info("Unloaded " + std::to_string(modHandleCount) + " Mod(s)");
 }
 
 void ModManager::enableMods(Game& game) {

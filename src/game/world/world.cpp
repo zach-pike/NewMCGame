@@ -142,7 +142,7 @@ void World::generateWorld(int xs, int ys, int zs) {
 
     for (int z=0; z<sizeZ*16; z++) {
         for (int x=0; x<sizeX*16; x++) {
-            const double yMax = perlin.octave2D_01((x * 0.01), (z * 0.01), 4) * 50 + 10;
+            const double yMax = perlin.octave2D_01((x * 0.01), (z * 0.01), 2) * (sizeY - 1) * 16;
 
             for(int y=0; y < yMax; y++) setBlock(glm::vec3(x, y, z), Block(dirtBlockID));
             setBlock(glm::vec3(x, yMax, z), Block(grassBlockID), true);
