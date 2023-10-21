@@ -1,18 +1,12 @@
 #include "pluginManager.hpp"
 #include "game.hpp"
+#include "glHelpers/utils/getEnvVar/getEnvVar.hpp"
 
 #include <iostream>
 #include <filesystem>
 #include <dlfcn.h>
 
 namespace fs = std::filesystem;
-
-static std::string getEnviromentVar(const char* c) {
-    char* a = getenv(c);
-
-    if (a != nullptr) return std::string(a);
-    else return std::string("");
-}
 
 PluginManager::PluginManager() {}
 
@@ -35,7 +29,7 @@ void PluginManager::loadPlugins() {
     if (pluginHandles.empty() != true) throw std::runtime_error("Plugin manager already has loaded plugins!");
 
     // Get directory iterator for the plugins folder
-    auto paths = fs::directory_iterator(fs::absolute(getEnviromentVar("PLUGINS_FOLDER")));
+    auto paths = fs::directory_iterator(fs::absolute(getEnvironmentVar("PLUGINS_FOLDER")));
     
     // Open them all first
     for (auto path : paths) {

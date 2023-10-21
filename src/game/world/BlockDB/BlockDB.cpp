@@ -31,12 +31,15 @@ void BlockDB::gfxInit() {
 }
 
 void BlockDB::loadBlocks() {
+    blocks.clear();
+    blockById.clear();
+
     // Get the path to all the block definitions
-    auto blockPackFolder = fs::absolute(getEnviromentVar("BLOCKPACKS_FOLDER"));
+    auto blockPackFolder = fs::absolute(getEnvironmentVar("BLOCKPACKS_FOLDER"));
     auto blockPackFolderIter = fs::directory_iterator(blockPackFolder);
 
     // Base path of the textures folder
-    auto texturesFolder = fs::absolute(getEnviromentVar("TEXTURES_FOLDER"));
+    auto texturesFolder = fs::absolute(getEnvironmentVar("TEXTURES_FOLDER"));
 
     // Array that holds the texture data of all the textures
     std::size_t nTextures = 0;
@@ -127,7 +130,7 @@ void BlockDB::loadBlocks() {
             faces.east = faceTable["east"].as_integer()->get() + nTextures;
             faces.west = faceTable["west"].as_integer()->get() + nTextures;
         
-            int newBlockId = blocks.size();
+            int newBlockId = blocks.size() + 1;
 
             blocks[blockName] = BlockInfo{ .faces = faces, .blockId = newBlockId };
             blockById.push_back(BlockInfo{ .faces = faces, .blockId = newBlockId });
@@ -160,9 +163,13 @@ GLuint BlockDB::getTextureId() {
 }
 
 const BlockDB::BlockInfo& BlockDB::getBlockInfoByID(int idx) const {
-    return blockById.at(idx);
+    return blockById.at(idx - 1);
 }
 
 int BlockDB::getIdByName(std::string name) const {
     return blocks.at(name).blockId;
+}
+
+const std::map<std::string, BlockDB::BlockInfo>& BlockDB::getBlockMap() const {
+    return blocks;
 }

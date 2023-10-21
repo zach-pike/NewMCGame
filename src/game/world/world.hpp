@@ -112,7 +112,7 @@ public:
     bool worldSaveExists(std::string saveName) const;
 
     /**
-     * Get the BlockDB
+     * Get a reference the BlockDB
     */
     BlockDB& getBlockDBRef();
 

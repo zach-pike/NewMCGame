@@ -3,4 +3,4 @@
 #include <stdlib.h>
 #include <string>
 
-std::string getEnviromentVar(const char* c);
+std::string getEnvironmentVar(const char* c);

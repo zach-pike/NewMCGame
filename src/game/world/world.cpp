@@ -5,18 +5,12 @@
 
 #include "glHelpers/texture/texture.hpp"
 #include "glHelpers/shader/shader.hpp"
+#include "glHelpers/utils/getEnvVar/getEnvVar.hpp"
 
 #include <filesystem>
 #include <string>
 #include <fstream>
 namespace fs = std::filesystem;
-
-static std::string getEnviromentVar(const char* c) {
-    char* a = getenv(c);
-
-    if (a != nullptr) return std::string(a);
-    else return std::string("");
-}
 
 World::ChunkPos getChunkCoords(glm::vec3 pos) {
     int chunkX = std::floor(pos.x / 16.f);
@@ -235,7 +229,7 @@ std::size_t World::getNVertices() const {
 
 void World::saveWorld(std::string saveName) const {
     fs::path basePath = fs::current_path();
-    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+    std::string saveFolderNameStr = getEnvironmentVar("SAVES_FOLDER");
 
     fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
 
@@ -282,7 +276,7 @@ void World::saveWorld(std::string saveName) const {
 
 void World::loadWorld(std::string saveName) {
     fs::path basePath = fs::current_path();
-    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+    std::string saveFolderNameStr = getEnvironmentVar("SAVES_FOLDER");
 
     fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
     fs::path worldDataFilepath = saveFolder / "/world.bin";
@@ -330,7 +324,7 @@ void World::loadWorld(std::string saveName) {
 
 bool World::worldSaveExists(std::string saveName) const {
     fs::path basePath = fs::current_path();
-    std::string saveFolderNameStr = getEnviromentVar("SAVES_FOLDER");
+    std::string saveFolderNameStr = getEnvironmentVar("SAVES_FOLDER");
 
     fs::path saveFolder = basePath / fs::path(saveFolderNameStr);
     std::string worldDataFilepath = saveFolder / "world.bin";
