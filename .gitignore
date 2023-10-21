@@ -1,4 +1,4 @@
 build/
-resources/cplugins/*.so
+resources/cmods/*.so
 resources/saves
 imgui.ini
