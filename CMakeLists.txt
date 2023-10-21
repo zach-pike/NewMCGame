@@ -10,14 +10,14 @@ file(GLOB_RECURSE HELPER_SRC src/glHelpers/*.cpp)
 
 file(GLOB XBOXJOY_SRC resources/mods/XBoxJoystick/*.cpp)
 file(GLOB WORLDINFOSIGN_SRC resources/mods/WorldInfoSign/*.cpp)
-file(GLOB EXTRADEBUG_SRC resources/mods/ExtraDebug/*.cpp)
+file(GLOB WORLDGEN_SRC resources/mods/WorldGen/*.cpp)
 
 include_directories(src/game)
 
 # Plugins
 add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
 add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
-#add_library(ExtraDebugLib SHARED ${EXTRADEBUG_SRC})
+add_library(WorldGen SHARED ${WORLDGEN_SRC})
 
 # Set the output location of the plugins
 set_target_properties(XBoxJoystickLib
@@ -25,6 +25,10 @@ set_target_properties(XBoxJoystickLib
     LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
 set_target_properties(WorldInfoSignLib
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
+)
+set_target_properties(WorldGen
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
@@ -57,3 +61,4 @@ target_link_libraries(main gameLib)
 # Link the game library to the plugins
 target_link_libraries(XBoxJoystickLib gameLib)
 target_link_libraries(WorldInfoSignLib gameLib)
+target_link_libraries(WorldGen gameLib)

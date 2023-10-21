@@ -9,6 +9,8 @@
 #include "billboardManager/billboardManager.hpp"
 #include "old/hudTextManager/hudTextManager.hpp"
 
+#include "ScreenOverlays/ScreenOverlays.hpp"
+
 #include <memory>
 class Game {
 private:
@@ -23,6 +25,8 @@ private:
     ModManager modManager;
     BillboardManager billboardManager;
     HUDTextManager hudTextManager;
+
+    ScreenOverlays screenOverlays;
 
     int windowWidth, windowHeight;
 public:

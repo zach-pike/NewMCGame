@@ -40,13 +40,8 @@ Game::Game():
     billboardManager.gfxInit();
     hudTextManager.gfxInit();
 
-    // Generate world
-    if (world.worldSaveExists("test")) {
-        world.loadWorld("test");
-    } else {
-        world.generateWorld(10, 5, 10);
-    }
-    
+    screenOverlays.gfxInit();
+
     // Load the mods and enable them
     modManager.loadMods();
     modManager.enableMods(*this);
@@ -150,14 +145,6 @@ void Game::gameLoop() {
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
         ImGui::Text("Polygon Count %ld", world.getLastNVerts() / 3);
         ImGui::Text("Last draw time %fms", lastDrawTime);
-
-        ImGui::SliderInt("Chunk size X", &nsx, 1, 20);
-        ImGui::SliderInt("Chunk size Y", &nsy, 1, 20);
-        ImGui::SliderInt("Chunk size Z", &nsz, 1, 20);
-
-        if (ImGui::Button("Regenerate world")) {
-            world.generateWorld(nsx, nsy, nsz);
-        }
 
         ImGui::End();
 

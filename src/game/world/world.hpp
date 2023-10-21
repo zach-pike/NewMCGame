@@ -42,6 +42,11 @@ public:
     int chunkSizeZ() const;
 
     /**
+     * Clears the world and initializes it with empty chunks
+    */
+    void generateEmptyMap(int sx, int sy, int sz);
+
+    /**
      * Get a block in the world
      * @param pos Block position
     */
@@ -60,14 +65,6 @@ public:
      * @param pos Position to check
     */
     bool coordinatesInWorld(glm::vec3 pos);
-
-    /**
-     * Generate a world using Perlin noise
-     * @param xs Number of chunks on the X Axis
-     * @param ys Number of chunks on the Y Axis
-     * @param zs Number of chunks on the Z Axis
-    */
-    void generateWorld(int xs, int ys, int zs);
 
     /**
      * Get a reference to a chunk at a chunkCoordinate

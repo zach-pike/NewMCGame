@@ -1,6 +1,5 @@
 #include "world.hpp"
 
-#include "../utils/PerlinNoise.hpp"
 #include <GL/glew.h>
 
 #include "glHelpers/texture/texture.hpp"
@@ -24,15 +23,7 @@ Chunk& World::getChunkFromWorldCoords(glm::vec3 pos) {
     return chunks.at(getChunkCoords(pos));
 }
 
-World::World() {
-    // std::vector<std::uint8_t> imageData;
-    // // Number of images to load
-    // int totalTextures = 5;
-    // int textureByteSize = 16*16*4;
-
-    // std::uint8_t* img = stbi_load()
-
-}
+World::World() {}
 
 World::~World() {
     if (gfxReady) {
@@ -53,6 +44,23 @@ void World::gfxInit() {
     blockDB.loadBlocks();
 
     gfxReady = true;
+}
+
+void World::generateEmptyMap(int sx, int sy, int sz) {
+    chunks.clear();
+    
+    sizeX = sx;
+    sizeY = sy;
+    sizeZ = sz;
+
+    for (int y=0; y<sy; y++) {
+        for (int z=0; z<sz; z++) {
+            for (int x=0; x<sx; x++) {
+                auto pos = ChunkPos(x, y, z);
+                chunks.emplace(pos, std::move(Chunk()));
+            }
+        }
+    }
 }
 
 int World::chunkSizeX() const { return sizeX; }
@@ -114,40 +122,6 @@ bool World::coordinatesInWorld(glm::vec3 pos) {
     return pos.x > 0 && pos.x < maxX
         && pos.y > 0 && pos.y < maxY
         && pos.z > 0 && pos.z < maxZ;
-}
-
-void World::generateWorld(int xs, int ys, int zs) {
-    chunks.clear();
-
-    sizeX = xs;
-    sizeY = ys;
-    sizeZ = zs;
-
-    for (int y=0; y<ys; y++) {
-        for (int z=0; z<zs; z++) {
-            for (int x=0; x<xs; x++) {
-                auto pos = ChunkPos(x, y, z);
-
-                chunks.emplace(pos, std::move(Chunk()));
-            }
-        }
-    }
-
-    int dirtBlockID = blockDB.getIdByName("dirt");
-    int grassBlockID = blockDB.getIdByName("grass");
-
-    srand(time(nullptr));
-    const siv::PerlinNoise::seed_type seed = rand();
-	const siv::PerlinNoise perlin{ seed };
-
-    for (int z=0; z<sizeZ*16; z++) {
-        for (int x=0; x<sizeX*16; x++) {
-            const double yMax = perlin.octave2D_01((x * 0.01), (z * 0.01), 2) * (sizeY - 1) * 16;
-
-            for(int y=0; y < yMax; y++) setBlock(glm::vec3(x, y, z), Block(dirtBlockID));
-            setBlock(glm::vec3(x, yMax, z), Block(grassBlockID), true);
-        }
-    }
 }
 
 Chunk& World::getChunkRef(glm::vec3 chunkCoord) {
