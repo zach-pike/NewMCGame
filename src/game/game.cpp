@@ -118,8 +118,8 @@ void Game::gameLoop() {
     // End setup
 
 
-    // Debugger
-    ChunkBorderDebugger chunkBorderDebugger(world);
+    // // Debugger
+    // ChunkBorderDebugger chunkBorderDebugger(world);
     // ------------------------------
 
     // Stupid temp fix
@@ -128,6 +128,10 @@ void Game::gameLoop() {
     bool debugOpen = false;
 
     float lastDrawTime = 0;
+
+    int nsx = 5;
+    int nsy = 5;
+    int nsz = 5;
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -144,8 +148,16 @@ void Game::gameLoop() {
 
         auto pos = player.getPositionRef();
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
-        ImGui::Text("Polygon Count %ld", world.getNVertices() / 3);
+        ImGui::Text("Polygon Count %ld", world.getLastNVerts() / 3);
         ImGui::Text("Last draw time %fms", lastDrawTime);
+
+        ImGui::SliderInt("Chunk size X", &nsx, 1, 20);
+        ImGui::SliderInt("Chunk size Y", &nsy, 1, 20);
+        ImGui::SliderInt("Chunk size Z", &nsz, 1, 20);
+
+        if (ImGui::Button("Regenerate world")) {
+            world.generateWorld(nsx, nsy, nsz);
+        }
 
         ImGui::End();
 
@@ -165,7 +177,7 @@ void Game::gameLoop() {
 
         world.draw(viewProjection);
 
-        if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
+        // if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
         billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);
         hudTextManager.draw(aspect);
 

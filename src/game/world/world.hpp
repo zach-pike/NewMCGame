@@ -28,6 +28,8 @@ private:
     GLuint viewProjectionID, chunkCoordID, textureAtlasID;
 
     BlockDB blockDB;
+
+    std::size_t lastNVerts = 0;
 public:
     World();
     ~World();
@@ -90,9 +92,9 @@ public:
     void draw(const glm::mat4& viewProjection);
 
     /**
-     * Returns the total number of vertices in the world
+     * Returns the total number of vertices drawn at the last render
     */
-    std::size_t getNVertices() const;
+    std::size_t getLastNVerts() const;
 
     /**
      * Save world to files

@@ -22,7 +22,7 @@ void WorldInfoSign::frameUpdate(Game& game) {
     static int i = 0;
     if (i % 100 == 0) {
         std::string billboardText = "# Polygons: ";
-        billboardText += std::to_string(game.getWorldRef().getNVertices() / 3);
+        billboardText += std::to_string(game.getWorldRef().getLastNVerts() / 3);
         billboardText += " # Chunks: ";
         billboardText += std::to_string(game.getWorldRef().getChunksRef().size());
 

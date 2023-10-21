@@ -171,6 +171,8 @@ void World::update() {
 }
 
 void World::draw(const glm::mat4& viewProjection) {
+    lastNVerts = 0;
+
     // Render the world 
     glUseProgram(worldShader);
 
@@ -210,21 +212,19 @@ void World::draw(const glm::mat4& viewProjection) {
             (void*)0            // array buffer offset
         );
 
+        std::size_t n = chunk.getNVertices();
         // Draw the mesh
-        glDrawArrays(GL_TRIANGLES, 0, chunk.getNVertices()); // 3 indices starting at 0 -> 1 triangle
+        glDrawArrays(GL_TRIANGLES, 0, n); // 3 indices starting at 0 -> 1 triangle
+
+        lastNVerts += n;
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
 }
 
-std::size_t World::getNVertices() const {
-    std::size_t n = 0;
-    for (auto& chunk : chunks) {
-        n += chunk.second.getNVertices();
-    }
-
-    return n;
+std::size_t World::getLastNVerts() const {
+    return lastNVerts;
 }
 
 void World::saveWorld(std::string saveName) const {
