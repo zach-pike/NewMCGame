@@ -1,10 +1,10 @@
 #include "WorldInfoSign.hpp"
 
-IPlugin* create() {
+IMod* create() {
     return new WorldInfoSign();
 }
 
-void destroy(IPlugin* plugin) {
+void destroy(IMod* plugin) {
     delete plugin;
 }
 
@@ -36,10 +36,10 @@ void WorldInfoSign::cleanup(Game& game) {
 
 }
 
-std::string WorldInfoSign::getPluginName() {
+std::string WorldInfoSign::getModName() {
     return "WorldInfoSign";
 }
 
-IPlugin::Version WorldInfoSign::getPluginVersion() {
+IMod::Version WorldInfoSign::getModVersion() {
     return Version { 1, 0 };
 }

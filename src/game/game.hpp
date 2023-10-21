@@ -5,7 +5,7 @@
 
 #include "player/player.hpp"
 #include "world/world.hpp"
-#include "pluginManager/pluginManager.hpp"
+#include "ModManager/ModManager.hpp"
 #include "billboardManager/billboardManager.hpp"
 #include "old/hudTextManager/hudTextManager.hpp"
 
@@ -20,7 +20,7 @@ private:
 
     Player player;
     World world;
-    PluginManager pluginManager;
+    ModManager modManager;
     BillboardManager billboardManager;
     HUDTextManager hudTextManager;
 
@@ -40,9 +40,9 @@ public:
     World& getWorldRef();
 
     /**
-     * Get a reference to the PluginManager
+     * Get a reference to the ModManager
     */
-    PluginManager& getPluginManagerRef();
+    ModManager& getModManagerRef();
 
     /**
      * Get a reference to the BillboardManager

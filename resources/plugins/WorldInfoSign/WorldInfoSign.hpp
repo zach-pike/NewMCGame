@@ -1,23 +1,23 @@
 #pragma once
 
-#include "pluginManager/include/IPlugin.hpp"
+#include "ModManager/include/IMod.hpp"
 #include "billboardManager/billboard/billboard.hpp"
 #include "game.hpp"
 
 #include <memory>
 
-class WorldInfoSign : public IPlugin {
+class WorldInfoSign : public IMod {
 private:
     std::shared_ptr<Billboard> billboard;
 public:
     void setup(Game&);
     void frameUpdate(Game&);
     void cleanup(Game&);
-    std::string getPluginName();
-    Version getPluginVersion();
+    std::string getModName();
+    Version getModVersion();
 };
 
 extern "C" {
-    IPlugin* create();
-    void destroy(IPlugin* plugin);
+    IMod* create();
+    void destroy(IMod* plugin);
 }

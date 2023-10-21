@@ -1,16 +1,16 @@
-#include "pluginManager/include/IPlugin.hpp"
+#include "ModManager/include/IMod.hpp"
 #include "game.hpp"
 
-class XBoxJoystickPlugin : public IPlugin {
+class XBoxJoystickPlugin : public IMod {
 public:
     void setup(Game&);
     void frameUpdate(Game&);
     void cleanup(Game&);
-    std::string getPluginName();
-    Version getPluginVersion();
+    std::string getModName();
+    Version getModVersion();
 };
 
 extern "C" {
-    IPlugin* create();
-    void destroy(IPlugin* plugin);
+    IMod* create();
+    void destroy(IMod* plugin);
 }

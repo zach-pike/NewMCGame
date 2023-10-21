@@ -19,11 +19,11 @@
 #define BUTTON_X 2
 #define BUTTON_Y 3
 
-IPlugin* create() {
+IMod* create() {
     return new XBoxJoystickPlugin();
 }
 
-void destroy(IPlugin* plugin) {
+void destroy(IMod* plugin) {
     delete plugin;
 }
 
@@ -102,10 +102,10 @@ void XBoxJoystickPlugin::frameUpdate(Game& game) {
 
 void XBoxJoystickPlugin::cleanup(Game& game) {}
 
-std::string XBoxJoystickPlugin::getPluginName() {
+std::string XBoxJoystickPlugin::getModName() {
     return "XBoxJoystickPlugin";
 }
 
-IPlugin::Version XBoxJoystickPlugin::getPluginVersion() {
+IMod::Version XBoxJoystickPlugin::getModVersion() {
     return Version{ 1, 0 };
 }

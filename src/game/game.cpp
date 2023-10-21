@@ -47,9 +47,9 @@ Game::Game():
         world.generateWorld(10, 5, 10);
     }
     
-    // Load the plugins and enable them
-    pluginManager.loadPlugins();
-    pluginManager.enablePlugins(*this);
+    // Load the mods and enable them
+    modManager.loadMods();
+    modManager.enableMods(*this);
 
     // Resize the viewport on window size change
     glfwSetFramebufferSizeCallback(gameWindow, [](GLFWwindow* win, int w, int h) {
@@ -57,8 +57,8 @@ Game::Game():
     });
 }
 Game::~Game() {
-    pluginManager.disablePlugins(*this);
-    pluginManager.unloadPlugins();
+    modManager.disableMods(*this);
+    modManager.unloadMods();
 
     glDeleteVertexArrays(1, &vertexArrayID);
     glfwTerminate();
@@ -156,8 +156,8 @@ void Game::gameLoop() {
         player.updatePlayer(*this);
         world.update();
 
-        // Update the plugins
-        pluginManager.pluginFrameUpdate(*this);
+        // Run the mods update function
+        modManager.modFrameUpdate(*this);
 
         // 3d stuff
         auto viewMatrix = player.getCameraViewMatrix();
@@ -195,8 +195,8 @@ World& Game::getWorldRef() {
     return world;
 }
 
-PluginManager& Game::getPluginManagerRef() {
-    return pluginManager;
+ModManager& Game::getModManagerRef() {
+    return modManager;
 }
 
 BillboardManager& Game::getBillboardManagerRef() {
