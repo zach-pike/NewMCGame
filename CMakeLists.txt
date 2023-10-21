@@ -8,9 +8,9 @@ project(MCGame)
 file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
 file(GLOB_RECURSE HELPER_SRC src/glHelpers/*.cpp)
 
-file(GLOB XBOXJOY_SRC resources/plugins/XBoxJoystick/*.cpp)
-file(GLOB WORLDINFOSIGN_SRC resources/plugins/WorldInfoSign/*.cpp)
-file(GLOB EXTRADEBUG_SRC resources/plugins/ExtraDebug/*.cpp)
+file(GLOB XBOXJOY_SRC resources/mods/XBoxJoystick/*.cpp)
+file(GLOB WORLDINFOSIGN_SRC resources/mods/WorldInfoSign/*.cpp)
+file(GLOB EXTRADEBUG_SRC resources/mods/ExtraDebug/*.cpp)
 
 include_directories(src/game)
 
@@ -22,21 +22,15 @@ add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
 # Set the output location of the plugins
 set_target_properties(XBoxJoystickLib
     PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
+    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
 set_target_properties(WorldInfoSignLib
     PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
+    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
-#set_target_properties(ExtraDebugLib
-#    PROPERTIES
-#    LIBRARY_OUTPUT_DIRECTORY "../resources/cplugins"
-#)
 
 # Stuff for external dependencies
-
 # Dear, ImGui
-
 include_directories(src/)
 
 # Hate this hack but it works
@@ -63,4 +57,3 @@ target_link_libraries(main gameLib)
 # Link the game library to the plugins
 target_link_libraries(XBoxJoystickLib gameLib)
 target_link_libraries(WorldInfoSignLib gameLib)
-#target_link_libraries(ExtraDebugLib gameLib)
