@@ -40,7 +40,6 @@ void World::gfxInit() {
     textureAtlasID = glGetUniformLocation(worldShader, "textureAtlas");
 
     blockDB.gfxInit();
-
     blockDB.loadBlocks();
 
     gfxReady = true;
@@ -132,15 +131,17 @@ std::map<World::ChunkPos, Chunk>& World::getChunksRef() {
     return chunks;
 }
 
-void World::update() {
+void World::update(std::size_t maxChunksToDraw) {
+    std::size_t genChunks = 0;
     for (auto& a : chunks) {
         auto& chunk = a.second;
-        if (!chunk.pendingMeshUpdate()) continue;
+        if ((chunk.pendingMeshUpdate() != true) || (genChunks >= maxChunksToDraw)) continue;
 
         auto chunkPos = a.first;
         auto chunkCoord = glm::vec3(std::get<0>(chunkPos), std::get<1>(chunkPos), std::get<2>(chunkPos));
 
         chunk.generateMesh(chunkCoord, *this);
+        genChunks++;
     }
 }
 
@@ -188,7 +189,7 @@ void World::draw(const glm::mat4& viewProjection) {
 
         std::size_t n = chunk.getNVertices();
         // Draw the mesh
-        glDrawArrays(GL_TRIANGLES, 0, n); // 3 indices starting at 0 -> 1 triangle
+        glDrawArrays(GL_TRIANGLES, 0, n);
 
         lastNVerts += n;
 
@@ -309,4 +310,11 @@ bool World::worldSaveExists(std::string saveName) const {
 
 BlockDB& World::getBlockDBRef() {
     return blockDB;
+}
+
+void World::moveChunks(World& w) {
+    chunks = std::move(w.chunks);
+    sizeX = w.sizeX;
+    sizeY = w.sizeY;
+    sizeZ = w.sizeZ;
 }

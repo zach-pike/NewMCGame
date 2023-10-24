@@ -22,7 +22,7 @@ using FP = T(*)(Args...);
 namespace chrono = std::chrono;
 
 Game::Game():
-    player{glm::vec3(0, 50, 0), glm::vec3(1, 0, 0), 70.f}
+    player{glm::vec3(1, 1, 1), glm::vec3(1, 0, 0), 70.f}
 {
     // Load dotenv for shader and textures
     dotenv::init();
@@ -124,9 +124,7 @@ void Game::gameLoop() {
 
     float lastDrawTime = 0;
 
-    int nsx = 5;
-    int nsy = 5;
-    int nsz = 5;
+    long fc = 0;
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -153,7 +151,7 @@ void Game::gameLoop() {
         float aspect = (float)windowWidth / (float)windowHeight;
 
         player.updatePlayer(*this);
-        world.update();
+        if (fc % 2 == 0) world.update(5); // Draw 5 chunks every 2 frames
 
         // Run the mods update function
         modManager.modFrameUpdate(*this);
@@ -178,6 +176,8 @@ void Game::gameLoop() {
         // Swap buffers
         glfwSwapBuffers(gameWindow);
         glfwPollEvents();
+
+        fc ++;
     } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0);
 
     // Destroy ImGui

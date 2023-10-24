@@ -80,7 +80,7 @@ public:
     /**
      * Update all the chunks that need updating (should be called every frame)
     */
-    void update();
+    void update(std::size_t maxChunksToDraw);
 
     /**
      * Draw the chunk meshes for the world
@@ -114,6 +114,8 @@ public:
      * Get a reference the BlockDB
     */
     BlockDB& getBlockDBRef();
+
+    void moveChunks(World& world);
 
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
         return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));
