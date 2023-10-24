@@ -18,6 +18,6 @@ public:
 };
 
 extern "C" {
-    IMod* create();
-    void destroy(IMod* plugin);
+    WorldInfoSign* create();
+    void destroy(WorldInfoSign* plugin);
 }

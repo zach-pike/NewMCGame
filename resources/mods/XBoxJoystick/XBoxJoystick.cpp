@@ -19,11 +19,11 @@
 #define BUTTON_X 2
 #define BUTTON_Y 3
 
-IMod* create() {
+XBoxJoystickPlugin* create() {
     return new XBoxJoystickPlugin();
 }
 
-void destroy(IMod* plugin) {
+void destroy(XBoxJoystickPlugin* plugin) {
     delete plugin;
 }
 

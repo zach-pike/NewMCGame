@@ -1,10 +1,10 @@
 #include "WorldInfoSign.hpp"
 
-IMod* create() {
+WorldInfoSign* create() {
     return new WorldInfoSign();
 }
 
-void destroy(IMod* plugin) {
+void destroy(WorldInfoSign* plugin) {
     delete plugin;
 }
 

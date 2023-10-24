@@ -11,6 +11,6 @@ public:
 };
 
 extern "C" {
-    IMod* create();
-    void destroy(IMod* plugin);
+    XBoxJoystickPlugin* create();
+    void destroy(XBoxJoystickPlugin* plugin);
 }
