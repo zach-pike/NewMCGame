@@ -4,36 +4,12 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
-#include "PerlinNoise.hpp"
-
-IMod* create() {
+NewWorldGen* create() {
     return new NewWorldGen();
 }
 
-void destroy(IMod* mod) {
+void destroy(NewWorldGen* mod) {
     delete mod;
-}
-
-void NewWorldGen::worldGen(World& world) {
-    world.generateEmptyMap(newChunkSx, newChunkSy, newChunkSz);
-
-    const auto& blockDB = world.getBlockDBRef();
-
-    int dirtBlockID = blockDB.getIdByName("dirt");
-    int grassBlockID = blockDB.getIdByName("grass");
-
-    srand(time(nullptr));
-    const siv::PerlinNoise::seed_type seed = rand();
-	const siv::PerlinNoise perlin{ seed };
-
-    for (int z=0; z<newChunkSz*16; z++) {
-        for (int x=0; x<newChunkSx*16; x++) {
-            const double yMax = perlin.octave2D_01((x * xStretch), (z * zStretch), 2) * yScale;
-
-            for(int y=0; y < yMax; y++) world.setBlock(glm::vec3(x, y, z), Block(dirtBlockID));
-            world.setBlock(glm::vec3(x, yMax, z), Block(grassBlockID), true);
-        }
-    }
 }
 
 void NewWorldGen::setup(Game& game) {
@@ -50,7 +26,24 @@ void NewWorldGen::frameUpdate(Game& game) {
 
     ImGui::SliderFloat("Y Scale", &yScale, 0.f, (newChunkSy - 1) * 16);
 
-    if (ImGui::Button("Generate!")) worldGen(game.getWorldRef());
+    if (ImGui::Button("Generate!")) {
+        generatorWorker.startWorldGenerator(game.getWorldRef().getBlockDBRef(), WorldGenWorker::WorldGenDetails{
+            .xStretch = xStretch,
+            .zStrecth = zStretch,
+            .yScale = yScale,
+
+            .chunksX = newChunkSx,
+            .chunksY = newChunkSy,
+            .chunksZ = newChunkSz,
+            
+            .seed = (uint32_t)rand()
+        });
+    }
+
+    if (generatorWorker.isWorldReady()) {
+        game.getWorldRef().moveChunks(generatorWorker.getGeneratedWorld());
+        generatorWorker.clearWorldReady();
+    }
 
     ImGui::End();
 }

@@ -2,7 +2,7 @@
 
 #include "ModManager/include/IMod.hpp"
 #include "game.hpp"
-#include "world/world.hpp"
+#include "WorldGenWorker/WorldGenWorker.hpp"
 
 #include <memory>
 
@@ -18,7 +18,7 @@ private:
     float zStretch = 0.01;
     float yScale = 0;
 
-    void worldGen(World&);
+    WorldGenWorker generatorWorker;
 public:
     void setup(Game&);
     void frameUpdate(Game&);
@@ -28,6 +28,6 @@ public:
 };
 
 extern "C" {
-    IMod* create();
-    void destroy(IMod* plugin);
+    NewWorldGen* create();
+    void destroy(NewWorldGen* plugin);
 }

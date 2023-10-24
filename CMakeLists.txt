@@ -10,7 +10,7 @@ file(GLOB_RECURSE HELPER_SRC src/glHelpers/*.cpp)
 
 file(GLOB XBOXJOY_SRC resources/mods/XBoxJoystick/*.cpp)
 file(GLOB WORLDINFOSIGN_SRC resources/mods/WorldInfoSign/*.cpp)
-file(GLOB WORLDGEN_SRC resources/mods/WorldGen/*.cpp)
+file(GLOB_RECURSE WORLDGEN_SRC resources/mods/WorldGen/*.cpp)
 
 include_directories(src/game)
 
@@ -32,6 +32,8 @@ set_target_properties(WorldGen
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
+set_property(TARGET WorldGen PROPERTY CXX_STANDARD 20)
+set_property(TARGET WorldGen PROPERTY CXX_STANDARD_REQUIRED On)
 
 # Stuff for external dependencies
 # Dear, ImGui

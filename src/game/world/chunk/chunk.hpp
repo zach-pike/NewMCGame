@@ -24,7 +24,7 @@ private:
     std::vector<Block> blocks;
 
     BufferInfo buffers;
-    std::size_t nVertices;
+    std::size_t nVertices = 0;
 
     bool meshUpdatedNeeded = true;
 
