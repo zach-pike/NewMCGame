@@ -95,7 +95,7 @@ GLuint loadShaders(std::string shaderResourceFolder) {
 	if (infoLogLength > 0) {
 		std::vector<char> programErrorMessage(infoLogLength+1);
 		glGetProgramInfoLog(programID, infoLogLength, NULL, &programErrorMessage[0]);
-		logger.error("Error linking program (below)\n" + programErrorMessage[0]);
+		logger.error("Error linking program (below)\n" + std::string(programErrorMessage.data()));
 	}
 	
 	glDetachShader(programID, vertexShaderID);
