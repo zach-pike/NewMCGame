@@ -4,6 +4,8 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
+#include "implot/implot.h"
+
 #include <exception>
 #include <stdexcept>
 #include <chrono>
@@ -102,6 +104,7 @@ void Game::gameLoop() {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -126,6 +129,16 @@ void Game::gameLoop() {
     long fc = 0;
     int maxChunksToDraw = 5;
     int drawFrequency = 2;
+
+    // Values for frame draw time graph
+    bool frameGraphOpen = false;
+    // We really don't change this much
+    std::size_t bLen = 500;
+    float* frameRateX = new float[bLen];
+    for (int i=0; i < bLen; i++) frameRateX[i] = i;
+
+    float* frameRateY = new float[bLen];
+    memset(frameRateY, 0, sizeof(float) * bLen);
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -137,15 +150,28 @@ void Game::gameLoop() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // Shift framerate values back
+        for(int i=0; i<(bLen-1); i++) frameRateY[i] = frameRateY[i + 1];
+        frameRateY[bLen-1] = lastDrawTime;
+
+        ImGui::Begin("Frame draw time", &frameGraphOpen);
+        ImGui::Text("Last draw time %fms", lastDrawTime);
+
+        if(ImPlot::BeginPlot("Frame draw time")) {
+            ImPlot::PlotLine("Frame draw time", frameRateX, frameRateY, bLen);
+            
+            ImPlot::EndPlot();
+        }
+        ImGui::End();
+
         // On screen menu
         ImGui::Begin("Debug", &debugOpen, ImGuiWindowFlags_MenuBar);
 
         auto pos = player.getPositionRef();
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
         ImGui::Text("Polygon Count %ld", world.getVertexCount() / 3);
-        ImGui::Text("Last draw time %fms", lastDrawTime);
         ImGui::SliderInt("Max number of chunks to draw per frame", &maxChunksToDraw, 1, 20);
-        ImGui::SliderInt("Draw frequency", &drawFrequency, 0, 20);
+        ImGui::SliderInt("Draw frequency", &drawFrequency, 1, 60);
         ImGui::SliderFloat("Max chunk draw dist", &maxViewDist, 0, 1000.f);
 
         ImGui::End();
@@ -177,6 +203,11 @@ void Game::gameLoop() {
 
         lastDrawTime = (float)chrono::duration_cast<chrono::microseconds>(endTime - startTime).count() / 1000.f;
 
+        // Frame rate locker
+        float sleepTime = 16.f - lastDrawTime;
+        if (sleepTime > 0.f)
+            std::this_thread::sleep_for(chrono::milliseconds((std::int64_t)sleepTime));
+
         // Swap buffers
         glfwSwapBuffers(gameWindow);
         glfwPollEvents();
@@ -184,9 +215,13 @@ void Game::gameLoop() {
         fc ++;
     } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0);
 
+    delete[] frameRateX;
+    delete[] frameRateY;
+
     // Destroy ImGui
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 }
 

@@ -72,7 +72,7 @@ public:
     HUDTextManager& getHUDTextManagerRef();
 
     /**
-     * Returns the GLFWwindow handle.
+     * Returns the GLFWwindow handle. (Mod API users probably don't use this unless you know what your doing)
     */
     GLFWwindow* getGLFWwindow();
 

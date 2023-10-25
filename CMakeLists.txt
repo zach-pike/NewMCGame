@@ -42,15 +42,17 @@ include_directories(src/)
 include_directories(external/)
 include_directories(external/imgui)
 
-file(GLOB_RECURSE SRC src/*.cpp)
+# External library files
 file(GLOB IMGUI_SRC external/imgui/*.cpp)
 set(IMGUI_IMPL_SRC external/imgui/backends/imgui_impl_glfw.cpp external/imgui/backends/imgui_impl_opengl3.cpp)
+
+file(GLOB IMPLOT_SRC external/implot/*.cpp)
 
 # Main executable
 add_executable(main src/main.cpp)
 
 # Minecraft Game library
-add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC})
+add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC} ${IMPLOT_SRC})
 target_link_libraries(gameLib GL GLEW glfw m X11 Xi Xrandr dl)
 
 # Link gameLib
