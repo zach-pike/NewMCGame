@@ -10,38 +10,27 @@
 
 #include <vector>
 
+#include "ChunkMesh/ChunkMesh.hpp"
+
 class World;
 
 class Chunk {
-public:
-    struct BufferInfo {
-        GLuint vertexBuffer, layerBuffer;
-    };
-
 private:
-    bool _hasBeenMoved = false;
-
     std::vector<Block> blocks;
 
-    BufferInfo buffers;
-    std::size_t nVertices = 0;
-
+    ChunkMesh mesh;
     bool meshUpdatedNeeded = true;
-
-    void blockDrawer(
-        std::array<Vertex, 36>& vtx_data,
-        std::array<GLint, 36>& uv_data,
-        std::size_t& index,
-        glm::vec3 cPos, // Chunk position each axis that follows 0 <= x < 16
-        glm::vec3 chunkCoords,
-        World& world
-    ) const;
 
     Block& getBlockReference(glm::vec3 pos);
 public:
     Chunk();
     Chunk(Chunk&&);
     ~Chunk();
+
+    /**
+     * Returns a reference to the ChunkMesh object
+    */
+   const ChunkMesh& getMeshRef() const;
 
     /**
      * Mark the chunk to be rerendered
@@ -52,11 +41,6 @@ public:
      * Return true if the mesh in the GPU is outdated
     */
     bool pendingMeshUpdate() const;
-
-    /**
-     * Returns the number of vertices in the buffer
-    */
-    std::size_t getNVertices() const;
 
     /**
      * Get a block inside of the chunk
@@ -72,16 +56,11 @@ public:
     void setBlock(glm::vec3 localPos, Block block);
 
     /**
-     * Get the buffer information for the chunk mesh
-    */
-    BufferInfo getBufferInfo() const;
-
-    /**
      * Generates the mesh for the chunk
-     * @param chunkCoord The chunk coordinate of this chunk
      * @param world The world object
+     * @param chunkCoord The chunk coordinate of this chunk
     */
-    void generateMesh(glm::vec3 chunkCoord, World& world);
+    void buildMesh(World& world, glm::vec3 chunkCoord);
 
     std::vector<std::uint8_t> serialize() const;
     void deserialize(const std::vector<std::uint8_t>&);

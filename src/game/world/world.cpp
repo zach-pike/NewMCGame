@@ -56,7 +56,7 @@ void World::generateEmptyMap(int sx, int sy, int sz) {
         for (int z=0; z<sz; z++) {
             for (int x=0; x<sx; x++) {
                 auto pos = ChunkPos(x, y, z);
-                chunks.emplace(pos, std::move(Chunk()));
+                chunks.insert(std::make_pair(pos, Chunk{}));
             }
         }
     }
@@ -135,12 +135,13 @@ void World::update(std::size_t maxChunksToDraw) {
     std::size_t genChunks = 0;
     for (auto& a : chunks) {
         auto& chunk = a.second;
-        if ((chunk.pendingMeshUpdate() != true) || (genChunks >= maxChunksToDraw)) continue;
+        
+        if (chunk.pendingMeshUpdate() != true || genChunks >= maxChunksToDraw) continue;
 
         auto chunkPos = a.first;
         auto chunkCoord = glm::vec3(std::get<0>(chunkPos), std::get<1>(chunkPos), std::get<2>(chunkPos));
 
-        chunk.generateMesh(chunkCoord, *this);
+        chunk.buildMesh(*this, chunkCoord);
         genChunks++;
     }
 }
@@ -160,7 +161,10 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
     for (const auto& kv : getChunksRef()) {
         // Get all necessary data
         auto& chunk = kv.second;
-        auto bufferInfo = chunk.getBufferInfo();
+        auto& chunkMesh = chunk.getMeshRef();
+
+        // if (!chunkMesh.buffersReady()) throw std::runtime_error("err buffers not ready");
+
         auto chunkCoord = chunkPosToVec3(kv.first);
 
         auto dist = glm::length((chunkCoord*glm::vec3(16.f)) - observerPosition);
@@ -170,7 +174,7 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
         glUniform3fv(chunkCoordID, 1, &chunkCoord[0]);
 
         glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, chunkMesh.getVertexBuffer());
         glVertexAttribPointer(
             0,                  // attribute 0.
             3,                  // size
@@ -181,7 +185,7 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
         );
 
         glEnableVertexAttribArray(1);
-        glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.layerBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, chunkMesh.getLayerBuffer());
         glVertexAttribIPointer(
             1,                  // attribute 1.
             1,                  // size
@@ -190,8 +194,7 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
             (void*)0            // array buffer offset
         );
 
-        std::size_t n = chunk.getNVertices();
-        // Draw the mesh
+        std::size_t n = chunkMesh.getVertexCount();
         glDrawArrays(GL_TRIANGLES, 0, n);
 
         lastNVerts += n;
