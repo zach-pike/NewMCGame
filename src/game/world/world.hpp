@@ -29,17 +29,13 @@ private:
 
     BlockDB blockDB;
 
-    std::size_t lastNVerts = 0;
+    std::size_t totalVertexCount = 0;
 public:
     World();
     ~World();
 
     // Does all the necessary calls to OpenGL related functions
     void gfxInit();
-    
-    int chunkSizeX() const;
-    int chunkSizeY() const;
-    int chunkSizeZ() const;
 
     /**
      * Clears the world and initializes it with empty chunks
@@ -86,12 +82,12 @@ public:
      * Draw the chunk meshes for the world
      * @param viewProjection The camera View projection
     */
-    void draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist);
+    void drawMeshes(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist);
 
     /**
      * Returns the total number of vertices drawn at the last render
     */
-    std::size_t getLastNVerts() const;
+    std::size_t getVertexCount() const;
 
     /**
      * Save world to files
@@ -115,7 +111,14 @@ public:
     */
     BlockDB& getBlockDBRef();
 
+
+    // Move chunks from another world object into this world
     void moveChunks(World& world);
+
+    // World size getters
+    int chunkSizeX() const;
+    int chunkSizeY() const;
+    int chunkSizeZ() const;
 
     inline static glm::vec3 chunkPosToVec3(ChunkPos pos) {
         return glm::vec3(std::get<0>(pos), std::get<1>(pos), std::get<2>(pos));

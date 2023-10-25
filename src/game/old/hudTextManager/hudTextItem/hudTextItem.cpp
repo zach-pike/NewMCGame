@@ -2,11 +2,10 @@
 
 #include <vector>
 #include <array>
-#include "types/types.hpp"
 
 void HUDTextItem::drawMesh() {
     std::vector<glm::vec2> vertexes;
-    std::vector<UV> uv;
+    std::vector<glm::vec2> uv;
 
     const float charDim = .2f * scale;
 
@@ -17,7 +16,7 @@ void HUDTextItem::drawMesh() {
 
         float xPosition = i * charDim;
 
-        UV charUV = glm::vec2(letter% 16 , letter / 16);
+        glm::vec2 charUV = glm::vec2(letter% 16 , letter / 16);
 
         std::array<glm::vec2, 6> vtxs = {
             screenPosition + glm::vec2(xPosition, 0),                      // Bottom left
@@ -28,14 +27,14 @@ void HUDTextItem::drawMesh() {
             screenPosition + glm::vec2(xPosition + charDim, charDim),      // Top right
         };
 
-        std::array<UV, 6> uvs = {
-            charUV + UV(0, 1),
-            charUV + UV(1, 0),
+        std::array<glm::vec2, 6> uvs = {
+            charUV + glm::vec2(0, 1),
+            charUV + glm::vec2(1, 0),
             charUV,
 
-            charUV + UV(0, 1),
-            charUV + UV(1, 1),
-            charUV + UV(1, 0),
+            charUV + glm::vec2(0, 1),
+            charUV + glm::vec2(1, 1),
+            charUV + glm::vec2(1, 0),
         };
 
         vertexes.insert(vertexes.end(), vtxs.begin(), vtxs.end());
@@ -46,7 +45,7 @@ void HUDTextItem::drawMesh() {
     glBufferData(GL_ARRAY_BUFFER, vertexes.size() * sizeof(glm::vec2), vertexes.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, buffers.uvBuffer);
-    glBufferData(GL_ARRAY_BUFFER, uv.size() * sizeof(UV), uv.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, uv.size() * sizeof(glm::vec2), uv.data(), GL_STATIC_DRAW);
 
     nVerts = vertexes.size();
 }

@@ -11,7 +11,7 @@
 #include <fstream>
 namespace fs = std::filesystem;
 
-World::ChunkPos getChunkCoords(glm::vec3 pos) {
+static World::ChunkPos getChunkCoords(glm::vec3 pos) {
     int chunkX = std::floor(pos.x / 16.f);
     int chunkY = std::floor(pos.y / 16.f);
     int chunkZ = std::floor(pos.z / 16.f);
@@ -61,10 +61,6 @@ void World::generateEmptyMap(int sx, int sy, int sz) {
         }
     }
 }
-
-int World::chunkSizeX() const { return sizeX; }
-int World::chunkSizeY() const { return sizeY; }
-int World::chunkSizeZ() const { return sizeZ; }
 
 Block World::getBlock(glm::vec3 pos) {
     Chunk& chunk = getChunkFromWorldCoords(pos);
@@ -146,8 +142,8 @@ void World::update(std::size_t maxChunksToDraw) {
     }
 }
 
-void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist) {
-    lastNVerts = 0;
+void World::drawMeshes(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist) {
+    totalVertexCount = 0;
 
     // Render the world 
     glUseProgram(worldShader);
@@ -162,9 +158,6 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
         // Get all necessary data
         auto& chunk = kv.second;
         auto& chunkMesh = chunk.getMeshRef();
-
-        // if (!chunkMesh.buffersReady()) throw std::runtime_error("err buffers not ready");
-
         auto chunkCoord = chunkPosToVec3(kv.first);
 
         auto dist = glm::length((chunkCoord*glm::vec3(16.f)) - observerPosition);
@@ -197,15 +190,15 @@ void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, fl
         std::size_t n = chunkMesh.getVertexCount();
         glDrawArrays(GL_TRIANGLES, 0, n);
 
-        lastNVerts += n;
+        totalVertexCount += n;
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
     }
 }
 
-std::size_t World::getLastNVerts() const {
-    return lastNVerts;
+std::size_t World::getVertexCount() const {
+    return totalVertexCount;
 }
 
 void World::saveWorld(std::string saveName) const {
@@ -324,3 +317,7 @@ void World::moveChunks(World& w) {
     sizeY = w.sizeY;
     sizeZ = w.sizeZ;
 }
+
+int World::chunkSizeX() const { return sizeX; }
+int World::chunkSizeY() const { return sizeY; }
+int World::chunkSizeZ() const { return sizeZ; }

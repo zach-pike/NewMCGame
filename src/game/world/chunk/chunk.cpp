@@ -42,7 +42,7 @@ void Chunk::setBlock(glm::vec3 pos, Block block) {
 void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
     meshUpdatedNeeded = false;
 
-    std::vector<Vertex> vertices;
+    std::vector<glm::vec3> vertices;
     std::vector<GLint> layers;
 
     // Chunk generation code
@@ -59,7 +59,7 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
 
                 using namespace glm;
 
-                auto addFace = [&](std::array<Vertex, 6> verts, Block::BlockFace face) {
+                auto addFace = [&](std::array<glm::vec3, 6> verts, Block::BlockFace face) {
                     vertices.insert(vertices.end(), verts.begin(), verts.end());
                     auto data = world.getBlockDBRef().getBlockInfoByID(block.getBlockType());
 
@@ -77,9 +77,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                 };
                 
                 // +X Face Check
-                const std::array<Vertex, 6> xPos = {
-                    Vertex(x + 1, y, z), Vertex(x + 1, y + 1, z),     Vertex(x + 1, y + 1, z + 1),
-                    Vertex(x + 1, y, z), Vertex(x + 1, y + 1, z + 1), Vertex(x + 1, y, z + 1),
+                const std::array<glm::vec3, 6> xPos = {
+                    glm::vec3(x + 1, y, z), glm::vec3(x + 1, y + 1, z),     glm::vec3(x + 1, y + 1, z + 1),
+                    glm::vec3(x + 1, y, z), glm::vec3(x + 1, y + 1, z + 1), glm::vec3(x + 1, y, z + 1),
                 };
                 if (x >= 15) {
                     if (chunkCoords.x + 1 >= world.chunkSizeX()
@@ -89,9 +89,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                     addFace(xPos, Block::BlockFace::NORTH);
 
                 // -X Face Check
-                const std::array<Vertex, 6> xNeg = {
-                    Vertex(x, y, z + 1), Vertex(x, y + 1, z + 1), Vertex(x, y + 1, z),
-                    Vertex(x, y, z + 1), Vertex(x, y + 1, z),     Vertex(x, y, z),
+                const std::array<glm::vec3, 6> xNeg = {
+                    glm::vec3(x, y, z + 1), glm::vec3(x, y + 1, z + 1), glm::vec3(x, y + 1, z),
+                    glm::vec3(x, y, z + 1), glm::vec3(x, y + 1, z),     glm::vec3(x, y, z),
                 };
                 if (x < 1) {
                     if (chunkCoords.x - 1 < 0
@@ -101,9 +101,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                     addFace(xNeg, Block::BlockFace::SOUTH);
 
                 // +Z Face Check
-                const std::array<Vertex, 6> zPos = {
-                    Vertex(x + 1, y, z + 1), Vertex(x + 1, y + 1, z + 1), Vertex(x, y + 1, z + 1),
-                    Vertex(x + 1, y, z + 1), Vertex(x, y + 1, z + 1),     Vertex(x, y, z + 1),
+                const std::array<glm::vec3, 6> zPos = {
+                    glm::vec3(x + 1, y, z + 1), glm::vec3(x + 1, y + 1, z + 1), glm::vec3(x, y + 1, z + 1),
+                    glm::vec3(x + 1, y, z + 1), glm::vec3(x, y + 1, z + 1),     glm::vec3(x, y, z + 1),
                 };
                 if (z >= 15) {
                     if (chunkCoords.z + 1 >= world.chunkSizeZ()
@@ -113,9 +113,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                     addFace(zPos, Block::BlockFace::EAST);
 
                 // -Z Face Check
-                const std::array<Vertex, 6> zNeg = {
-                    Vertex(x, y, z), Vertex(x, y + 1, z),     Vertex(x + 1, y + 1, z),
-                    Vertex(x, y, z), Vertex(x + 1, y + 1, z), Vertex(x + 1, y, z),
+                const std::array<glm::vec3, 6> zNeg = {
+                    glm::vec3(x, y, z), glm::vec3(x, y + 1, z),     glm::vec3(x + 1, y + 1, z),
+                    glm::vec3(x, y, z), glm::vec3(x + 1, y + 1, z), glm::vec3(x + 1, y, z),
                 };
                 if (z < 1) {
                     if (chunkCoords.z - 1 < 0
@@ -125,9 +125,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                     addFace(zNeg, Block::BlockFace::WEST);
 
                 // +Y Face Check
-                const std::array<Vertex, 6> yPos = {
-                    Vertex(x, y + 1, z), Vertex(x, y + 1, z + 1),     Vertex(x + 1, y + 1, z + 1),
-                    Vertex(x, y + 1, z), Vertex(x + 1, y + 1, z + 1), Vertex(x + 1, y + 1, z),
+                const std::array<glm::vec3, 6> yPos = {
+                    glm::vec3(x, y + 1, z), glm::vec3(x, y + 1, z + 1),     glm::vec3(x + 1, y + 1, z + 1),
+                    glm::vec3(x, y + 1, z), glm::vec3(x + 1, y + 1, z + 1), glm::vec3(x + 1, y + 1, z),
                 };
                 if (y >= 15) {
                     if (chunkCoords.y + 1 >= world.chunkSizeY()
@@ -137,9 +137,9 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                     addFace(yPos, Block::BlockFace::TOP);
 
                 // -Y Face Check
-                const std::array<Vertex, 6> yNeg = {
-                    Vertex(x, y, z), Vertex(x + 1, y, z),     Vertex(x + 1, y, z + 1),
-                    Vertex(x, y, z), Vertex(x + 1, y, z + 1), Vertex(x, y, z + 1),
+                const std::array<glm::vec3, 6> yNeg = {
+                    glm::vec3(x, y, z), glm::vec3(x + 1, y, z),     glm::vec3(x + 1, y, z + 1),
+                    glm::vec3(x, y, z), glm::vec3(x + 1, y, z + 1), glm::vec3(x, y, z + 1),
                 };
                 if (y < 1) {
                     if (chunkCoords.y - 1 < 0

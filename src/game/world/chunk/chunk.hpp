@@ -4,12 +4,9 @@
 #include <vector>
 #include <GL/glew.h>
 
-#include "block/block.hpp"
-
-#include "../../types/types.hpp"
-
 #include <vector>
 
+#include "block/block.hpp"
 #include "ChunkMesh/ChunkMesh.hpp"
 
 class World;
@@ -62,8 +59,8 @@ public:
     */
     void buildMesh(World& world, glm::vec3 chunkCoord);
 
+    // For world saving
     std::vector<std::uint8_t> serialize() const;
     void deserialize(const std::vector<std::uint8_t>&);
-
     static std::size_t serializedChunkSize();
 };

@@ -36,6 +36,16 @@ public:
     ~Game();
 
     /**
+     * Initializes all OpenGL related stuff
+    */
+    void gfxInit();
+
+    /**
+     * Do the gameLoop (returns when game quits)
+    */
+    void gameLoop();
+
+    /**
      * Get a reference to the Player object
     */
     Player& getPlayerRef();
@@ -65,16 +75,6 @@ public:
      * Returns the GLFWwindow handle.
     */
     GLFWwindow* getGLFWwindow();
-
-    /**
-     * Initializes all OpenGL related stuff
-    */
-    void gfxInit();
-
-    /**
-     * Do the gameLoop (returns when game quits)
-    */
-    void gameLoop();
 
     /**
      * Returns the window width

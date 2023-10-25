@@ -2,7 +2,6 @@
 
 #include <tuple>
 #include <glm/glm.hpp>
-#include "types/types.hpp"
 
 class Block {
 public:
@@ -14,9 +13,10 @@ public:
         TOP,   // +Y
         BOTTOM // -Y
     };
+    
+    using BlockType = unsigned int;
 
 private:
-    using BlockType = unsigned int;
     BlockType blockType;
 public:
     Block(BlockType bt = 0);
@@ -26,11 +26,4 @@ public:
      * Get the block type
     */
     BlockType getBlockType() const;
-
-    /**
-     * Get the UV coordinates for a specific side of the block
-     * @param face Block face
-     * @deprecated using array textures now
-    */
-    // UV getUVCoords(BlockFace face) const;
 };

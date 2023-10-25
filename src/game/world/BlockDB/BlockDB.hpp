@@ -31,12 +31,12 @@ public:
     ~BlockDB();
 
     /**
-     * Initiate any OpenGL componets
+     * Initiate any OpenGL components
     */
     void gfxInit();
 
     /**
-     * Load all the files from BLOCKPACKS_FOLDER and load the texture defined in thoes files
+     * Load all the files from BLOCKPACKS_FOLDER and load the texture defined in those files
     */
     void loadBlocks();
 
@@ -58,7 +58,7 @@ public:
     const BlockInfo& getBlockInfoByID(int idx) const;
 
     /**
-     * Get a const refrenceto the std::map of blocks
+     * Get a const reference to the std::map of blocks
     */
     const std::map<std::string, BlockInfo>& getBlockMap() const;
 };

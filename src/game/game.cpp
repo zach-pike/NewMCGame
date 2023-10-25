@@ -13,7 +13,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "world/debug/ChunkBorderDebugger.hpp"
 #include "glHelpers/utils/dotenv.h"
 
 template <typename T, typename... Args>
@@ -143,7 +142,7 @@ void Game::gameLoop() {
 
         auto pos = player.getPositionRef();
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
-        ImGui::Text("Polygon Count %ld", world.getLastNVerts() / 3);
+        ImGui::Text("Polygon Count %ld", world.getVertexCount() / 3);
         ImGui::Text("Last draw time %fms", lastDrawTime);
         ImGui::SliderInt("Max number of chunks to draw per frame", &maxChunksToDraw, 1, 20);
         ImGui::SliderInt("Draw frequency", &drawFrequency, 0, 20);
@@ -165,7 +164,7 @@ void Game::gameLoop() {
         auto viewMatrix = player.getCameraViewMatrix();
         auto viewProjection = player.getViewProjection(aspect);
 
-        world.draw(viewProjection, player.getPositionRef(), maxViewDist);
+        world.drawMeshes(viewProjection, player.getPositionRef(), maxViewDist);
 
         // if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
         billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);
