@@ -33,8 +33,6 @@ set_target_properties(WorldGen
     PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
 )
-# set_property(TARGET WorldGen PROPERTY CXX_STANDARD 20)
-# set_property(TARGET WorldGen PROPERTY CXX_STANDARD_REQUIRED On)
 
 # Stuff for external dependencies
 # Dear, ImGui
@@ -54,9 +52,6 @@ add_executable(main src/main.cpp)
 # Minecraft Game library
 add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC})
 target_link_libraries(gameLib GL GLEW glfw m X11 Xi Xrandr dl)
-
-# set_property(TARGET gameLib PROPERTY CXX_STANDARD 20)
-# set_property(TARGET gameLib PROPERTY CXX_STANDARD_REQUIRED On)
 
 # Link gameLib
 link_libraries(${CMAKE_BINARY_DIR}/libgameLib.so)
