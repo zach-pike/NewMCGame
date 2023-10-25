@@ -26,7 +26,7 @@ void NewWorldGen::frameUpdate(Game& game) {
 
     ImGui::SliderFloat("Y Scale", &yScale, 0.f, (newChunkSy - 1) * 16);
 
-    if (ImGui::Button("Generate!")) {
+    if (ImGui::Button("Generate!") && !generatorWorker.isWorkerRunning()) {
         generatorWorker.startWorldGenerator(game.getWorldRef().getBlockDBRef(), WorldGenWorker::WorldGenDetails{
             .xStretch = xStretch,
             .zStretch = zStretch,
@@ -39,6 +39,8 @@ void NewWorldGen::frameUpdate(Game& game) {
             .seed = (uint32_t)rand()
         });
     }
+
+    if (generatorWorker.isWorkerRunning()) ImGui::Text("Generating world...");
 
     if (generatorWorker.isWorldReady()) {
         game.getWorldRef().moveChunks(generatorWorker.getGeneratedWorld());

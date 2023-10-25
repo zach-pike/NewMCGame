@@ -16,8 +16,10 @@ public:
     };
 private:
     std::jthread worker;
-    bool worldIsReady = false;
+    bool workerRunning = false;
+
     World generatedWorld;
+    bool worldIsReady = false;
 
     void _worldGenWorkerFunc(BlockDB* blockDB, WorldGenDetails generatorSettings);
 public:
@@ -28,6 +30,10 @@ public:
 
     inline bool isWorldReady() const {
         return worldIsReady;
+    }
+
+    inline bool isWorkerRunning() const {
+        return workerRunning;
     }
     
     void clearWorldReady();

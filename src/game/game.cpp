@@ -22,7 +22,7 @@ using FP = T(*)(Args...);
 namespace chrono = std::chrono;
 
 Game::Game():
-    player{glm::vec3(1, 1, 1), glm::vec3(1, 0, 0), 70.f}
+    player{glm::vec3(1, 100, 1), glm::vec3(1, 0, 0), 70.f}
 {
     // Load dotenv for shader and textures
     dotenv::init();

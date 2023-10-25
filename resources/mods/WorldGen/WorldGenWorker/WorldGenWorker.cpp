@@ -29,6 +29,8 @@ public:
 */
 
 void WorldGenWorker::_worldGenWorkerFunc(BlockDB* blockDBPtr, WorldGenDetails generatorSettings) {
+    workerRunning = true;
+
     const auto& blockDB = *blockDBPtr;
 
     // Check for base block pack as this mod goes with it
@@ -48,6 +50,7 @@ void WorldGenWorker::_worldGenWorkerFunc(BlockDB* blockDBPtr, WorldGenDetails ge
     }
 
     worldIsReady = true;
+    workerRunning = false;
 }
 
 WorldGenWorker::WorldGenWorker() {}
