@@ -7,7 +7,7 @@
 class WorldGenWorker {
 public:
     struct WorldGenDetails {
-        float xStretch, zStrecth;
+        float xStretch, zStretch;
         float yScale;
 
         int chunksX, chunksY, chunksZ;

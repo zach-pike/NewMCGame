@@ -125,6 +125,8 @@ void Game::gameLoop() {
     float lastDrawTime = 0;
 
     long fc = 0;
+    int maxChunksToDraw = 5;
+    int drawFrequency = 2;
     
     do {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -143,6 +145,9 @@ void Game::gameLoop() {
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
         ImGui::Text("Polygon Count %ld", world.getLastNVerts() / 3);
         ImGui::Text("Last draw time %fms", lastDrawTime);
+        ImGui::SliderInt("Max number of chunks to draw per frame", &maxChunksToDraw, 1, 20);
+        ImGui::SliderInt("Draw frequency", &drawFrequency, 0, 20);
+        ImGui::SliderFloat("Max chunk draw dist", &maxViewDist, 0, 1000.f);
 
         ImGui::End();
 
@@ -151,7 +156,7 @@ void Game::gameLoop() {
         float aspect = (float)windowWidth / (float)windowHeight;
 
         player.updatePlayer(*this);
-        if (fc % 2 == 0) world.update(5); // Draw 5 chunks every 2 frames
+        if (fc % drawFrequency == 0) world.update(maxChunksToDraw);
 
         // Run the mods update function
         modManager.modFrameUpdate(*this);
@@ -160,7 +165,7 @@ void Game::gameLoop() {
         auto viewMatrix = player.getCameraViewMatrix();
         auto viewProjection = player.getViewProjection(aspect);
 
-        world.draw(viewProjection);
+        world.draw(viewProjection, player.getPositionRef(), maxViewDist);
 
         // if (player.showingDebug()) chunkBorderDebugger.draw(viewProjection);
         billboardManager.draw(player.getPositionRef(), viewMatrix, viewProjection);

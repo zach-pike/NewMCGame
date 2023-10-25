@@ -17,9 +17,9 @@ void NewWorldGen::setup(Game& game) {
 
 void NewWorldGen::frameUpdate(Game& game) {
     ImGui::Begin("BaseWorldGen", &windowOpen);
-    ImGui::SliderInt("Chunk size X", &newChunkSx, 1, 20);
-    ImGui::SliderInt("Chunk size Y", &newChunkSy, 1, 20);
-    ImGui::SliderInt("Chunk size Z", &newChunkSz, 1, 20);
+    ImGui::SliderInt("Chunk size X", &newChunkSx, 1, 50);
+    ImGui::SliderInt("Chunk size Y", &newChunkSy, 1, 50);
+    ImGui::SliderInt("Chunk size Z", &newChunkSz, 1, 50);
 
     ImGui::SliderFloat("X stretch", &xStretch, .001, .1);
     ImGui::SliderFloat("Z stretch", &zStretch, .001, .1);
@@ -29,7 +29,7 @@ void NewWorldGen::frameUpdate(Game& game) {
     if (ImGui::Button("Generate!")) {
         generatorWorker.startWorldGenerator(game.getWorldRef().getBlockDBRef(), WorldGenWorker::WorldGenDetails{
             .xStretch = xStretch,
-            .zStrecth = zStretch,
+            .zStretch = zStretch,
             .yScale = yScale,
 
             .chunksX = newChunkSx,

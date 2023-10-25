@@ -29,6 +29,8 @@ private:
     ScreenOverlays screenOverlays;
 
     int windowWidth, windowHeight;
+
+    float maxViewDist = 250.f;
 public:
     Game();
     ~Game();

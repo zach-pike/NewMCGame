@@ -145,7 +145,7 @@ void World::update(std::size_t maxChunksToDraw) {
     }
 }
 
-void World::draw(const glm::mat4& viewProjection) {
+void World::draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist) {
     lastNVerts = 0;
 
     // Render the world 
@@ -162,6 +162,9 @@ void World::draw(const glm::mat4& viewProjection) {
         auto& chunk = kv.second;
         auto bufferInfo = chunk.getBufferInfo();
         auto chunkCoord = chunkPosToVec3(kv.first);
+
+        auto dist = glm::length((chunkCoord*glm::vec3(16.f)) - observerPosition);
+        if (dist > maxViewDist) continue;
 
         // Set the position origin of the chunk we are about to draw
         glUniform3fv(chunkCoordID, 1, &chunkCoord[0]);

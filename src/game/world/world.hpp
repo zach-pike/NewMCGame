@@ -86,7 +86,7 @@ public:
      * Draw the chunk meshes for the world
      * @param viewProjection The camera View projection
     */
-    void draw(const glm::mat4& viewProjection);
+    void draw(const glm::mat4& viewProjection, glm::vec3 observerPosition, float maxViewDist);
 
     /**
      * Returns the total number of vertices drawn at the last render
