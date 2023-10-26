@@ -6,13 +6,19 @@
 
 class WorldGenWorker {
 public:
-    struct WorldGenDetails {
+    struct PerlinNoiseWorldGenDetails {
         float xStretch, zStretch;
         float yScale;
 
         int chunksX, chunksY, chunksZ;
 
         siv::PerlinNoise::seed_type seed;
+    };
+
+    struct SineWorldGenDetails {
+        int chunksX, chunksY, chunksZ;
+
+        float scale, horizStretch;
     };
 private:
     std::jthread worker;
@@ -21,12 +27,14 @@ private:
     World generatedWorld;
     bool worldIsReady = false;
 
-    void _worldGenWorkerFunc(BlockDB* blockDB, WorldGenDetails generatorSettings);
+    void _perlinWorldGenWorker(BlockDB* blockDB, PerlinNoiseWorldGenDetails generatorSettings);
+    void _sineWorldGenWorker(BlockDB* blockDB, SineWorldGenDetails generatorSettings);
 public:
     WorldGenWorker();
     ~WorldGenWorker();
 
-    void startWorldGenerator(BlockDB& blockDB, WorldGenDetails generatorSettings);
+    void generatePerlinNoiseWorld(BlockDB& blockDB, PerlinNoiseWorldGenDetails generatorSettings);
+    void generateSineWaveWorld(BlockDB& blockDB, SineWorldGenDetails generatorSettings);
 
     inline bool isWorldReady() const {
         return worldIsReady;

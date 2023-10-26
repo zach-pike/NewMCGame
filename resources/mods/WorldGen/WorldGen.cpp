@@ -27,7 +27,7 @@ void NewWorldGen::frameUpdate(Game& game) {
     ImGui::SliderFloat("Y Scale", &yScale, 0.f, (newChunkSy - 1) * 16);
 
     if (ImGui::Button("Generate!") && !generatorWorker.isWorkerRunning()) {
-        generatorWorker.startWorldGenerator(game.getWorldRef().getBlockDBRef(), WorldGenWorker::WorldGenDetails{
+        generatorWorker.generatePerlinNoiseWorld(game.getWorldRef().getBlockDBRef(), WorldGenWorker::PerlinNoiseWorldGenDetails{
             .xStretch = xStretch,
             .zStretch = zStretch,
             .yScale = yScale,
@@ -37,6 +37,16 @@ void NewWorldGen::frameUpdate(Game& game) {
             .chunksZ = newChunkSz,
             
             .seed = (uint32_t)rand()
+        });
+    }
+
+    if (ImGui::Button("e!") && !generatorWorker.isWorkerRunning()) {
+        generatorWorker.generateSineWaveWorld(game.getWorldRef().getBlockDBRef(), WorldGenWorker::SineWorldGenDetails{
+            .chunksX = 10,
+            .chunksY = 5,
+            .chunksZ = 10,
+            .scale = 79.f,
+            .horizStretch = 0.1f
         });
     }
 
