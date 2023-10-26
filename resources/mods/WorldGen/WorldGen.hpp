@@ -10,13 +10,13 @@ class NewWorldGen : public IMod {
 private:
     bool windowOpen = true;
 
-    int newChunkSx = 1;
-    int newChunkSy = 1;
-    int newChunkSz = 1;
+    int newChunkSx = 25;
+    int newChunkSy = 6;
+    int newChunkSz = 25;
 
     float xStretch = 0.01;
     float zStretch = 0.01;
-    float yScale = 0;
+    float yScale = 80;
 
     WorldGenWorker generatorWorker;
 public:
