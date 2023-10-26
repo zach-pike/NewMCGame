@@ -9,7 +9,7 @@
 #include "ray/ray.hpp"
 
 const float mouseSens = .005f;
-const float moveSpeed = .25f;
+const float moveSpeed = .05f;
 
 Player::Player(glm::vec3 _position, glm::vec3 _looking, float _fov):
     position(_position),
@@ -18,17 +18,17 @@ Player::Player(glm::vec3 _position, glm::vec3 _looking, float _fov):
 
 Player::~Player() {}
 
-void Player::updatePlayer(Game& game) {
+void Player::updatePlayer(Game& game, float deltaTime) {
     static double pitch = 2.8f;
     static double yaw = 0;
     static double mx, my = 0.f;
 
+    // Half screen width and heigh
+    const int hwidth = game.getWindowWidth() / 2;
+    const int hheight = game.getWindowHeight() / 2;
+
     if (settings.mouseLookFocus) {
         // Get screen width and height
-
-        // Half screen width and heigh
-        const int hwidth = game.getWindowWidth() / 2;
-        const int hheight = game.getWindowHeight() / 2;
 
         // First, do the player look code
 
@@ -55,27 +55,27 @@ void Player::updatePlayer(Game& game) {
     // Now player movement
     // Forward
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_W) == GLFW_PRESS) {
-        position += looking * moveSpeed;
+        position += looking * moveSpeed * deltaTime;
     }
     // Back
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_S) == GLFW_PRESS) {
-        position -= looking * moveSpeed;
+        position -= looking * moveSpeed * deltaTime;
     }
     // Left
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_A) == GLFW_PRESS) {
-        position += glm::vec3(looking.z, 0, -looking.x) * moveSpeed;
+        position += glm::vec3(looking.z, 0, -looking.x) * moveSpeed * deltaTime;
     }
     // Right
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_D) == GLFW_PRESS) {
-        position -= glm::vec3(looking.z, 0, -looking.x) * moveSpeed;
+        position -= glm::vec3(looking.z, 0, -looking.x) * moveSpeed * deltaTime;
     }
     // Up
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_SPACE) == GLFW_PRESS) {
-        position += glm::vec3(0, 1, 0) * moveSpeed;
+        position += glm::vec3(0, 1, 0) * moveSpeed * deltaTime;
     }
     // Down
     if (glfwGetKey(game.getGLFWwindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-        position -= glm::vec3(0, 1, 0) * moveSpeed;
+        position -= glm::vec3(0, 1, 0) * moveSpeed * deltaTime;
     }
 
     // Show wireframe toggle
@@ -129,8 +129,10 @@ void Player::updatePlayer(Game& game) {
 
             if (settings.mouseLookFocus)
                 glfwSetInputMode(game.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            else
+            else {
                 glfwSetInputMode(game.getGLFWwindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                glfwSetCursorPos(game.getGLFWwindow(), hwidth, hheight);
+            }
 
             settings.mouseLookFocus = !settings.mouseLookFocus;
         }

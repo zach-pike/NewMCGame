@@ -41,7 +41,7 @@ public:
      * Updates the player (movement, looking, keybinds, etc..)
      * @param game Reference to the Game object
     */
-    void updatePlayer(Game& game);
+    void updatePlayer(Game& game, float deltaTime);
 
     /**
      * Gets the projection matrix used for the player

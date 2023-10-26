@@ -130,6 +130,9 @@ void Game::gameLoop() {
     int maxChunksToDraw = 5;
     int drawFrequency = 2;
 
+    int targetFramerate = 60.f;
+    chrono::steady_clock::time_point frameEndTime;
+
     // Values for frame draw time graph
     bool frameGraphOpen = false;
     // We really don't change this much
@@ -144,6 +147,11 @@ void Game::gameLoop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         auto startTime = chrono::steady_clock::now();
+        // Calculate delta T
+        float deltaTime = (float)chrono::duration_cast<chrono::microseconds>(startTime - frameEndTime).count() / 1000.f;
+
+        float frameTotalTime = 1000.f / (float)targetFramerate;
+
 
         // Start new Imgui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -170,9 +178,11 @@ void Game::gameLoop() {
         auto pos = player.getPositionRef();
         ImGui::Text("Player Position %f, %f, %f", pos.x, pos.y, pos.z);
         ImGui::Text("Polygon Count %ld", world.getVertexCount() / 3);
+        ImGui::SliderInt("Target FPS", &targetFramerate, 1, 120);
         ImGui::SliderInt("Max number of chunks to draw per frame", &maxChunksToDraw, 1, 20);
         ImGui::SliderInt("Draw frequency", &drawFrequency, 1, 60);
         ImGui::SliderFloat("Max chunk draw dist", &maxViewDist, 0, 1000.f);
+        ImGui::Text("Last draw time %fms", lastDrawTime);
 
         ImGui::End();
 
@@ -180,7 +190,7 @@ void Game::gameLoop() {
 
         float aspect = (float)windowWidth / (float)windowHeight;
 
-        player.updatePlayer(*this);
+        player.updatePlayer(*this, deltaTime);
         if (fc % drawFrequency == 0) world.update(maxChunksToDraw);
 
         // Run the mods update function
@@ -199,19 +209,19 @@ void Game::gameLoop() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        auto endTime = chrono::steady_clock::now();
+        frameEndTime = chrono::steady_clock::now();
+        lastDrawTime = (float)chrono::duration_cast<chrono::microseconds>(frameEndTime - startTime).count() / 1000.f;
 
-        lastDrawTime = (float)chrono::duration_cast<chrono::microseconds>(endTime - startTime).count() / 1000.f;
-
-        // Frame rate locker
-        float sleepTime = 16.f - lastDrawTime;
-        if (sleepTime > 0.f)
-            std::this_thread::sleep_for(chrono::milliseconds((std::int64_t)sleepTime));
 
         // Swap buffers
         glfwSwapBuffers(gameWindow);
         glfwPollEvents();
 
+        // Frame rate locker
+        float sleepTime = frameTotalTime - lastDrawTime;
+        if (sleepTime > 0.f)
+            std::this_thread::sleep_for(chrono::milliseconds((std::int64_t)sleepTime));
+        
         fc ++;
     } while (glfwGetKey(gameWindow, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(gameWindow) == 0);
 
