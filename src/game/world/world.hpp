@@ -16,18 +16,21 @@ public:
         int chunkSizeX, chunkSizeY, chunkSizeZ;
     };
 private:
+    Chunk& getChunkFromWorldCoords(glm::vec3 pos);
+
+    // Stores blocks loaded from the blockPacks folder (set in .env)
+    BlockDB blockDB;
+
+    // Actual world container
     std::map<ChunkPos, Chunk> chunks;
     int sizeX;
     int sizeY;
     int sizeZ;
 
-    Chunk& getChunkFromWorldCoords(glm::vec3 pos);
-    
+    // OpenGL stuff
     bool gfxReady = false;
     GLuint worldShader;
     GLuint viewProjectionID, chunkCoordID, textureAtlasID;
-
-    BlockDB blockDB;
 
     std::size_t totalVertexCount = 0;
 public:

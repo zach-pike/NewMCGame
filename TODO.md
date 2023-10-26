@@ -1,11 +1,6 @@
 # NEW TODO
- - FIX THOES UGLY LINES GAWDDAM (Array Texture) (DONEEEEEEE!!!!!!!!!!!!!!)
-  - still need to make the code better tho it kinda sucks
-
- - Add GRAVITY and collsion
-
+ - Add GRAVITY and collision
  - Add overlay controller for crosshair
-
  - Make chunk meshes get deleted if they are too far away from the player (to save on vram)
   
  - Remake the billboard system to allow for more than just text (aka texture)

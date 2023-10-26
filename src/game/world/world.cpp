@@ -130,11 +130,11 @@ std::map<World::ChunkPos, Chunk>& World::getChunksRef() {
 void World::update(std::size_t maxChunksToDraw) {
     std::size_t genChunks = 0;
     for (auto& a : chunks) {
+        auto chunkPos = a.first;
         auto& chunk = a.second;
-        
+
         if (chunk.pendingMeshUpdate() != true || genChunks >= maxChunksToDraw) continue;
 
-        auto chunkPos = a.first;
         auto chunkCoord = glm::vec3(std::get<0>(chunkPos), std::get<1>(chunkPos), std::get<2>(chunkPos));
 
         chunk.buildMesh(*this, chunkCoord);
@@ -160,7 +160,7 @@ void World::drawMeshes(const glm::mat4& viewProjection, glm::vec3 observerPositi
         auto& chunkMesh = chunk.getMeshRef();
         auto chunkCoord = chunkPosToVec3(kv.first);
 
-        auto dist = glm::length((chunkCoord*glm::vec3(16.f)) - observerPosition);
+        auto dist = glm::length((chunkCoord*glm::vec3(16.f))+glm::vec3(8,8,8) - observerPosition);
         if (dist > maxViewDist) continue;
 
         // Set the position origin of the chunk we are about to draw
