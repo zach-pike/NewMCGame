@@ -31,10 +31,7 @@ void ChunkMesh::operator=(ChunkMesh&& ochunk) {
 }
 
 ChunkMesh::~ChunkMesh() {
-    if (buffersCreated) {
-        glDeleteBuffers(1, &vertexBuffer);
-        glDeleteBuffers(1, &layerBuffer);
-    }
+    if (buffersCreated) deleteBuffers();
 }
 
 void ChunkMesh::createBuffers() {
@@ -44,6 +41,15 @@ void ChunkMesh::createBuffers() {
     glGenBuffers(1, &layerBuffer);
 
     buffersCreated = true;
+}
+
+void ChunkMesh::deleteBuffers() {
+    if (!buffersCreated) throw std::runtime_error("Buffers don't exist!");
+
+    glDeleteBuffers(1, &vertexBuffer);
+    glDeleteBuffers(1, &layerBuffer);
+
+    buffersCreated = false;
 }
 
 void ChunkMesh::bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation) {

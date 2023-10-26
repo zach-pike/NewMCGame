@@ -19,6 +19,7 @@ public:
     ~ChunkMesh();
 
     void createBuffers();
+    void deleteBuffers();
     void bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation);
 
     inline std::size_t getVertexCount() const { return vertexCount; }
