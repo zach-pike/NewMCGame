@@ -6,17 +6,25 @@
 
 #include <memory>
 
+static const char* opts[] = { "Perlin(Normal)", "Cos" };
+
 class NewWorldGen : public IMod {
 private:
     bool windowOpen = true;
 
+    int currentSelectedGenerator = 0;
+
     int newChunkSx = 25;
     int newChunkSy = 6;
     int newChunkSz = 25;
+    float yScale = 80;
 
+    // Settings for Perlin Noise Generator
     float xStretch = 0.01;
     float zStretch = 0.01;
-    float yScale = 80;
+
+    // Settings for Cos world generator
+    float horizStretch = .1f;
 
     WorldGenWorker generatorWorker;
 public:
