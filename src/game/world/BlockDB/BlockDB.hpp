@@ -15,8 +15,11 @@ public:
 
     struct BlockInfo {
         FaceLayers faces;
+        std::uint64_t packHash;
         int blockId;
-    };    
+    };
+
+    using BlockIdent = std::pair<std::uint64_t, unsigned int>;
 private:
     GLuint textureArrayId;
     bool texturesLoaded = false;
@@ -25,7 +28,7 @@ private:
     Logger logger{ "BlockDB", Logger::FGColors::BLUE };
 
     std::map<std::string, BlockInfo> blocks;
-    std::vector<BlockInfo> blockById;
+    std::map<std::uint64_t, std::vector<BlockInfo>> blocksByHash;
 public:
     BlockDB();
     ~BlockDB();
@@ -46,16 +49,16 @@ public:
     GLuint getTextureId();
 
     /**
-     * Returns the block id for a block by name
+     * Returns the block ident for a block by name
      * @param name Name of the block
     */
-    int getIdByName(std::string name) const;
+    BlockIdent getIdentByName(std::string name) const;
 
     /**
      * Get the BlockInfo struct for a block of a certain id
-     * @param idx Block ID to look up
+     * @param ident Block Ident to look up
     */
-    const BlockInfo& getBlockInfoByID(int idx) const;
+    const BlockInfo& lookupBlock(BlockIdent ident) const;
 
     /**
      * Get a const reference to the std::map of blocks

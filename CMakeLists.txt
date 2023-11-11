@@ -53,7 +53,7 @@ add_executable(main src/main.cpp)
 
 # Minecraft Game library
 add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC} ${IMPLOT_SRC})
-target_link_libraries(gameLib GL GLEW glfw m X11 Xi Xrandr dl)
+target_link_libraries(gameLib GL GLEW glfw m dl ssl crypto)
 
 # Link gameLib
 link_libraries(${CMAKE_BINARY_DIR}/libgameLib.so)

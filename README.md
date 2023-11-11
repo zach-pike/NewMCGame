@@ -1,7 +1,7 @@
 # My Minecraft clone
-Project dependencies `GLFW GLEW GLM`
+Project dependencies `libGL libGLEW libglfw libssl libcrypto`
 
 # Features
- - Mod System (kinda)
+ - Mod System (almost)
  - Entities (WIP)
  - Custom blocks from mods

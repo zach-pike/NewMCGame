@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tuple>
+#include <utility>
 #include <glm/glm.hpp>
 
 class Block {
@@ -13,17 +13,15 @@ public:
         TOP,   // +Y
         BOTTOM // -Y
     };
-    
-    using BlockType = unsigned int;
-
 private:
-    BlockType blockType;
+    uint64_t packHash;
+    unsigned int blockId;
 public:
-    Block(BlockType bt = 0);
+    Block(unsigned int bt = 0, std::uint64_t packHash = 0);
+    Block(std::pair<std::uint64_t, unsigned int> ident);
+
     ~Block();
 
-    /**
-     * Get the block type
-    */
-    BlockType getBlockType() const;
+    unsigned int getBlockId() const;
+    std::pair<std::uint64_t, unsigned int> getIdent() const;
 };

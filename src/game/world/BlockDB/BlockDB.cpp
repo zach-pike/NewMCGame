@@ -12,6 +12,8 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+#include <openssl/sha.h>
+
 BlockDB::BlockDB() {}
 BlockDB::~BlockDB() {
     if (gfxReady) {
@@ -32,7 +34,6 @@ void BlockDB::gfxInit() {
 
 void BlockDB::loadBlocks() {
     blocks.clear();
-    blockById.clear();
 
     // Get the path to all the block definitions
     auto blockPackFolder = fs::absolute(getEnvironmentVar("BLOCKPACKS_FOLDER"));
@@ -118,6 +119,12 @@ void BlockDB::loadBlocks() {
         auto& blocksTomlTable = *tomlData["blocks"].as_table();
         std::size_t nBlocks = 0;
 
+        uint8_t digest[SHA_DIGEST_LENGTH];
+        SHA1((unsigned char*)blockPackName.c_str(), blockPackName.size(), digest);
+        std::uint64_t blockPackHash = *(std::uint64_t*)digest; // Grab the first 64 bits
+
+        // Final list of all blocks in a pack
+        std::vector<BlockInfo> blocksInPack;
         for (auto& item : blocksTomlTable) {
             std::string blockName = std::string(item.first.str());
             auto& faceTable = *(*item.second.as_table())["faces"].as_table();
@@ -130,11 +137,14 @@ void BlockDB::loadBlocks() {
             faces.east = faceTable["east"].as_integer()->get() + nTextures;
             faces.west = faceTable["west"].as_integer()->get() + nTextures;
         
-            int newBlockId = blocks.size() + 1;
+            int newBlockId = blocksInPack.size() + 1;
 
-            blocks[blockName] = BlockInfo{ .faces = faces, .blockId = newBlockId };
-            blockById.push_back(BlockInfo{ .faces = faces, .blockId = newBlockId });
+            blocks[blockName] = BlockInfo{ .faces = faces, .packHash=blockPackHash, .blockId = newBlockId };
+            blocksInPack.push_back(BlockInfo{ .faces = faces, .packHash=blockPackHash, .blockId = newBlockId });
         }
+
+        // Add the block pack to the map
+        blocksByHash.insert({ blockPackHash, blocksInPack });
 
         // Add number of textures from this pack to the total
         nTextures += textures.size();
@@ -146,11 +156,7 @@ void BlockDB::loadBlocks() {
         // WE ARE DONE!!!!!
         logger.info("Loaded BlockPack \"" + blockPackName + "\"!");
     }
-
-    for (const auto& p : blocks) {
-        blockById.push_back(p.second);
-    }
-
+    
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 
     // Allocate the storage && Upload pixel data.
@@ -162,12 +168,13 @@ GLuint BlockDB::getTextureId() {
     return textureArrayId;
 }
 
-const BlockDB::BlockInfo& BlockDB::getBlockInfoByID(int idx) const {
-    return blockById.at(idx - 1);
+const BlockDB::BlockInfo& BlockDB::lookupBlock(BlockIdent ident) const {
+    return blocksByHash.at(ident.first).at(ident.second - 1);
 }
 
-int BlockDB::getIdByName(std::string name) const {
-    return blocks.at(name).blockId;
+BlockDB::BlockIdent BlockDB::getIdentByName(std::string name) const {
+    auto& a = blocks.at(name);
+    return BlockIdent{ a.packHash, a.blockId };
 }
 
 const std::map<std::string, BlockDB::BlockInfo>& BlockDB::getBlockMap() const {

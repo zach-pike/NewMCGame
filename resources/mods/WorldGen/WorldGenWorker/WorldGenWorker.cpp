@@ -9,8 +9,8 @@ void WorldGenWorker::_perlinWorldGenWorker(BlockDB* blockDBPtr, PerlinNoiseWorld
 
     // Check for base block pack as this mod goes with it
 
-    int dirtBlockID = blockDB.getIdByName("dirt");
-    int grassBlockID = blockDB.getIdByName("grass");
+    auto dirtBlockID = blockDB.getIdentByName("dirt");
+    auto grassBlockID = blockDB.getIdentByName("grass");
 
 	const siv::PerlinNoise perlin{ generatorSettings.seed };
 
@@ -34,8 +34,9 @@ void WorldGenWorker::_sineWorldGenWorker(BlockDB* blockDBPtr, SineWorldGenDetail
 
     // Check for base block pack as this mod goes with it
 
-    int dirtBlockID = blockDB.getIdByName("dirt");
-    int grassBlockID = blockDB.getIdByName("grass");
+    auto dirtBlockID = blockDB.getIdentByName("dirt");
+    auto grassBlockID = blockDB.getIdentByName("grass");
+    
     for (int z=0; z<generatorSettings.chunksZ*16; z++) {
         for (int x=0; x<generatorSettings.chunksX*16; x++) {
             const double yMax = .25f * generatorSettings.scale * (std::cos(x * generatorSettings.horizStretch) + std::cos(z * generatorSettings.horizStretch) + 2.f);
