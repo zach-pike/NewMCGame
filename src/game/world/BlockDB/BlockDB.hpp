@@ -7,6 +7,9 @@
 
 #include "glHelpers/utils/logger/logger.hpp"
 
+#define QuickNumMapImpl
+#include "utils/QuickNumMap/QuickNumMap.hpp"
+
 class BlockDB {
 public:
     struct FaceLayers {
@@ -28,7 +31,7 @@ private:
     Logger logger{ "BlockDB", Logger::FGColors::BLUE };
 
     std::map<std::string, BlockInfo> blocks;
-    std::map<std::uint64_t, std::vector<BlockInfo>> blocksByHash;
+    QuickNumMap<std::uint64_t, std::vector<BlockInfo>> blocksByHash;
 public:
     BlockDB();
     ~BlockDB();
@@ -58,10 +61,12 @@ public:
      * Get the BlockInfo struct for a block of a certain id
      * @param ident Block Ident to look up
     */
-    const BlockInfo& lookupBlock(BlockIdent ident) const;
+    const BlockInfo& lookupBlock(BlockIdent ident);
 
     /**
      * Get a const reference to the std::map of blocks
     */
     const std::map<std::string, BlockInfo>& getBlockMap() const;
 };
+
+#undef QuickNumMapImpl

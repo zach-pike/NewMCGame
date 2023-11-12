@@ -144,7 +144,7 @@ void BlockDB::loadBlocks() {
         }
 
         // Add the block pack to the map
-        blocksByHash.insert({ blockPackHash, blocksInPack });
+        blocksByHash.addItem(blockPackHash, std::move(blocksInPack));
 
         // Add number of textures from this pack to the total
         nTextures += textures.size();
@@ -156,6 +156,9 @@ void BlockDB::loadBlocks() {
         // WE ARE DONE!!!!!
         logger.info("Loaded BlockPack \"" + blockPackName + "\"!");
     }
+
+    // Make sure the hash list is sorted
+    blocksByHash.sortList();
     
     glBindTexture(GL_TEXTURE_2D_ARRAY, textureArrayId);
 
@@ -168,8 +171,8 @@ GLuint BlockDB::getTextureId() {
     return textureArrayId;
 }
 
-const BlockDB::BlockInfo& BlockDB::lookupBlock(BlockIdent ident) const {
-    return blocksByHash.at(ident.first).at(ident.second - 1);
+const BlockDB::BlockInfo& BlockDB::lookupBlock(BlockIdent ident) {
+    return blocksByHash.quickSearch(ident.first).at(ident.second - 1);
 }
 
 BlockDB::BlockIdent BlockDB::getIdentByName(std::string name) const {
