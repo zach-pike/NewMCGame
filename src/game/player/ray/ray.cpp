@@ -28,74 +28,20 @@ bool Ray::tryBreakBlock(World& world, float maxDist) {
 }
 
 bool Ray::tryPlaceBlock(World& world, Block block, float maxDist) {
-    glm::vec3 cPos = startPosition;
-    glm::vec3 moveVec = direction * moveScalar;
     double distTraveled = 0;
 
     using namespace glm;
 
     while(distTraveled < maxDist) {
-        cPos += moveVec;
-        distTraveled += moveScalar;
-        if (!world.coordinatesInWorld(cPos)) continue;
+        auto beforePos = startPosition + direction * glm::vec3(distTraveled - moveScalar);
+        auto pos = startPosition + direction * glm::vec3(distTraveled);
+        if (!world.coordinatesInWorld(pos)) continue;
 
-        // Check directions
-        // x direction
-        auto xPosCheck = cPos + vec3(moveVec.x, 0.f, 0.f);
-        auto yPosCheck = cPos + vec3(0.f, moveVec.y, 0.f);
-        auto zPosCheck = cPos + vec3(0.f, 0.f, moveVec.z);
-
-        if (world.getBlock(xPosCheck).getBlockId() != 0) {
-            // If moveVec.x is negative then the block face is the Positive X face
-            // and that holds up for the opposite as well
-            if (moveVec.x > 0.f) {
-                // x - 1 block position
-                auto a = xPosCheck - vec3(1, 0, 0);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            } else {
-                // x + 1 block position
-                auto a = xPosCheck + vec3(1, 0, 0);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            }
-
-            return true;
-        } else if (world.getBlock(yPosCheck).getBlockId() != 0) {
-            // If moveVec.y is negative then the block face is the Positive Y face
-            // and that holds up for the opposite as well
-            if (moveVec.y > 0.f) {
-                // y - 1 block position
-                auto a = yPosCheck - vec3(0, 1, 0);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            } else {
-                // y + 1 block position
-                auto a = yPosCheck + vec3(0, 1, 0);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            }
-
-            return true;
-        } else if (world.getBlock(zPosCheck).getBlockId() != 0) {
-            // If moveVec.z is negative then the block face is the Positive Z face
-            // and that holds up for the opposite as well
-            if (moveVec.z > 0.f) {
-                // z - 1 block position
-                auto a = zPosCheck - vec3(0, 0, 1);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            } else {
-                // z + 1 block position
-                auto a = zPosCheck + vec3(0, 0, 1);
-                if (world.coordinatesInWorld(a)) world.setBlock(a, block);
-                else return false;
-            }
-
+        if (world.getBlock(pos).getBlockId() != 0) {
+            world.setBlock(beforePos, block);
             return true;
         }
 
-        cPos += moveVec;
         distTraveled += moveScalar;
     }
 
