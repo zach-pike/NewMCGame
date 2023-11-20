@@ -44,7 +44,9 @@ void QuickNumMap<T, K>::addItem(T key, K&& val) {
 
 template<typename T, typename K>
 void QuickNumMap<T, K>::sortList() {
-    std::sort(pairs.begin(), pairs.end());
+    std::sort(pairs.begin(), pairs.end(), [](const auto& first, const auto& second) {
+        return first.first < second.first;
+    });
     listSorted = true;
 }
 
