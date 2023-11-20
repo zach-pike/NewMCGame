@@ -67,6 +67,8 @@ public:
      * Get a const reference to the std::map of blocks
     */
     const std::map<std::string, BlockInfo>& getBlockMap() const;
+
+    QuickNumMap<std::uint64_t, std::vector<BlockInfo>>& getQuickNumMapRef();
 };
 
 #undef QuickNumMapImpl

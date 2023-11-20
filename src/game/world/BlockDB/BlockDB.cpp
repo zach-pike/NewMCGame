@@ -183,3 +183,7 @@ BlockDB::BlockIdent BlockDB::getIdentByName(std::string name) const {
 const std::map<std::string, BlockDB::BlockInfo>& BlockDB::getBlockMap() const {
     return blocks;
 }
+
+QuickNumMap<std::uint64_t, std::vector<BlockDB::BlockInfo>>& BlockDB::getQuickNumMapRef() {
+    return blocksByHash;
+}

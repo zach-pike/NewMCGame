@@ -21,6 +21,9 @@ public:
     void sortList();
 
     K& quickSearch(T key);
+
+    std::vector<std::pair<T, K>>::iterator begin();
+    std::vector<std::pair<T, K>>::iterator end();
 };
 
 #ifdef QuickNumMapImpl
@@ -75,6 +78,16 @@ K& QuickNumMap<T, K>::quickSearch(T key) {
  
     // If we reach here, then element was not present
     throw std::runtime_error("No block found");
+}
+
+template<typename T, typename K>
+std::vector<std::pair<T, K>>::iterator QuickNumMap<T, K>::begin() {
+    return pairs.begin();
+}
+
+template<typename T, typename K>
+std::vector<std::pair<T, K>>::iterator QuickNumMap<T, K>::end() {
+    return pairs.end();
 }
 
 #endif
