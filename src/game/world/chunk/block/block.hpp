@@ -6,12 +6,12 @@
 class Block {
 public:
     enum class BlockFace {
-        NORTH, // +X
-        SOUTH, // -X
-        EAST,  // +Z
-        WEST,  // -Z
-        TOP,   // +Y
-        BOTTOM // -Y
+        NORTH = 0, // +X
+        SOUTH = 1, // -X
+        EAST = 2,  // +Z
+        WEST = 3,  // -Z
+        TOP = 4,   // +Y
+        BOTTOM = 5 // -Y
     };
 private:
     uint64_t packHash;

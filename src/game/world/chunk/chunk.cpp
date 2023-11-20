@@ -44,6 +44,7 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
 
     std::vector<glm::vec3> vertices;
     std::vector<GLint> layers;
+    std::vector<GLint> faceIds;
 
     // Chunk generation code
     for (int y=0; y<16; y++) {
@@ -74,7 +75,10 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
                         case Block::BlockFace::BOTTOM: layerId = data.faces.bottom; break;
                     }
 
-                    for (int i=0; i<6; i++) layers.push_back(layerId);
+                    for (int i=0; i<6; i++) {
+                        layers.push_back(layerId);
+                        faceIds.push_back((int)face);
+                    }
                 };
                 
                 // +X Face Check
@@ -152,7 +156,7 @@ void Chunk::buildMesh(World& world, glm::vec3 chunkCoords) {
         }
     }
     
-    mesh.bufferChunkData(vertices, layers);
+    mesh.bufferChunkData(vertices, layers, faceIds);
 }
 
 std::vector<std::uint8_t> Chunk::serialize() const {

@@ -10,7 +10,7 @@
 class ChunkMesh : public NonCopyable {
 private:
     std::size_t vertexCount = 0;
-    GLuint vertexBuffer, layerBuffer;
+    GLuint vertexBuffer, layerBuffer, faceIdBuffer;
     bool buffersCreated = false;
 public:
     ChunkMesh();
@@ -20,10 +20,12 @@ public:
 
     void createBuffers();
     void deleteBuffers();
-    void bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation);
+    void bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation, std::span<GLint> faceIdInformation);
 
     inline std::size_t getVertexCount() const { return vertexCount; }
     inline bool buffersReady() const { return buffersCreated; }
     inline GLuint getVertexBuffer() const { return vertexBuffer; }
     inline GLuint getLayerBuffer() const { return layerBuffer; }
+
+    inline GLuint getFaceIdBuffer() const { return faceIdBuffer; }
 };

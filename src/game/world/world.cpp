@@ -187,6 +187,16 @@ void World::drawMeshes(const glm::mat4& viewProjection, glm::vec3 observerPositi
             (void*)0            // array buffer offset
         );
 
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, chunkMesh.getFaceIdBuffer());
+        glVertexAttribIPointer(
+            2,                  // attribute 2.
+            1,                  // size
+            GL_INT,             // type
+            0,                  // stride
+            (void*)0            // array buffer offset
+        );
+
         std::size_t n = chunkMesh.getVertexCount();
         glDrawArrays(GL_TRIANGLES, 0, n);
 
@@ -194,6 +204,7 @@ void World::drawMeshes(const glm::mat4& viewProjection, glm::vec3 observerPositi
 
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
     }
 }
 

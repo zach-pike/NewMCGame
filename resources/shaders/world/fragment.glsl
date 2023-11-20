@@ -3,6 +3,7 @@
 // Interpolated values from the vertex shaders
 in vec2 UV;
 in float textureLayer;
+in float shading;
 
 // Ouput data
 out vec4 color;
@@ -11,5 +12,5 @@ out vec4 color;
 uniform sampler2DArray textureAtlas;
 
 void main() {
-	color = texture(textureAtlas, vec3(UV, textureLayer));
+	color = texture(textureAtlas, vec3(UV, textureLayer)) * shading;
 }

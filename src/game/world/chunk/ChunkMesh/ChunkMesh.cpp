@@ -40,6 +40,8 @@ void ChunkMesh::createBuffers() {
     glGenBuffers(1, &vertexBuffer);
     glGenBuffers(1, &layerBuffer);
 
+    glGenBuffers(1, &faceIdBuffer);
+
     buffersCreated = true;
 }
 
@@ -48,11 +50,13 @@ void ChunkMesh::deleteBuffers() {
 
     glDeleteBuffers(1, &vertexBuffer);
     glDeleteBuffers(1, &layerBuffer);
+    
+    glDeleteBuffers(1, &faceIdBuffer);
 
     buffersCreated = false;
 }
 
-void ChunkMesh::bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation) {
+void ChunkMesh::bufferChunkData(std::span<glm::vec3> vertexInformation, std::span<GLint> layerInformation, std::span<GLint> faceIdInformation) {
     if (!buffersCreated) createBuffers();
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -60,6 +64,9 @@ void ChunkMesh::bufferChunkData(std::span<glm::vec3> vertexInformation, std::spa
 
     glBindBuffer(GL_ARRAY_BUFFER, layerBuffer);
 	glBufferData(GL_ARRAY_BUFFER, layerInformation.size() * sizeof(GLint), layerInformation.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, faceIdBuffer);
+	glBufferData(GL_ARRAY_BUFFER, faceIdInformation.size() * sizeof(GLint), faceIdInformation.data(), GL_STATIC_DRAW);
 
     vertexCount = vertexInformation.size();
 }
