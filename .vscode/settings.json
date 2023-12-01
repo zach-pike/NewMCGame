@@ -91,5 +91,6 @@
     },
     "cmake.debugConfig": {
         "cwd": "${workspaceFolder}"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

@@ -5,46 +5,13 @@ project(MCGame)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Source file for the game && helper functions
-file(GLOB_RECURSE GAME_SRC src/game/*.cpp)
-file(GLOB_RECURSE HELPER_SRC src/glHelpers/*.cpp)
-
-file(GLOB XBOXJOY_SRC resources/mods/XBoxJoystick/*.cpp)
-file(GLOB WORLDINFOSIGN_SRC resources/mods/WorldInfoSign/*.cpp)
-file(GLOB_RECURSE WORLDGEN_SRC resources/mods/WorldGen/*.cpp)
-file(GLOB_RECURSE BLOCKPACKVIEWER_SRC resources/mods/BlockPackViewer/*.cpp)
-
 include_directories(src/game)
 
-# Plugins
-add_library(XBoxJoystickLib SHARED ${XBOXJOY_SRC})
-add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
-add_library(WorldGen SHARED ${WORLDGEN_SRC})
-add_library(BlockPackViewer SHARED ${BLOCKPACKVIEWER_SRC})
+# Source file for the game server && client
+file(GLOB_RECURSE CLIENT_SRC src/game/GameClient/*.cpp)
+file(GLOB_RECURSE SERVER_SRC src/game/GameServer/*.cpp)
 
-# Set the output location of the plugins
-set_target_properties(XBoxJoystickLib
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
-)
-set_target_properties(WorldInfoSignLib
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
-)
-set_target_properties(WorldGen
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
-)
-set_target_properties(BlockPackViewer
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "../resources/cmods"
-)
-
-# Stuff for external dependencies
-# Dear, ImGui
-include_directories(src/)
-
-# Hate this hack but it works
+# ----- External stuff -----
 include_directories(external/)
 include_directories(external/imgui)
 
@@ -54,21 +21,47 @@ set(IMGUI_IMPL_SRC external/imgui/backends/imgui_impl_glfw.cpp external/imgui/ba
 
 file(GLOB IMPLOT_SRC external/implot/*.cpp)
 
-# Main executable
-add_executable(main src/main.cpp)
+# --------------------------
 
-# Minecraft Game library
-add_library(gameLib SHARED ${GAME_SRC} ${HELPER_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC} ${IMPLOT_SRC})
-target_link_libraries(gameLib GL GLEW glfw m dl ssl crypto)
+# General Utilities libraries
+file(GLOB_RECURSE UTILS_SRC src/game/utils/*.cpp)
 
-# Link gameLib
-link_libraries(${CMAKE_BINARY_DIR}/libgameLib.so)
+# Files with main functions for individual programs
+set(CLIENT_MAIN_FILE src/GameClientMain.cpp)
+set(SERVER_MAIN_FILE src/GameServerMain.cpp)
 
-# Link the main executable to the gameLib
-target_link_libraries(main gameLib)
+# Create the game client library and link gl glew glfw ect
+add_library(gameClient SHARED ${CLIENT_SRC} ${IMGUI_SRC} ${IMGUI_IMPL_SRC} ${IMPLOT_SRC})
+target_link_libraries(gameClient GL GLEW glfw m) 
 
-# Link the game library to the plugins
-target_link_libraries(XBoxJoystickLib gameLib)
-target_link_libraries(WorldInfoSignLib gameLib)
-target_link_libraries(WorldGen gameLib)
-target_link_libraries(BlockPackViewer)
+# Create the game server library
+add_library(gameServer SHARED ${SERVER_SRC})
+target_link_libraries(gameServer dl ssl crypto)
+
+# Create the executables
+
+# Client
+add_executable(gameClientPrgm ${CLIENT_MAIN_FILE} ${UTILS_SRC})
+target_link_libraries(gameClientPrgm gameClient)
+
+# Server
+add_executable(gameServerPrgm ${SERVER_MAIN_FILE} ${UTILS_SRC})
+target_link_libraries(gameServerPrgm gameServer)
+
+# ----- MODS -------
+
+# Get mod files
+# file(GLOB WORLDINFOSIGN_SRC resources/mods/WorldInfoSign/*.cpp)
+# file(GLOB_RECURSE WORLDGEN_SRC resources/mods/WorldGen/*.cpp)
+
+# # Create the targets
+# add_library(WorldInfoSignLib SHARED ${WORLDINFOSIGN_SRC})
+# add_library(WorldGen SHARED ${WORLDGEN_SRC})
+
+# # Set library output directory
+# set_target_properties(WorldInfoSignLib PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../resources/cmods")
+# set_target_properties(WorldGen PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../resources/cmods")
+
+# # Link mods with server so they have access to all the functions
+# target_link_libraries(WorldInfoSignLib gameServer)
+# target_link_libraries(WorldGen gameServer)

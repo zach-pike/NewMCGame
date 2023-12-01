@@ -1,8 +1,7 @@
 #pragma once
 
-#include "ModManager/include/IMod.hpp"
+#include "GameServer/ModManager/include/IMod.hpp"
 #include "billboardManager/billboard/billboard.hpp"
-#include "game.hpp"
 
 #include <memory>
 
